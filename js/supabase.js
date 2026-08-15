@@ -570,7 +570,7 @@ export async function getOrders() {
             if (error) {
                 console.error("Supabase getOrders error:", error);
             }
-            if (!error && data) {
+            if (!error && data && data.length > 0) {
                 return data;
             }
         } catch (e) {
@@ -579,6 +579,10 @@ export async function getOrders() {
     }
     let orders = [];
     try { orders = JSON.parse(localStorage.getItem('vw_mock_orders') || '[]'); } catch(e) {}
+    if (!orders || orders.length === 0) {
+        orders = [...INITIAL_MOCK_ORDERS];
+        localStorage.setItem('vw_mock_orders', JSON.stringify(orders));
+    }
     return orders;
 }
 
