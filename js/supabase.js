@@ -375,7 +375,19 @@ export async function updateProduct(id, productData) {
     if (supabaseClient) {
         try {
             const { data, error } = await supabaseClient.from('products').update(productData).eq('id', id).select();
-            if (!error && data && data[0]) return data[0];
+            if (error) {
+                console.error("Supabase product update error:", error);
+            }
+            if (!error && data && data[0]) {
+                let prods = [];
+                try { prods = JSON.parse(localStorage.getItem('vw_mock_products') || '[]'); } catch(e) {}
+                const idx = prods.findIndex(p => p.id === id);
+                if (idx !== -1) {
+                    prods[idx] = { ...prods[idx], ...productData, updated_at: new Date().toISOString() };
+                    localStorage.setItem('vw_mock_products', JSON.stringify(prods));
+                }
+                return data[0];
+            }
         } catch (e) {
             console.warn("Supabase update product failed, fallback to local store:", e);
         }

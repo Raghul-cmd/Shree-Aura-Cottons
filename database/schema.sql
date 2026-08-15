@@ -148,22 +148,37 @@ END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
 -- CATEGORIES POLICIES
+DROP POLICY IF EXISTS "Categories read for all" ON public.categories;
+DROP POLICY IF EXISTS "Categories insert for admin" ON public.categories;
+DROP POLICY IF EXISTS "Categories update for admin" ON public.categories;
+DROP POLICY IF EXISTS "Categories delete for admin" ON public.categories;
+
 CREATE POLICY "Categories read for all" ON public.categories FOR SELECT USING (true);
-CREATE POLICY "Categories insert for admin" ON public.categories FOR INSERT WITH CHECK (public.is_admin());
-CREATE POLICY "Categories update for admin" ON public.categories FOR UPDATE USING (public.is_admin());
-CREATE POLICY "Categories delete for admin" ON public.categories FOR DELETE USING (public.is_admin());
+CREATE POLICY "Categories insert for all" ON public.categories FOR INSERT WITH CHECK (true);
+CREATE POLICY "Categories update for all" ON public.categories FOR UPDATE USING (true);
+CREATE POLICY "Categories delete for all" ON public.categories FOR DELETE USING (true);
 
 -- PRODUCTS POLICIES
-CREATE POLICY "Active products read for all" ON public.products FOR SELECT USING (is_active = true OR public.is_admin());
-CREATE POLICY "Products insert for admin" ON public.products FOR INSERT WITH CHECK (public.is_admin());
-CREATE POLICY "Products update for admin" ON public.products FOR UPDATE USING (public.is_admin());
-CREATE POLICY "Products delete for admin" ON public.products FOR DELETE USING (public.is_admin());
+DROP POLICY IF EXISTS "Active products read for all" ON public.products;
+DROP POLICY IF EXISTS "Products insert for admin" ON public.products;
+DROP POLICY IF EXISTS "Products update for admin" ON public.products;
+DROP POLICY IF EXISTS "Products delete for admin" ON public.products;
+
+CREATE POLICY "Products read for all" ON public.products FOR SELECT USING (true);
+CREATE POLICY "Products insert for all" ON public.products FOR INSERT WITH CHECK (true);
+CREATE POLICY "Products update for all" ON public.products FOR UPDATE USING (true);
+CREATE POLICY "Products delete for all" ON public.products FOR DELETE USING (true);
 
 -- PRODUCT IMAGES POLICIES
+DROP POLICY IF EXISTS "Product images read for all" ON public.product_images;
+DROP POLICY IF EXISTS "Product images insert for admin" ON public.product_images;
+DROP POLICY IF EXISTS "Product images update for admin" ON public.product_images;
+DROP POLICY IF EXISTS "Product images delete for admin" ON public.product_images;
+
 CREATE POLICY "Product images read for all" ON public.product_images FOR SELECT USING (true);
-CREATE POLICY "Product images insert for admin" ON public.product_images FOR INSERT WITH CHECK (public.is_admin());
-CREATE POLICY "Product images update for admin" ON public.product_images FOR UPDATE USING (public.is_admin());
-CREATE POLICY "Product images delete for admin" ON public.product_images FOR DELETE USING (public.is_admin());
+CREATE POLICY "Product images insert for all" ON public.product_images FOR INSERT WITH CHECK (true);
+CREATE POLICY "Product images update for all" ON public.product_images FOR UPDATE USING (true);
+CREATE POLICY "Product images delete for all" ON public.product_images FOR DELETE USING (true);
 
 -- PROFILES POLICIES
 CREATE POLICY "Profiles viewable by user and admin" ON public.profiles FOR SELECT USING (auth.uid() = id OR public.is_admin());
