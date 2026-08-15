@@ -346,13 +346,19 @@ export async function getCategories() {
 
 export async function saveProduct(productData) {
     if (supabaseClient) {
-        const { data, error } = await supabaseClient.from('products').insert([productData]).select();
-        if (error) throw error;
-        return data[0];
+        try {
+            const { data, error } = await supabaseClient.from('products').insert([productData]).select();
+            if (!error && data && data[0]) return data[0];
+        } catch (e) {
+            console.warn("Supabase save product failed, fallback to local store:", e);
+        }
     }
     
     // Mock save
-    const prods = JSON.parse(localStorage.getItem('vw_mock_products') || '[]');
+    let prods = [];
+    try { prods = JSON.parse(localStorage.getItem('vw_mock_products') || '[]'); } catch(e) {}
+    if (!prods || prods.length === 0) prods = [...INITIAL_MOCK_PRODUCTS];
+    
     const newProd = {
         ...productData,
         id: 'p_' + Date.now(),
@@ -367,12 +373,18 @@ export async function saveProduct(productData) {
 
 export async function updateProduct(id, productData) {
     if (supabaseClient) {
-        const { data, error } = await supabaseClient.from('products').update(productData).eq('id', id).select();
-        if (error) throw error;
-        return data[0];
+        try {
+            const { data, error } = await supabaseClient.from('products').update(productData).eq('id', id).select();
+            if (!error && data && data[0]) return data[0];
+        } catch (e) {
+            console.warn("Supabase update product failed, fallback to local store:", e);
+        }
     }
     
-    const prods = JSON.parse(localStorage.getItem('vw_mock_products') || '[]');
+    let prods = [];
+    try { prods = JSON.parse(localStorage.getItem('vw_mock_products') || '[]'); } catch(e) {}
+    if (!prods || prods.length === 0) prods = [...INITIAL_MOCK_PRODUCTS];
+    
     const index = prods.findIndex(p => p.id === id);
     if (index !== -1) {
         prods[index] = { ...prods[index], ...productData, updated_at: new Date().toISOString() };
@@ -388,18 +400,22 @@ export async function toggleProductActive(id, isActive) {
 
 export async function uploadImageToStorage(file) {
     if (supabaseClient && file) {
-        const fileExt = file.name.split('.').pop();
-        const fileName = `${Date.now()}_${Math.random().toString(36).substring(7)}.${fileExt}`;
-        const filePath = `sarees/${fileName}`;
-        
-        const { data, error } = await supabaseClient.storage.from('product-images').upload(filePath, file);
-        if (error) throw error;
-        
-        const { data: publicUrlData } = supabaseClient.storage.from('product-images').getPublicUrl(filePath);
-        return publicUrlData.publicUrl;
+        try {
+            const fileExt = file.name.split('.').pop();
+            const fileName = `${Date.now()}_${Math.random().toString(36).substring(7)}.${fileExt}`;
+            const filePath = `sarees/${fileName}`;
+            
+            const { data, error } = await supabaseClient.storage.from('product-images').upload(filePath, file);
+            if (!error) {
+                const { data: publicUrlData } = supabaseClient.storage.from('product-images').getPublicUrl(filePath);
+                return publicUrlData.publicUrl;
+            }
+        } catch (e) {
+            console.warn("Supabase image upload failed, fallback to data URL:", e);
+        }
     }
     
-    // Mock Data URL converter
+    // Fallback Data URL converter
     return new Promise((resolve) => {
         const reader = new FileReader();
         reader.onloadend = () => resolve(reader.result);
@@ -409,24 +425,28 @@ export async function uploadImageToStorage(file) {
 
 export async function createOrder(orderPayload, items) {
     if (supabaseClient) {
-        const { data: order, error: orderErr } = await supabaseClient.from('orders').insert([orderPayload]).select().single();
-        if (orderErr) throw orderErr;
-        
-        const itemRows = items.map(item => ({
-            order_id: order.id,
-            product_id: item.id,
-            product_name: item.name,
-            quantity: item.quantity,
-            price: item.price,
-            subtotal: item.price * item.quantity
-        }));
-        
-        await supabaseClient.from('order_items').insert(itemRows);
-        return order;
+        try {
+            const { data: order, error: orderErr } = await supabaseClient.from('orders').insert([orderPayload]).select().single();
+            if (!orderErr && order) {
+                const itemRows = items.map(item => ({
+                    order_id: order.id,
+                    product_id: item.id,
+                    product_name: item.name,
+                    quantity: item.quantity,
+                    price: item.price,
+                    subtotal: item.price * item.quantity
+                }));
+                await supabaseClient.from('order_items').insert(itemRows);
+                return order;
+            }
+        } catch (e) {
+            console.warn("Supabase order creation failed, fallback to local store:", e);
+        }
     }
     
     // Mock order creation
-    const orders = JSON.parse(localStorage.getItem('vw_mock_orders') || '[]');
+    let orders = [];
+    try { orders = JSON.parse(localStorage.getItem('vw_mock_orders') || '[]'); } catch(e) {}
     const newOrder = {
         ...orderPayload,
         id: 'ORD-' + Math.floor(100000 + Math.random() * 900000),
@@ -442,24 +462,34 @@ export async function createOrder(orderPayload, items) {
 
 export async function getOrders() {
     if (supabaseClient) {
-        const { data, error } = await supabaseClient.from('orders').select('*, order_items(*)').order('created_at', { ascending: false });
-        if (!error && data) return data;
+        try {
+            const { data, error } = await supabaseClient.from('orders').select('*, order_items(*)').order('created_at', { ascending: false });
+            if (!error && data) return data;
+        } catch (e) {
+            console.warn("Supabase orders fetch failed:", e);
+        }
     }
-    return JSON.parse(localStorage.getItem('vw_mock_orders') || '[]');
+    let orders = [];
+    try { orders = JSON.parse(localStorage.getItem('vw_mock_orders') || '[]'); } catch(e) {}
+    return orders;
 }
 
 export async function updateOrderStatus(orderId, order_status, payment_status) {
     if (supabaseClient) {
-        const updateData = {};
-        if (order_status) updateData.order_status = order_status;
-        if (payment_status) updateData.payment_status = payment_status;
-        
-        const { data, error } = await supabaseClient.from('orders').update(updateData).eq('id', orderId).select();
-        if (error) throw error;
-        return data[0];
+        try {
+            const updateData = {};
+            if (order_status) updateData.order_status = order_status;
+            if (payment_status) updateData.payment_status = payment_status;
+            
+            const { data, error } = await supabaseClient.from('orders').update(updateData).eq('id', orderId).select();
+            if (!error && data && data[0]) return data[0];
+        } catch (e) {
+            console.warn("Supabase update order status failed:", e);
+        }
     }
     
-    const orders = JSON.parse(localStorage.getItem('vw_mock_orders') || '[]');
+    let orders = [];
+    try { orders = JSON.parse(localStorage.getItem('vw_mock_orders') || '[]'); } catch(e) {}
     const order = orders.find(o => o.id === orderId);
     if (order) {
         if (order_status) order.order_status = order_status;
