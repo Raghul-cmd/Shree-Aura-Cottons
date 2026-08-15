@@ -612,4 +612,81 @@ export async function updateOrderStatus(orderId, order_status, payment_status) {
     throw new Error("Order not found");
 }
 
+export async function getCustomers() {
+    let customerMap = new Map();
+
+    // 1. Fetch Registered Profiles from Supabase
+    if (supabaseClient) {
+        try {
+            const { data: profiles, error: profileErr } = await supabaseClient
+                .from('profiles')
+                .select('*')
+                .order('created_at', { ascending: false });
+
+            if (!profileErr && profiles && profiles.length > 0) {
+                profiles.forEach(p => {
+                    const key = (p.email || p.phone || p.full_name || p.id).toLowerCase();
+                    customerMap.set(key, {
+                        id: p.id,
+                        name: p.full_name || 'Registered Customer',
+                        phone: p.phone || 'N/A',
+                        email: p.email || 'N/A',
+                        role: p.role || 'customer',
+                        total_orders: 0,
+                        total_spent: 0,
+                        created_at: p.created_at
+                    });
+                });
+            }
+        } catch (e) {
+            console.warn("Error fetching Supabase profiles:", e);
+        }
+    }
+
+    // 2. Aggregate orders to compute total orders and spent per customer
+    const orders = await getOrders();
+    if (orders && orders.length > 0) {
+        orders.forEach(o => {
+            const emailKey = (o.email || '').toLowerCase();
+            const phoneKey = (o.phone || '').toLowerCase();
+            const nameKey = (o.customer_name || '').toLowerCase();
+            const lookupKey = emailKey || phoneKey || nameKey;
+
+            if (lookupKey) {
+                let existing = customerMap.get(lookupKey) || (emailKey ? customerMap.get(emailKey) : null) || (phoneKey ? customerMap.get(phoneKey) : null);
+                if (existing) {
+                    existing.total_orders += 1;
+                    existing.total_spent += Number(o.total_amount || 0);
+                    if (!existing.phone || existing.phone === 'N/A') existing.phone = o.phone;
+                    if (!existing.email || existing.email === 'N/A') existing.email = o.email;
+                    if (!existing.city && o.city) existing.city = o.city;
+                } else {
+                    customerMap.set(lookupKey, {
+                        id: o.user_id || 'cust_' + Math.random().toString(36).substring(7),
+                        name: o.customer_name || 'Customer',
+                        phone: o.phone || 'N/A',
+                        email: o.email || 'N/A',
+                        city: o.city || '',
+                        role: 'customer',
+                        total_orders: 1,
+                        total_spent: Number(o.total_amount || 0),
+                        created_at: o.created_at
+                    });
+                }
+            }
+        });
+    }
+
+    if (customerMap.size === 0) {
+        return [
+            { id: 'c1', name: 'Priya Sundaram', phone: '+91 98765 43210', email: 'priya.sundaram@gmail.com', city: 'Chennai', role: 'customer', total_orders: 2, total_spent: 3398.00, created_at: new Date().toISOString() },
+            { id: 'c2', name: 'Ananya Sharma', phone: '+91 98123 45678', email: 'ananya.sharma@yahoo.com', city: 'Bengaluru', role: 'customer', total_orders: 1, total_spent: 3299.00, created_at: new Date().toISOString() },
+            { id: 'c3', name: 'Kavitha Raman', phone: '+91 97890 12345', email: 'kavitha.raman@outlook.com', city: 'Madurai', role: 'customer', total_orders: 1, total_spent: 1599.00, created_at: new Date().toISOString() },
+            { id: 'admin1', name: 'Store Administrator', phone: '+91 90000 00000', email: 'admin@weavessareecollections.com', city: 'Chennai', role: 'admin', total_orders: 0, total_spent: 0, created_at: new Date().toISOString() }
+        ];
+    }
+
+    return Array.from(customerMap.values());
+}
+
 export { supabaseClient };

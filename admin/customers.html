@@ -49,21 +49,8 @@
                             <th>Customer Role</th>
                         </tr>
                     </thead>
-                    <tbody>
-                        <tr>
-                            <td><strong>Priya Sharma</strong></td>
-                            <td>+91 98765 43210</td>
-                            <td>priya@example.com</td>
-                            <td>2 Orders</td>
-                            <td><span class="status-pill active">Customer</span></td>
-                        </tr>
-                        <tr>
-                            <td><strong>Store Administrator</strong></td>
-                            <td>+91 90000 00000</td>
-                            <td>admin@weavessaree.com</td>
-                            <td>-</td>
-                            <td><span class="status-pill pending" style="background:#FDF7E7; color:#7A1C30; border:1px solid #E6C875;">Admin</span></td>
-                        </tr>
+                    <tbody id="adminCustomersTbody">
+                        <!-- Dynamically populated from Supabase profiles & orders -->
                     </tbody>
                 </table>
             </div>

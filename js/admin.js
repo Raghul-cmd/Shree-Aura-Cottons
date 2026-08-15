@@ -3,7 +3,7 @@
 // ==============================================================================
 
 import { adminGuard, logoutUser } from './auth.js';
-import { getProducts, getOrders, getCategories, saveProduct, updateProduct, toggleProductActive, uploadImageToStorage, updateOrderStatus, getProductById } from './supabase.js';
+import { getProducts, getOrders, getCategories, saveProduct, updateProduct, toggleProductActive, uploadImageToStorage, updateOrderStatus, getProductById, getCustomers } from './supabase.js';
 
 document.addEventListener('DOMContentLoaded', async () => {
     // Check if on login page or admin portal page
@@ -35,6 +35,8 @@ document.addEventListener('DOMContentLoaded', async () => {
         initOrdersPage();
     } else if (path.includes('/admin/categories')) {
         initCategoriesPage();
+    } else if (path.includes('/admin/customers')) {
+        initCustomersPage();
     }
 });
 
@@ -375,5 +377,37 @@ async function initCategoriesPage() {
                 <p style="font-size:0.8rem; color:var(--admin-text-sub);">${c.description}</p>
             </div>
         </div>
+    `).join('');
+}
+
+/* CUSTOMERS DIRECTORY PAGE */
+async function initCustomersPage() {
+    const tbody = document.getElementById('adminCustomersTbody');
+    if (!tbody) return;
+
+    const customers = await getCustomers();
+    if (!customers || customers.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; padding:2rem; color:#64748B;">No customers found in directory.</td></tr>`;
+        return;
+    }
+
+    tbody.innerHTML = customers.map(c => `
+        <tr>
+            <td>
+                <strong style="color:#0F172A; font-size:0.95rem;">${c.name}</strong><br>
+                <small style="color:var(--admin-text-sub); font-size:0.78rem;">${c.city ? '📍 ' + c.city : 'Customer'}</small>
+            </td>
+            <td><strong style="font-size:0.85rem; color:#334155;">${c.phone || 'N/A'}</strong></td>
+            <td><span style="font-size:0.85rem; color:#475569;">${c.email || 'N/A'}</span></td>
+            <td>
+                <strong style="color:var(--admin-primary); font-size:0.88rem;">${c.total_orders || 0} Orders</strong><br>
+                <small style="color:#166534; font-weight:600; font-size:0.78rem;">₹${Number(c.total_spent || 0).toLocaleString('en-IN')}</small>
+            </td>
+            <td>
+                <span class="status-pill ${c.role === 'admin' ? 'pending' : 'active'}" style="${c.role === 'admin' ? 'background:#FDF7E7; color:#7A1C30; border:1px solid #E6C875;' : ''}">
+                    ${(c.role || 'customer').toUpperCase()}
+                </span>
+            </td>
+        </tr>
     `).join('');
 }
