@@ -510,17 +510,37 @@ export async function createOrder(orderPayload, items) {
     if (supabaseClient) {
         try {
             const { data: order, error: orderErr } = await supabaseClient.from('orders').insert([orderPayload]).select().single();
+            if (orderErr) {
+                console.error("Supabase order insert error:", orderErr);
+            }
             if (!orderErr && order) {
-                const itemRows = items.map(item => ({
-                    order_id: order.id,
-                    product_id: item.id,
-                    product_name: item.name,
-                    quantity: item.quantity,
-                    price: item.price,
-                    subtotal: item.price * item.quantity
-                }));
-                await supabaseClient.from('order_items').insert(itemRows);
-                return order;
+                const uuidRegex = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/;
+                const itemRows = items.map(item => {
+                    const rawProdId = item.id || item.product_id;
+                    const validProdId = (rawProdId && uuidRegex.test(rawProdId)) ? rawProdId : null;
+
+                    return {
+                        order_id: order.id,
+                        product_id: validProdId,
+                        product_name: item.name || item.product_name || 'Saree',
+                        quantity: Number(item.quantity || 1),
+                        price: Number(item.price || 0),
+                        subtotal: Number(item.price || 0) * Number(item.quantity || 1)
+                    };
+                });
+                
+                const { error: itemErr } = await supabaseClient.from('order_items').insert(itemRows);
+                if (itemErr) {
+                    console.error("Supabase order_items insert error:", itemErr);
+                }
+
+                // Update local storage cache as backup
+                let localOrders = [];
+                try { localOrders = JSON.parse(localStorage.getItem('vw_mock_orders') || '[]'); } catch(e) {}
+                localOrders.unshift({ ...order, order_items: itemRows });
+                localStorage.setItem('vw_mock_orders', JSON.stringify(localOrders));
+
+                return { ...order, order_items: itemRows };
             }
         } catch (e) {
             console.warn("Supabase order creation failed, fallback to local store:", e);
@@ -536,7 +556,7 @@ export async function createOrder(orderPayload, items) {
         created_at: new Date().toISOString(),
         order_status: 'placed',
         payment_status: 'pending',
-        items: items
+        order_items: items.map(i => ({ product_name: i.name, quantity: i.quantity, price: i.price, subtotal: i.price * i.quantity }))
     };
     orders.unshift(newOrder);
     localStorage.setItem('vw_mock_orders', JSON.stringify(orders));
@@ -547,17 +567,18 @@ export async function getOrders() {
     if (supabaseClient) {
         try {
             const { data, error } = await supabaseClient.from('orders').select('*, order_items(*)').order('created_at', { ascending: false });
-            if (!error && data && data.length > 0) return data;
+            if (error) {
+                console.error("Supabase getOrders error:", error);
+            }
+            if (!error && data) {
+                return data;
+            }
         } catch (e) {
             console.warn("Supabase orders fetch failed:", e);
         }
     }
     let orders = [];
     try { orders = JSON.parse(localStorage.getItem('vw_mock_orders') || '[]'); } catch(e) {}
-    if (!orders || orders.length === 0) {
-        orders = [...INITIAL_MOCK_ORDERS];
-        localStorage.setItem('vw_mock_orders', JSON.stringify(orders));
-    }
     return orders;
 }
 
