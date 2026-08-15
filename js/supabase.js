@@ -20,11 +20,11 @@ if (window.supabase && isSupabaseConfigured()) {
 
 // SEED MOCK DATASTORE FOR DIRECT LOCAL PREVIEW
 const INITIAL_MOCK_CATEGORIES = [
-    { id: 'c1', name: 'Cotton Sarees', slug: 'cotton-sarees', description: 'Breathable handcrafted daily cotton sarees', image_url: 'https://images.unsplash.com/photo-1610030469983-98e550d6193c?auto=format&fit=crop&w=600&q=80' },
-    { id: 'c2', name: 'Silk Sarees', slug: 'silk-sarees', description: 'Pure silk weaves with regal gold zari borders', image_url: 'https://images.unsplash.com/photo-1617627143750-d86bc21e42bb?auto=format&fit=crop&w=600&q=80' },
-    { id: 'c3', name: 'Banarasi Sarees', slug: 'banarasi-sarees', description: 'Varanasi brocade heirloom sarees', image_url: 'https://images.unsplash.com/photo-1583391733956-3750e0ff4e8b?auto=format&fit=crop&w=600&q=80' },
-    { id: 'c4', name: 'Daily Wear', slug: 'daily-wear', description: 'Lightweight everyday sarees', image_url: 'https://images.unsplash.com/photo-1609357605129-26f69add5d6e?auto=format&fit=crop&w=600&q=80' },
-    { id: 'c5', name: 'Wedding Sarees', slug: 'wedding-sarees', description: 'Opulent Kanchipuram & Banarasi bridal wear', image_url: 'https://images.unsplash.com/photo-1610030469983-98e550d6193c?auto=format&fit=crop&w=600&q=80' }
+    { id: 'c1000000-0000-0000-0000-000000000001', name: 'Cotton Sarees', slug: 'cotton-sarees', description: 'Breathable handcrafted daily cotton sarees', image_url: 'https://images.unsplash.com/photo-1610030469983-98e550d6193c?auto=format&fit=crop&w=600&q=80' },
+    { id: 'c1000000-0000-0000-0000-000000000002', name: 'Silk Sarees', slug: 'silk-sarees', description: 'Pure silk weaves with regal gold zari borders', image_url: 'https://images.unsplash.com/photo-1617627143750-d86bc21e42bb?auto=format&fit=crop&w=600&q=80' },
+    { id: 'c1000000-0000-0000-0000-000000000003', name: 'Banarasi Sarees', slug: 'banarasi-sarees', description: 'Varanasi brocade heirloom sarees', image_url: 'https://images.unsplash.com/photo-1583391733956-3750e0ff4e8b?auto=format&fit=crop&w=600&q=80' },
+    { id: 'c1000000-0000-0000-0000-000000000004', name: 'Daily Wear', slug: 'daily-wear', description: 'Lightweight everyday sarees', image_url: 'https://images.unsplash.com/photo-1609357605129-26f69add5d6e?auto=format&fit=crop&w=600&q=80' },
+    { id: 'c1000000-0000-0000-0000-000000000005', name: 'Wedding Sarees', slug: 'wedding-sarees', description: 'Opulent Kanchipuram & Banarasi bridal wear', image_url: 'https://images.unsplash.com/photo-1610030469983-98e550d6193c?auto=format&fit=crop&w=600&q=80' }
 ];
 
 const INITIAL_MOCK_PRODUCTS = [
@@ -374,7 +374,20 @@ export async function saveProduct(productData) {
 export async function updateProduct(id, productData) {
     if (supabaseClient) {
         try {
-            const { data, error } = await supabaseClient.from('products').update(productData).eq('id', id).select();
+            const payload = { ...productData };
+            const uuidRegex = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/;
+
+            if (payload.category_id === 'c1') payload.category_id = 'c1000000-0000-0000-0000-000000000001';
+            if (payload.category_id === 'c2') payload.category_id = 'c1000000-0000-0000-0000-000000000002';
+            if (payload.category_id === 'c3') payload.category_id = 'c1000000-0000-0000-0000-000000000003';
+            if (payload.category_id === 'c4') payload.category_id = 'c1000000-0000-0000-0000-000000000004';
+            if (payload.category_id === 'c5') payload.category_id = 'c1000000-0000-0000-0000-000000000005';
+
+            if (payload.category_id && !uuidRegex.test(payload.category_id)) {
+                delete payload.category_id;
+            }
+
+            const { data, error } = await supabaseClient.from('products').update(payload).eq('id', id).select();
             if (error) {
                 console.error("Supabase product update error:", error);
             }
@@ -383,7 +396,7 @@ export async function updateProduct(id, productData) {
                 try { prods = JSON.parse(localStorage.getItem('vw_mock_products') || '[]'); } catch(e) {}
                 const idx = prods.findIndex(p => p.id === id);
                 if (idx !== -1) {
-                    prods[idx] = { ...prods[idx], ...productData, updated_at: new Date().toISOString() };
+                    prods[idx] = { ...prods[idx], ...payload, updated_at: new Date().toISOString() };
                     localStorage.setItem('vw_mock_products', JSON.stringify(prods));
                 }
                 return data[0];
