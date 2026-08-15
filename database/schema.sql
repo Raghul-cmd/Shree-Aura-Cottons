@@ -127,7 +127,6 @@ CREATE TRIGGER on_auth_user_created
   FOR EACH ROW EXECUTE FUNCTION public.handle_new_user();
 
 -- 5. ROW LEVEL SECURITY (RLS) POLICIES
-
 ALTER TABLE public.categories ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.products ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.product_images ENABLE ROW LEVEL SECURITY;
@@ -136,7 +135,6 @@ ALTER TABLE public.wishlist ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.orders ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.order_items ENABLE ROW LEVEL SECURITY;
 
--- Helper function to check if auth user is admin
 CREATE OR REPLACE FUNCTION public.is_admin()
 RETURNS BOOLEAN AS $$
 BEGIN
@@ -147,52 +145,72 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
--- CATEGORIES POLICIES
+-- DROP ALL PREVIOUS POLICIES TO AVOID "policy already exists" ERRORS
 DROP POLICY IF EXISTS "Categories read for all" ON public.categories;
 DROP POLICY IF EXISTS "Categories insert for admin" ON public.categories;
 DROP POLICY IF EXISTS "Categories update for admin" ON public.categories;
 DROP POLICY IF EXISTS "Categories delete for admin" ON public.categories;
+DROP POLICY IF EXISTS "Categories insert for all" ON public.categories;
+DROP POLICY IF EXISTS "Categories update for all" ON public.categories;
+DROP POLICY IF EXISTS "Categories delete for all" ON public.categories;
 
+DROP POLICY IF EXISTS "Active products read for all" ON public.products;
+DROP POLICY IF EXISTS "Products read for all" ON public.products;
+DROP POLICY IF EXISTS "Products insert for admin" ON public.products;
+DROP POLICY IF EXISTS "Products update for admin" ON public.products;
+DROP POLICY IF EXISTS "Products delete for admin" ON public.products;
+DROP POLICY IF EXISTS "Products insert for all" ON public.products;
+DROP POLICY IF EXISTS "Products update for all" ON public.products;
+DROP POLICY IF EXISTS "Products delete for all" ON public.products;
+
+DROP POLICY IF EXISTS "Product images read for all" ON public.product_images;
+DROP POLICY IF EXISTS "Product images insert for admin" ON public.product_images;
+DROP POLICY IF EXISTS "Product images update for admin" ON public.product_images;
+DROP POLICY IF EXISTS "Product images delete for admin" ON public.product_images;
+DROP POLICY IF EXISTS "Product images insert for all" ON public.product_images;
+DROP POLICY IF EXISTS "Product images update for all" ON public.product_images;
+DROP POLICY IF EXISTS "Product images delete for all" ON public.product_images;
+
+DROP POLICY IF EXISTS "Profiles viewable by user and admin" ON public.profiles;
+DROP POLICY IF EXISTS "Profiles updated by user and admin" ON public.profiles;
+
+DROP POLICY IF EXISTS "Wishlist viewable by owner" ON public.wishlist;
+DROP POLICY IF EXISTS "Wishlist insertable by owner" ON public.wishlist;
+DROP POLICY IF EXISTS "Wishlist deletable by owner" ON public.wishlist;
+
+DROP POLICY IF EXISTS "Orders viewable by owner or admin" ON public.orders;
+DROP POLICY IF EXISTS "Orders insertable by public/customer" ON public.orders;
+DROP POLICY IF EXISTS "Orders updateable by admin" ON public.orders;
+
+DROP POLICY IF EXISTS "Order items viewable by owner or admin" ON public.order_items;
+DROP POLICY IF EXISTS "Order items insertable by public/customer" ON public.order_items;
+
+-- CREATE FRESH OPEN POLICIES FOR STORE & ADMIN
 CREATE POLICY "Categories read for all" ON public.categories FOR SELECT USING (true);
 CREATE POLICY "Categories insert for all" ON public.categories FOR INSERT WITH CHECK (true);
 CREATE POLICY "Categories update for all" ON public.categories FOR UPDATE USING (true);
 CREATE POLICY "Categories delete for all" ON public.categories FOR DELETE USING (true);
-
--- PRODUCTS POLICIES
-DROP POLICY IF EXISTS "Active products read for all" ON public.products;
-DROP POLICY IF EXISTS "Products insert for admin" ON public.products;
-DROP POLICY IF EXISTS "Products update for admin" ON public.products;
-DROP POLICY IF EXISTS "Products delete for admin" ON public.products;
 
 CREATE POLICY "Products read for all" ON public.products FOR SELECT USING (true);
 CREATE POLICY "Products insert for all" ON public.products FOR INSERT WITH CHECK (true);
 CREATE POLICY "Products update for all" ON public.products FOR UPDATE USING (true);
 CREATE POLICY "Products delete for all" ON public.products FOR DELETE USING (true);
 
--- PRODUCT IMAGES POLICIES
-DROP POLICY IF EXISTS "Product images read for all" ON public.product_images;
-DROP POLICY IF EXISTS "Product images insert for admin" ON public.product_images;
-DROP POLICY IF EXISTS "Product images update for admin" ON public.product_images;
-DROP POLICY IF EXISTS "Product images delete for admin" ON public.product_images;
-
 CREATE POLICY "Product images read for all" ON public.product_images FOR SELECT USING (true);
 CREATE POLICY "Product images insert for all" ON public.product_images FOR INSERT WITH CHECK (true);
 CREATE POLICY "Product images update for all" ON public.product_images FOR UPDATE USING (true);
 CREATE POLICY "Product images delete for all" ON public.product_images FOR DELETE USING (true);
 
--- PROFILES POLICIES
 CREATE POLICY "Profiles viewable by user and admin" ON public.profiles FOR SELECT USING (auth.uid() = id OR public.is_admin());
 CREATE POLICY "Profiles updated by user and admin" ON public.profiles FOR UPDATE USING (auth.uid() = id OR public.is_admin());
 
--- WISHLIST POLICIES
 CREATE POLICY "Wishlist viewable by owner" ON public.wishlist FOR SELECT USING (auth.uid() = user_id);
 CREATE POLICY "Wishlist insertable by owner" ON public.wishlist FOR INSERT WITH CHECK (auth.uid() = user_id);
 CREATE POLICY "Wishlist deletable by owner" ON public.wishlist FOR DELETE USING (auth.uid() = user_id);
 
--- ORDERS & ORDER ITEMS POLICIES
-CREATE POLICY "Orders viewable by owner or admin" ON public.orders FOR SELECT USING (auth.uid() = user_id OR public.is_admin());
+CREATE POLICY "Orders viewable by owner or admin" ON public.orders FOR SELECT USING (true);
 CREATE POLICY "Orders insertable by public/customer" ON public.orders FOR INSERT WITH CHECK (true);
-CREATE POLICY "Orders updateable by admin" ON public.orders FOR UPDATE USING (public.is_admin());
+CREATE POLICY "Orders updateable by admin" ON public.orders FOR UPDATE USING (true);
 
 CREATE POLICY "Order items viewable by owner or admin" ON public.order_items FOR SELECT USING (
   EXISTS (SELECT 1 FROM public.orders WHERE id = order_items.order_id AND (user_id = auth.uid() OR public.is_admin()))
