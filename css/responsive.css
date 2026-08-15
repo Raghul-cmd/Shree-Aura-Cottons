@@ -1,0 +1,222 @@
+/* ==============================================================================
+   VANAMALA WEAVES - RESPONSIVE & MOBILE DESIGN STYLESHEET
+   ============================================================================== */
+
+/* MOBILE HAMBURGER & DRAWER BUTTONS */
+.mobile-nav-toggle, .mobile-filter-close {
+    display: none;
+    font-size: 1.5rem;
+    color: var(--text-dark);
+    padding: 0.4rem;
+}
+
+.mobile-nav-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(3px);
+    z-index: 299;
+    opacity: 0;
+    visibility: hidden;
+    transition: var(--transition);
+}
+
+.mobile-nav-overlay.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+.mobile-drawer {
+    position: fixed;
+    top: 0;
+    left: -300px;
+    width: 280px;
+    height: 100vh;
+    background: var(--bg-white);
+    z-index: 300;
+    box-shadow: var(--shadow-lg);
+    transition: transform 0.35s ease;
+    overflow-y: auto;
+    padding: 1.5rem;
+}
+
+.mobile-drawer.active {
+    transform: translateX(300px);
+}
+
+.mobile-drawer-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--border-color);
+    margin-bottom: 1rem;
+}
+
+.mobile-menu-links {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+}
+
+.mobile-menu-links a {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: var(--text-dark);
+    display: block;
+    padding: 0.4rem 0;
+}
+
+/* MEDIA QUERIES */
+
+/* TABLETS (Max 1024px) */
+@media (max-width: 1024px) {
+    .header-inner {
+        flex-wrap: wrap;
+    }
+    
+    .search-wrapper {
+        order: 3;
+        max-width: 100%;
+        width: 100%;
+        margin-top: 0.5rem;
+    }
+    
+    .shop-layout {
+        grid-template-columns: 220px 1fr;
+        gap: 1.25rem;
+    }
+
+    .product-grid {
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    }
+    
+    .footer-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+/* MOBILE DEVICES (Max 768px) */
+@media (max-width: 768px) {
+    .top-bar {
+        font-size: 0.78rem;
+    }
+    
+    .mega-nav {
+        display: none; /* Hidden desktop nav */
+    }
+    
+    .mobile-nav-toggle {
+        display: block;
+    }
+
+    .brand-logo {
+        font-size: 1.4rem;
+    }
+    
+    .hero-content h1 {
+        font-size: 2.3rem;
+    }
+
+    .hero-content p {
+        font-size: 0.95rem;
+    }
+
+    /* KALAMANDIR MOBILE COLLECTION LAYOUT */
+    .shop-layout {
+        grid-template-columns: 1fr; /* Single column layout, sidebar turns into modal drawer */
+    }
+
+    .filter-sidebar {
+        position: fixed;
+        top: 0;
+        left: -100%;
+        width: 85%;
+        max-width: 320px;
+        height: 100vh;
+        z-index: 400;
+        overflow-y: auto;
+        transition: transform 0.35s ease;
+        border-radius: 0;
+    }
+
+    .filter-sidebar.active {
+        transform: translateX(100%);
+    }
+
+    .mobile-filter-trigger {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        background: var(--primary-maroon);
+        color: var(--gold-light);
+        padding: 0.45rem 0.9rem;
+        border-radius: var(--radius-sm);
+        font-size: 0.82rem;
+        font-weight: 600;
+    }
+
+    /* 2-COLUMN MOBILE PRODUCT GRID (LIKE KALAMANDIR MOBILE EXPERIENCE) */
+    .product-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 0.8rem;
+    }
+
+    .product-info {
+        padding: 0.75rem 0.6rem;
+    }
+
+    .product-title {
+        font-size: 0.82rem;
+        margin-bottom: 0.4rem;
+    }
+
+    .sale-price {
+        font-size: 0.95rem;
+    }
+
+    .old-price {
+        font-size: 0.75rem;
+    }
+
+    .discount-badge {
+        font-size: 0.65rem;
+        padding: 0.2rem 0.4rem;
+    }
+
+    .wishlist-toggle-btn {
+        width: 28px;
+        height: 28px;
+    }
+
+    .wishlist-toggle-btn svg {
+        width: 14px;
+        height: 14px;
+    }
+
+    .product-details-container {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+    }
+
+    .gallery-wrapper {
+        flex-direction: column-reverse;
+    }
+
+    .thumbnail-list {
+        flex-direction: row;
+        overflow-x: auto;
+    }
+
+    .thumb-item {
+        width: 60px;
+        height: 75px;
+        flex-shrink: 0;
+    }
+
+    .footer-grid {
+        grid-template-columns: 1fr;
+        gap: 1.8rem;
+    }
+}

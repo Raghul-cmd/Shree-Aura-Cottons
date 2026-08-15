@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Customer Login - Weaves Saree Collections</title>
+    <link rel="icon" type="image/png" href="assets/logo.png">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/responsive.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body style="background:var(--bg-cream); display:flex; flex-direction:column; min-height:100vh;">
+
+    <header class="main-header">
+        <div class="container header-inner">
+            <a href="index.html" class="brand-logo" title="Weaves Saree Collections">
+                <div class="brand-logo-badge">
+                    <img src="assets/logo.png" alt="Weaves Saree Collections Logo" class="brand-logo-img" onError="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                    <div class="brand-logo-icon" style="display:none;">W</div>
+                </div>
+                <div class="brand-text-container">
+                    <span class="brand-text-main">WEAVES</span>
+                    <div class="brand-text-sub-wrap">
+                        <span class="gold-dot">◆</span>
+                        <span class="brand-text-sub">SAREE COLLECTIONS</span>
+                        <span class="gold-dot">◆</span>
+                    </div>
+                </div>
+            </a>
+            <a href="shop.html" class="btn btn-outline" style="font-size:0.8rem; padding:0.4rem 1rem;">Back to Shop</a>
+        </div>
+    </header>
+
+    <main style="flex:1; display:flex; align-items:center; justify-content:center; padding:2rem 1rem;">
+        <div style="background:var(--bg-white); border:2px solid var(--border-color); border-radius:var(--radius-lg); padding:2.5rem; width:100%; max-width:440px; box-shadow:var(--shadow-lg);">
+            
+            <h2 style="font-family:var(--font-heading); font-size:2.2rem; color:var(--primary-maroon); text-align:center; margin-bottom:0.5rem; font-weight:800;">Welcome Back</h2>
+            <p style="text-align:center; color:var(--text-muted); font-size:0.9rem; font-weight:500; margin-bottom:1.5rem;">Log in to view your orders & saved sarees</p>
+
+            <form id="customerLoginForm" style="display:flex; flex-direction:column; gap:1.1rem;">
+                <div>
+                    <label style="font-size:0.85rem; font-weight:700; display:block; margin-bottom:0.3rem;">Email Address</label>
+                    <input type="email" id="loginEmail" required style="width:100%; padding:0.7rem; border:2px solid var(--border-color); border-radius:6px; font-size:0.9rem; font-weight:500;" placeholder="name@example.com">
+                </div>
+                <div>
+                    <label style="font-size:0.85rem; font-weight:700; display:block; margin-bottom:0.3rem;">Password</label>
+                    <input type="password" id="loginPassword" required style="width:100%; padding:0.7rem; border:2px solid var(--border-color); border-radius:6px; font-size:0.9rem; font-weight:500;" placeholder="••••••••">
+                </div>
+                <button type="submit" class="btn btn-primary" style="margin-top:0.5rem; padding:0.85rem;">SIGN IN</button>
+            </form>
+        </div>
+    </main>
+
+    <script type="module">
+        import { loginUser } from './js/auth.js';
+
+        document.getElementById('customerLoginForm')?.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+
+            try {
+                const res = await loginUser(email, password);
+                if (res.role === 'admin') {
+                    window.location.href = '/admin/index.html';
+                } else {
+                    window.location.href = '/shop.html';
+                }
+            } catch (err) {
+                alert("Login failed: " + err.message);
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add New Saree - Weaves Saree Collections Admin</title>
+    <link rel="icon" type="image/png" href="../assets/logo.png">
+    <link rel="stylesheet" href="../css/admin.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body class="admin-body">
+
+    <aside class="admin-sidebar">
+        <div class="admin-sidebar-brand">
+            <div class="admin-logo-badge">
+                <img src="../assets/logo.png" alt="Weaves Saree Collections Logo" class="admin-logo-img" onError="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                <div class="admin-logo-icon" style="display:none;">W</div>
+            </div>
+            <div class="admin-brand-text-container">
+                <span class="admin-brand-text-main">WEAVES</span>
+                <span class="admin-brand-text-sub">SAREE COLLECTIONS ADMIN</span>
+            </div>
+        </div>
+        <ul class="admin-menu">
+            <li class="admin-menu-item"><a href="index.html">📊 Dashboard</a></li>
+            <li class="admin-menu-item"><a href="products.html">👗 Products Catalog</a></li>
+            <li class="admin-menu-item active"><a href="add-product.html">➕ Add New Saree</a></li>
+            <li class="admin-menu-item"><a href="categories.html">🏷️ Categories</a></li>
+            <li class="admin-menu-item"><a href="orders.html">📦 Customer Orders</a></li>
+            <li class="admin-menu-item"><a href="customers.html">👥 Customers Directory</a></li>
+            <li class="admin-menu-item" style="margin-top:auto;"><a href="#" id="adminLogoutBtn" style="color:var(--admin-danger);">🚪 Logout</a></li>
+        </ul>
+    </aside>
+
+    <div class="admin-main-wrapper">
+        <header class="admin-header">
+            <div class="admin-header-title">
+                <h2>Add New Saree to Catalog</h2>
+            </div>
+            <a href="products.html" style="font-size:0.85rem; color:var(--admin-text-sub); font-weight:700; text-decoration:none;">← Cancel & Return</a>
+        </header>
+
+        <main class="admin-content">
+            <div class="admin-card">
+                <form id="addProductForm">
+                    <div class="admin-form-grid">
+                        <div class="form-group full-width">
+                            <label>Product Name *</label>
+                            <input type="text" name="name" class="form-control" required placeholder="e.g. Fancy Cotton Maroon Daily Saree">
+                        </div>
+
+                        <div class="form-group">
+                            <label>SKU Code *</label>
+                            <input type="text" name="sku" class="form-control" required placeholder="SAR-COT-001">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Category *</label>
+                            <select name="category_id" id="productCategorySelect" class="form-control" required></select>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Selling Price (₹) *</label>
+                            <input type="number" name="price" class="form-control" required placeholder="899">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Compare/Original Price (₹)</label>
+                            <input type="number" name="compare_price" class="form-control" placeholder="1299">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Fabric Type *</label>
+                            <select name="fabric" class="form-control" required>
+                                <option value="Cotton">Cotton</option>
+                                <option value="Silk">Pure Silk</option>
+                                <option value="Banarasi">Banarasi</option>
+                                <option value="Georgette">Georgette</option>
+                                <option value="Linen">Organic Linen</option>
+                                <option value="Soft Silk">Soft Silk</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Primary Color *</label>
+                            <input type="text" name="color" class="form-control" required placeholder="Maroon, Royal Blue, Red...">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Occasion *</label>
+                            <select name="occasion" class="form-control" required>
+                                <option value="Daily Wear">Daily Wear</option>
+                                <option value="Office Wear">Office Wear</option>
+                                <option value="Wedding">Wedding & Bridal</option>
+                                <option value="Festive">Festive Celebration</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Stock Quantity *</label>
+                            <input type="number" name="stock" class="form-control" required value="10" min="0">
+                        </div>
+
+                        <div class="form-group full-width" style="background:#F8FAFC; padding:1.2rem; border-radius:8px; border:1px solid #E2E8F0;">
+                            <label style="font-weight:700; color:var(--admin-primary); margin-bottom:0.75rem; display:block;">📸 Saree Image Attachment (Upload File OR Paste Google Drive Link)</label>
+                            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:1.2rem;">
+                                <div>
+                                    <label style="font-size:0.82rem; font-weight:600; color:var(--admin-text-sub); margin-bottom:0.35rem; display:block;">Option 1: Upload File from Device</label>
+                                    <input type="file" id="mainImageInput" accept="image/*" class="form-control">
+                                </div>
+                                <div>
+                                    <label style="font-size:0.82rem; font-weight:600; color:var(--admin-text-sub); margin-bottom:0.35rem; display:block;">Option 2: Paste Google Drive / Image Link</label>
+                                    <input type="url" id="imageUrlInput" name="image_url_input" class="form-control" placeholder="https://drive.google.com/file/d/... or https://...">
+                                </div>
+                            </div>
+                            <small style="display:block; margin-top:0.5rem; color:#64748B; font-size:0.78rem;">💡 <b>Google Drive Tip:</b> Paste any Google Drive image share link directly into Option 2 above!</small>
+                        </div>
+
+                        <div class="form-group full-width">
+                            <label>Product Description</label>
+                            <textarea name="description" rows="4" class="form-control" placeholder="Lightweight handcrafted saree engineered for comfort..."></textarea>
+                        </div>
+
+                        <div class="form-group full-width" style="flex-direction:row; gap:2rem;">
+                            <label style="display:flex; align-items:center; gap:0.5rem; cursor:pointer;">
+                                <input type="checkbox" name="is_active" checked> Active Product (Visible in Store)
+                            </label>
+                            <label style="display:flex; align-items:center; gap:0.5rem; cursor:pointer;">
+                                <input type="checkbox" name="is_featured" checked> Featured on Homepage
+                            </label>
+                        </div>
+                    </div>
+
+                    <div style="padding:1.5rem; background:#F8FAFC; border-top:2px solid var(--admin-border); text-align:right;">
+                        <button type="submit" style="background:var(--admin-primary); color:#FFFFFF; border:none; padding:0.8rem 2.2rem; border-radius:6px; font-weight:700; cursor:pointer;">
+                            SAVE PRODUCT TO SUPABASE
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </main>
+    </div>
+
+    <script type="module" src="../js/admin.js"></script>
+</body>
+</html>

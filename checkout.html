@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Secure Checkout - Weaves Saree Collections</title>
+    <link rel="icon" type="image/png" href="assets/logo.png">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/responsive.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+    <header class="main-header">
+        <div class="container header-inner">
+            <a href="index.html" class="brand-logo" title="Weaves Saree Collections">
+                <div class="brand-logo-badge">
+                    <img src="assets/logo.png" alt="Weaves Saree Collections Logo" class="brand-logo-img" onError="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                    <div class="brand-logo-icon" style="display:none;">W</div>
+                </div>
+                <div class="brand-text-container">
+                    <span class="brand-text-main">WEAVES</span>
+                    <div class="brand-text-sub-wrap">
+                        <span class="gold-dot">◆</span>
+                        <span class="brand-text-sub">SAREE COLLECTIONS</span>
+                        <span class="gold-dot">◆</span>
+                    </div>
+                </div>
+            </a>
+            <div class="header-actions">
+                <span style="font-size:0.88rem; font-weight:700; color:var(--primary-maroon);">🔒 256-bit Secure Checkout</span>
+            </div>
+        </div>
+    </header>
+
+    <main class="container" style="margin: 3rem auto 5rem;">
+        <h1 style="font-family:var(--font-heading); font-size:2.4rem; color:var(--primary-maroon); margin-bottom:1.5rem; font-weight:800;">Delivery & Payment Details</h1>
+
+        <form id="checkoutForm" style="display:grid; grid-template-columns: 1fr 400px; gap:2.5rem;">
+            <!-- ADDRESS FORM -->
+            <div style="background:var(--bg-white); border:2px solid var(--border-color); padding:2rem; border-radius:var(--radius-md); box-shadow:var(--shadow-sm);">
+                <h3 style="font-family:var(--font-heading); font-size:1.6rem; color:var(--primary-maroon); margin-bottom:1.25rem; font-weight:800;">1. Shipping Address</h3>
+
+                <div style="display:grid; grid-template-columns:repeat(2, 1fr); gap:1rem; margin-bottom:1rem;">
+                    <div>
+                        <label style="font-size:0.85rem; font-weight:700; display:block; margin-bottom:0.3rem;">Full Name *</label>
+                        <input type="text" name="fullName" required style="width:100%; padding:0.65rem; border:2px solid var(--border-color); border-radius:6px; font-size:0.9rem; font-weight:500;" placeholder="Priya Sharma">
+                    </div>
+                    <div>
+                        <label style="font-size:0.85rem; font-weight:700; display:block; margin-bottom:0.3rem;">Phone Number (WhatsApp) *</label>
+                        <input type="tel" name="phone" required pattern="[0-9]{10}" style="width:100%; padding:0.65rem; border:2px solid var(--border-color); border-radius:6px; font-size:0.9rem; font-weight:500;" placeholder="9876543210">
+                    </div>
+                </div>
+
+                <div style="margin-bottom:1rem;">
+                    <label style="font-size:0.85rem; font-weight:700; display:block; margin-bottom:0.3rem;">Email Address *</label>
+                    <input type="email" name="email" required style="width:100%; padding:0.65rem; border:2px solid var(--border-color); border-radius:6px; font-size:0.9rem; font-weight:500;" placeholder="priya@example.com">
+                </div>
+
+                <div style="margin-bottom:1rem;">
+                    <label style="font-size:0.85rem; font-weight:700; display:block; margin-bottom:0.3rem;">Street Address & House No. *</label>
+                    <textarea name="address" required rows="3" style="width:100%; padding:0.65rem; border:2px solid var(--border-color); border-radius:6px; font-size:0.9rem; font-weight:500;" placeholder="Flat 402, Royal Residency, Road No. 12"></textarea>
+                </div>
+
+                <div style="display:grid; grid-template-columns:repeat(3, 1fr); gap:1rem; margin-bottom:2rem;">
+                    <div>
+                        <label style="font-size:0.85rem; font-weight:700; display:block; margin-bottom:0.3rem;">City *</label>
+                        <input type="text" name="city" required style="width:100%; padding:0.65rem; border:2px solid var(--border-color); border-radius:6px; font-size:0.9rem; font-weight:500;" placeholder="Hyderabad">
+                    </div>
+                    <div>
+                        <label style="font-size:0.85rem; font-weight:700; display:block; margin-bottom:0.3rem;">State *</label>
+                        <input type="text" name="state" required style="width:100%; padding:0.65rem; border:2px solid var(--border-color); border-radius:6px; font-size:0.9rem; font-weight:500;" placeholder="Telangana">
+                    </div>
+                    <div>
+                        <label style="font-size:0.85rem; font-weight:700; display:block; margin-bottom:0.3rem;">Pincode *</label>
+                        <input type="text" name="pincode" required pattern="[0-9]{6}" style="width:100%; padding:0.65rem; border:2px solid var(--border-color); border-radius:6px; font-size:0.9rem; font-weight:500;" placeholder="500034">
+                    </div>
+                </div>
+
+                <h3 style="font-family:var(--font-heading); font-size:1.6rem; color:var(--primary-maroon); margin-bottom:1rem; border-top:2px solid var(--border-color); padding-top:1.5rem; font-weight:800;">2. Payment Method</h3>
+                
+                <div style="display:flex; flex-direction:column; gap:0.8rem; margin-bottom:1.5rem;">
+                    <label class="checkbox-label" style="padding:0.9rem; border:2px solid var(--border-color); border-radius:8px; cursor:pointer;">
+                        <input type="radio" name="paymentMethod" value="cod" checked>
+                        <span><strong>Cash on Delivery (COD)</strong> - Pay in cash upon delivery</span>
+                    </label>
+                    <label class="checkbox-label" style="padding:0.9rem; border:2px solid var(--border-color); border-radius:8px; cursor:pointer;">
+                        <input type="radio" name="paymentMethod" value="upi">
+                        <span><strong>UPI / GPay / PhonePe / QR Code</strong> - Fast digital pay</span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- ORDER SUMMARY SIDEBAR -->
+            <div class="cart-summary-box">
+                <h3 style="font-family:var(--font-heading); font-size:1.4rem; color:var(--primary-maroon); margin-bottom:1rem; border-bottom:2px solid var(--border-color); padding-bottom:0.5rem; font-weight:800;">Items in Order</h3>
+                
+                <div id="checkoutItemsSummary" style="display:flex; flex-direction:column; gap:0.75rem; max-height:220px; overflow-y:auto; margin-bottom:1rem;"></div>
+
+                <div class="summary-row"><span>Subtotal</span><span id="checkoutSubtotal">₹0</span></div>
+                <div class="summary-row"><span>Shipping</span><span id="checkoutShipping">FREE</span></div>
+                <div class="summary-row" style="color:#065F46;"><span>Discount</span><span id="checkoutDiscount">-₹0</span></div>
+                <div class="summary-row total"><span>Total Payable</span><span id="checkoutGrandTotal">₹0</span></div>
+
+                <button type="submit" class="btn btn-primary" id="placeOrderBtn" style="width:100%; margin-top:1.5rem;">PLACE ORDER NOW</button>
+            </div>
+        </form>
+    </main>
+
+    <script type="module" src="js/checkout.js"></script>
+</body>
+</html>

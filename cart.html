@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shopping Cart - Weaves Saree Collections</title>
+    <link rel="icon" type="image/png" href="assets/logo.png">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/responsive.css">
+</head>
+<body>
+    <header class="main-header">
+        <div class="container header-inner">
+            <a href="index.html" class="brand-logo" title="Weaves Saree Collections">
+                <div class="brand-logo-badge">
+                    <img src="assets/logo.png" alt="Weaves Saree Collections Logo" class="brand-logo-img" onError="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                    <div class="brand-logo-icon" style="display:none;">W</div>
+                </div>
+                <div class="brand-text-container">
+                    <span class="brand-text-main">WEAVES</span>
+                    <div class="brand-text-sub-wrap">
+                        <span class="gold-dot">◆</span>
+                        <span class="brand-text-sub">SAREE COLLECTIONS</span>
+                        <span class="gold-dot">◆</span>
+                    </div>
+                </div>
+            </a>
+            <div class="header-actions">
+                <a href="shop.html" class="btn btn-outline" style="padding:0.4rem 1rem; font-size:0.8rem;">← Continue Shopping</a>
+            </div>
+        </div>
+    </header>
+
+    <main class="container" style="margin: 3rem auto 5rem;">
+        <h1 style="font-family:var(--font-heading); font-size:2.4rem; color:var(--primary-maroon); margin-bottom:1.5rem; font-weight:800;">Your Shopping Cart</h1>
+
+        <div style="display:grid; grid-template-columns:1fr 360px; gap:2rem;" id="cartContentGrid">
+            <!-- CART TABLE -->
+            <div>
+                <table class="cart-table" id="cartTable">
+                    <thead>
+                        <tr>
+                            <th>Product</th>
+                            <th>Price</th>
+                            <th>Quantity</th>
+                            <th>Subtotal</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="cartTbody">
+                        <!-- Populated by JS -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- ORDER SUMMARY BOX -->
+            <div class="cart-summary-box">
+                <h3 style="font-family:var(--font-heading); font-size:1.4rem; color:var(--primary-maroon); margin-bottom:1rem; border-bottom:2px solid var(--border-color); padding-bottom:0.5rem; font-weight:800;">Order Summary</h3>
+                
+                <div class="summary-row">
+                    <span>Subtotal</span>
+                    <span id="summarySubtotal">₹0</span>
+                </div>
+                <div class="summary-row">
+                    <span>Shipping</span>
+                    <span id="summaryShipping">FREE</span>
+                </div>
+                
+                <!-- PROMO CODE INPUT -->
+                <div style="margin: 1rem 0; padding: 0.9rem; background:var(--bg-cream); border:1px solid var(--border-color); border-radius:var(--radius-sm);">
+                    <label style="font-size:0.82rem; font-weight:700; display:block; margin-bottom:0.3rem;">Have a Promo Code?</label>
+                    <div style="display:flex; gap:0.5rem;">
+                        <input type="text" id="promoInput" placeholder="Try 'ROYAL10'" style="flex:1; padding:0.45rem; border:2px solid var(--border-color); border-radius:4px; font-size:0.85rem; font-weight:600;">
+                        <button type="button" id="applyPromoBtn" class="btn btn-outline" style="padding:0.4rem 0.8rem; font-size:0.75rem;">Apply</button>
+                    </div>
+                    <span id="promoStatusMsg" style="font-size:0.75rem; color:#065F46; font-weight:700; margin-top:0.3rem; display:block;"></span>
+                </div>
+
+                <div class="summary-row" id="discountRow" style="display:none; color:#065F46;">
+                    <span>Promo Discount</span>
+                    <span id="summaryDiscount">-₹0</span>
+                </div>
+
+                <div class="summary-row total">
+                    <span>Grand Total</span>
+                    <span id="summaryGrandTotal">₹0</span>
+                </div>
+
+                <a href="checkout.html" class="btn btn-primary" style="width:100%; margin-top:1.5rem; text-align:center;">PROCEED TO CHECKOUT</a>
+            </div>
+        </div>
+    </main>
+
+    <script type="module">
+        import { getCart, updateCartQuantity, removeFromCart, getCartTotals } from './js/cart.js';
+
+        let activePromo = '';
+
+        function renderCartPage() {
+            const cart = getCart();
+            const tbody = document.getElementById('cartTbody');
+            const grid = document.getElementById('cartContentGrid');
+
+            if (cart.length === 0) {
+                grid.innerHTML = `
+                    <div style="grid-column:1/-1; text-align:center; padding:4rem; background:var(--bg-white); border-radius:var(--radius-md); border:2px solid var(--border-color);">
+                        <h2 style="font-family:var(--font-heading); font-size:2rem; color:var(--primary-maroon); margin-bottom:0.5rem; font-weight:800;">Your Cart is Empty</h2>
+                        <p style="color:var(--text-muted); margin-bottom:1.5rem; font-weight:500;">Explore our handwoven sarees and add your favorites to cart.</p>
+                        <a href="shop.html" class="btn btn-primary">EXPLORE SAREES</a>
+                    </div>
+                `;
+                return;
+            }
+
+            tbody.innerHTML = cart.map(item => `
+                <tr>
+                    <td>
+                        <div class="cart-item-info">
+                            <img src="${item.image}" class="cart-item-thumb" alt="${item.name}">
+                            <div>
+                                <h4 style="font-size:0.92rem; font-weight:700;"><a href="product.html?id=${item.id}">${item.name}</a></h4>
+                                <span style="font-size:0.78rem; color:var(--text-muted); font-weight:500;">${item.fabric || ''} • SKU: ${item.sku || 'SAR-001'}</span>
+                            </div>
+                        </div>
+                    </td>
+                    <td style="font-weight:700;">₹${item.price.toLocaleString('en-IN')}</td>
+                    <td>
+                        <div class="qty-controls">
+                            <button onclick="changeQty('${item.id}', ${item.quantity - 1})">-</button>
+                            <input type="text" value="${item.quantity}" readonly>
+                            <button onclick="changeQty('${item.id}', ${item.quantity + 1})">+</button>
+                        </div>
+                    </td>
+                    <td style="font-weight:800; color:var(--primary-maroon);">₹${(item.price * item.quantity).toLocaleString('en-IN')}</td>
+                    <td>
+                        <button onclick="deleteItem('${item.id}')" style="color:red; font-size:1.3rem; font-weight:700;" title="Remove Item">✕</button>
+                    </td>
+                </tr>
+            `).join('');
+
+            updateSummary();
+        }
+
+        function updateSummary() {
+            const totals = getCartTotals(activePromo);
+            document.getElementById('summarySubtotal').textContent = `₹${totals.subtotal.toLocaleString('en-IN')}`;
+            document.getElementById('summaryShipping').textContent = totals.shipping === 0 ? 'FREE' : `₹${totals.shipping}`;
+            
+            if (totals.discount > 0) {
+                document.getElementById('discountRow').style.display = 'flex';
+                document.getElementById('summaryDiscount').textContent = `-₹${totals.discount.toLocaleString('en-IN')}`;
+            } else {
+                document.getElementById('discountRow').style.display = 'none';
+            }
+            
+            document.getElementById('summaryGrandTotal').textContent = `₹${totals.grandTotal.toLocaleString('en-IN')}`;
+        }
+
+        window.changeQty = function(id, newQty) {
+            updateCartQuantity(id, newQty);
+            renderCartPage();
+        };
+
+        window.deleteItem = function(id) {
+            removeFromCart(id);
+            renderCartPage();
+        };
+
+        document.getElementById('applyPromoBtn')?.addEventListener('click', () => {
+            const val = document.getElementById('promoInput').value.trim();
+            if (val.toUpperCase() === 'ROYAL10') {
+                activePromo = 'ROYAL10';
+                document.getElementById('promoStatusMsg').textContent = '✓ 10% Royal Coupon Applied!';
+            } else {
+                activePromo = '';
+                document.getElementById('promoStatusMsg').textContent = 'Invalid promo code';
+                document.getElementById('promoStatusMsg').style.color = 'red';
+            }
+            updateSummary();
+        });
+
+        document.addEventListener('DOMContentLoaded', renderCartPage);
+    </script>
+</body>
+</html>
