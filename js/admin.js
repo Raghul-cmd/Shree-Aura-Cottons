@@ -302,37 +302,49 @@ async function initOrdersPage() {
     if (!tbody) return;
 
     const orders = await getOrders();
-    if (orders.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="7" style="text-align:center;">No customer orders placed yet.</td></tr>`;
+    if (!orders || orders.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding:2rem; color:#64748B;">No customer orders placed yet.</td></tr>`;
         return;
     }
 
-    tbody.innerHTML = orders.map(o => `
-        <tr>
-            <td><strong>${o.id}</strong></td>
-            <td>
-                <strong>${o.customer_name}</strong><br>
-                <small style="color:var(--admin-text-sub);">${o.phone} • ${o.city}</small>
-            </td>
-            <td>₹${Number(o.total_amount).toLocaleString('en-IN')}</td>
-            <td>
-                <select class="status-select-inline" data-id="${o.id}" data-type="payment">
-                    <option value="pending" ${o.payment_status === 'pending' ? 'selected' : ''}>Pending</option>
-                    <option value="paid" ${o.payment_status === 'paid' ? 'selected' : ''}>Paid</option>
-                </select>
-            </td>
-            <td>
-                <select class="status-select-inline" data-id="${o.id}" data-type="order">
-                    <option value="placed" ${o.order_status === 'placed' ? 'selected' : ''}>Placed</option>
-                    <option value="processing" ${o.order_status === 'processing' ? 'selected' : ''}>Processing</option>
-                    <option value="shipped" ${o.order_status === 'shipped' ? 'selected' : ''}>Shipped</option>
-                    <option value="delivered" ${o.order_status === 'delivered' ? 'selected' : ''}>Delivered</option>
-                    <option value="cancelled" ${o.order_status === 'cancelled' ? 'selected' : ''}>Cancelled</option>
-                </select>
-            </td>
-            <td>${new Date(o.created_at).toLocaleDateString()}</td>
-        </tr>
-    `).join('');
+    tbody.innerHTML = orders.map(o => {
+        const rawId = String(o.id || '');
+        const displayId = rawId.startsWith('ord_') ? rawId.toUpperCase() : (rawId.length > 8 ? rawId.substring(0, 8).toUpperCase() : rawId.toUpperCase());
+        const itemsList = Array.isArray(o.order_items) && o.order_items.length > 0
+            ? o.order_items.map(i => `${i.product_name || i.name || 'Saree'} (x${i.quantity || 1})`).join(', ')
+            : 'Saree Collection Item';
+
+        return `
+            <tr>
+                <td>
+                    <strong style="color:var(--admin-primary); font-family:monospace; font-size:0.9rem;">#${displayId}</strong><br>
+                    <small style="color:var(--admin-text-sub); font-size:0.75rem;">${itemsList}</small>
+                </td>
+                <td>
+                    <strong style="color:#0F172A;">${o.customer_name || 'Guest Customer'}</strong><br>
+                    <small style="color:var(--admin-text-sub); font-size:0.78rem;">${o.phone || ''} ${o.city ? '• ' + o.city : ''}</small>
+                </td>
+                <td><strong style="font-size:0.92rem; color:#0F172A;">₹${Number(o.total_amount || 0).toLocaleString('en-IN')}</strong></td>
+                <td>
+                    <select class="status-select-inline" data-id="${o.id}" data-type="payment" style="padding:0.4rem 0.6rem; border-radius:6px; border:1px solid #CBD5E1; font-weight:600; font-size:0.8rem; background:${o.payment_status === 'paid' ? '#DCFCE7' : '#FEF3C7'}; color:${o.payment_status === 'paid' ? '#166534' : '#92400E'}; cursor:pointer;">
+                        <option value="pending" ${o.payment_status === 'pending' ? 'selected' : ''}>⏳ Pending</option>
+                        <option value="paid" ${o.payment_status === 'paid' ? 'selected' : ''}>✅ Paid</option>
+                        <option value="failed" ${o.payment_status === 'failed' ? 'selected' : ''}>❌ Failed</option>
+                    </select>
+                </td>
+                <td>
+                    <select class="status-select-inline" data-id="${o.id}" data-type="order" style="padding:0.4rem 0.6rem; border-radius:6px; border:1px solid #CBD5E1; font-weight:600; font-size:0.8rem; background:#F1F5F9; color:#334155; cursor:pointer;">
+                        <option value="placed" ${o.order_status === 'placed' ? 'selected' : ''}>📦 Placed</option>
+                        <option value="processing" ${o.order_status === 'processing' ? 'selected' : ''}>⚙️ Processing</option>
+                        <option value="shipped" ${o.order_status === 'shipped' ? 'selected' : ''}>🚚 Shipped</option>
+                        <option value="delivered" ${o.order_status === 'delivered' ? 'selected' : ''}>🎉 Delivered</option>
+                        <option value="cancelled" ${o.order_status === 'cancelled' ? 'selected' : ''}>🚫 Cancelled</option>
+                    </select>
+                </td>
+                <td><small style="color:var(--admin-text-sub); font-weight:600; font-size:0.8rem;">${new Date(o.created_at || Date.now()).toLocaleDateString('en-IN', { day:'numeric', month:'short', year:'numeric' })}</small></td>
+            </tr>
+        `;
+    }).join('');
 
     tbody.querySelectorAll('.status-select-inline').forEach(select => {
         select.addEventListener('change', async (e) => {

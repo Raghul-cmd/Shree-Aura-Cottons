@@ -262,6 +262,64 @@ const INITIAL_MOCK_PRODUCTS = [
     }
 ];
 
+const INITIAL_MOCK_ORDERS = [
+    {
+        id: 'ord_1001',
+        user_id: null,
+        customer_name: 'Priya Sundaram',
+        phone: '+91 98765 43210',
+        email: 'priya.sundaram@gmail.com',
+        address: '142, Temple Street, T. Nagar',
+        city: 'Chennai',
+        state: 'Tamil Nadu',
+        pincode: '600017',
+        total_amount: 3398.00,
+        payment_status: 'paid',
+        order_status: 'delivered',
+        created_at: new Date(Date.now() - 86400000 * 2).toISOString(),
+        order_items: [
+            { id: 'item_1', product_name: 'Fancy Cotton Maroon Daily Saree', quantity: 1, price: 899.00, subtotal: 899.00 },
+            { id: 'item_2', product_name: 'Royal Kanjivaram Soft Silk Saree', quantity: 1, price: 2499.00, subtotal: 2499.00 }
+        ]
+    },
+    {
+        id: 'ord_1002',
+        user_id: null,
+        customer_name: 'Ananya Sharma',
+        phone: '+91 98123 45678',
+        email: 'ananya.sharma@yahoo.com',
+        address: '88, MG Road, Indiranagar',
+        city: 'Bengaluru',
+        state: 'Karnataka',
+        pincode: '560038',
+        total_amount: 3299.00,
+        payment_status: 'paid',
+        order_status: 'shipped',
+        created_at: new Date(Date.now() - 86400000).toISOString(),
+        order_items: [
+            { id: 'item_3', product_name: 'Handwoven Banarasi Zari Silk Saree', quantity: 1, price: 3299.00, subtotal: 3299.00 }
+        ]
+    },
+    {
+        id: 'ord_1003',
+        user_id: null,
+        customer_name: 'Kavitha Raman',
+        phone: '+91 97890 12345',
+        email: 'kavitha.raman@outlook.com',
+        address: '25, Annanagar 2nd Main Road',
+        city: 'Madurai',
+        state: 'Tamil Nadu',
+        pincode: '625020',
+        total_amount: 1599.00,
+        payment_status: 'pending',
+        order_status: 'placed',
+        created_at: new Date().toISOString(),
+        order_items: [
+            { id: 'item_4', product_name: 'Pure Linen Handloom Mustard Saree', quantity: 1, price: 1599.00, subtotal: 1599.00 }
+        ]
+    }
+];
+
 // Helper to seed LocalStorage if mock mode
 function initMockStorage() {
     const existing = localStorage.getItem('vw_mock_products');
@@ -489,13 +547,17 @@ export async function getOrders() {
     if (supabaseClient) {
         try {
             const { data, error } = await supabaseClient.from('orders').select('*, order_items(*)').order('created_at', { ascending: false });
-            if (!error && data) return data;
+            if (!error && data && data.length > 0) return data;
         } catch (e) {
             console.warn("Supabase orders fetch failed:", e);
         }
     }
     let orders = [];
     try { orders = JSON.parse(localStorage.getItem('vw_mock_orders') || '[]'); } catch(e) {}
+    if (!orders || orders.length === 0) {
+        orders = [...INITIAL_MOCK_ORDERS];
+        localStorage.setItem('vw_mock_orders', JSON.stringify(orders));
+    }
     return orders;
 }
 
