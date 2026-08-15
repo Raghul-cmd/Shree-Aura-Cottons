@@ -22,17 +22,18 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
 
     // Page Specific Initialization
-    if (window.location.pathname.includes('/admin/index.html') || window.location.pathname.endsWith('/admin/')) {
+    const path = window.location.pathname.toLowerCase();
+    if (path.endsWith('/admin') || path.endsWith('/admin/') || path.includes('/admin/index')) {
         initDashboardPage();
-    } else if (window.location.pathname.includes('/admin/products.html')) {
+    } else if (path.includes('/admin/products')) {
         initProductsTablePage();
-    } else if (window.location.pathname.includes('/admin/add-product.html')) {
+    } else if (path.includes('/admin/add-product')) {
         initAddProductPage();
-    } else if (window.location.pathname.includes('/admin/edit-product.html')) {
+    } else if (path.includes('/admin/edit-product')) {
         initEditProductPage();
-    } else if (window.location.pathname.includes('/admin/orders.html')) {
+    } else if (path.includes('/admin/orders')) {
         initOrdersPage();
-    } else if (window.location.pathname.includes('/admin/categories.html')) {
+    } else if (path.includes('/admin/categories')) {
         initCategoriesPage();
     }
 });
