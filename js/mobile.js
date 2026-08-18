@@ -1,9 +1,15 @@
-// ==============================================================================
-// WEAVES SAREE COLLECTIONS - MOBILE APP INTERACTION CONTROLLER
-// ==============================================================================
+// Register Service Worker for PWA Mobile App Experience
+if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('./sw.js').catch(() => {});
+}
 
-import { getCart } from './cart.js';
-import { getWishlist } from './wishlist.js';
+let deferredPrompt = null;
+window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredPrompt = e;
+    const installBtn = document.getElementById('installAppBtn');
+    if (installBtn) installBtn.style.display = 'block';
+});
 
 function setupMobile() {
     ensureMobileElements();
@@ -39,10 +45,21 @@ function ensureMobileElements() {
                     <li><a href="wishlist.html">💖 My Saved Wishlist</a></li>
                     <li><a href="cart.html">🛒 Shopping Cart</a></li>
                     <li><a href="login.html">👤 Customer Account</a></li>
+                    <li><a href="#" id="installAppBtn" style="color:var(--primary-maroon); font-weight:800; display:none;">📲 Install Mobile App</a></li>
                 </ul>
             </div>
         `;
         document.body.insertAdjacentHTML('afterbegin', drawerHTML);
+
+        document.getElementById('installAppBtn')?.addEventListener('click', (e) => {
+            e.preventDefault();
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                deferredPrompt.userChoice.then(() => {
+                    deferredPrompt = null;
+                });
+            }
+        });
     }
 
     // 2. Inject Mobile Hamburger Toggle Button in Header if missing
