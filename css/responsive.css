@@ -170,6 +170,8 @@
         width: 38px;
         object-fit: contain;
         display: block;
+        border-radius: 50% !important;
+        box-shadow: 0 2px 8px rgba(122, 28, 48, 0.15);
     }
 
     .brand-text-main {
