@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,35 +9,33 @@
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/responsive.css">
 </head>
+
 <body>
     <header class="main-header">
         <div class="container header-inner">
             <a href="index.html" class="brand-logo" title="Weaves Saree Collections">
                 <div class="brand-logo-badge">
-                    <img src="assets/logo.png" alt="Weaves Saree Collections Logo" class="brand-logo-img" onError="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                    <img src="assets/logo.png" alt="Weaves Saree Collections Logo" class="brand-logo-img"
+                        onError="this.style.display='none'; this.nextElementSibling.style.display='flex';">
                     <div class="brand-logo-icon" style="display:none;">W</div>
                 </div>
                 <div class="brand-text-container">
                     <span class="brand-text-main">WEAVES</span>
                     <div class="brand-text-sub-wrap">
-                        <span class="gold-dot">◆</span>
                         <span class="brand-text-sub">SAREE COLLECTIONS</span>
-                        <span class="gold-dot">◆</span>
                     </div>
                 </div>
             </a>
-            <div class="header-actions">
-                <a href="shop.html" class="btn btn-outline" style="padding:0.4rem 1rem; font-size:0.8rem;">← Continue Shopping</a>
-            </div>
         </div>
     </header>
 
-    <main class="container" style="margin: 3rem auto 5rem;">
-        <h1 style="font-family:var(--font-heading); font-size:2.4rem; color:var(--primary-maroon); margin-bottom:1.5rem; font-weight:800;">Your Shopping Cart</h1>
+    <main class="container" style="margin: 2rem auto 5rem;">
+        <h1 style="font-family:var(--font-heading); font-size:1.8rem; color:var(--primary-maroon); margin-bottom:1.5rem; font-weight:800;">
+            Your Shopping Cart</h1>
 
-        <div style="display:grid; grid-template-columns:1fr 360px; gap:2rem;" id="cartContentGrid">
+        <div class="checkout-layout" id="cartContentGrid">
             <!-- CART TABLE -->
-            <div>
+            <div class="cart-table-wrapper">
                 <table class="cart-table" id="cartTable">
                     <thead>
                         <tr>
@@ -55,8 +54,10 @@
 
             <!-- ORDER SUMMARY BOX -->
             <div class="cart-summary-box">
-                <h3 style="font-family:var(--font-heading); font-size:1.4rem; color:var(--primary-maroon); margin-bottom:1rem; border-bottom:2px solid var(--border-color); padding-bottom:0.5rem; font-weight:800;">Order Summary</h3>
-                
+                <h3
+                    style="font-family:var(--font-heading); font-size:1.4rem; color:var(--primary-maroon); margin-bottom:1rem; border-bottom:2px solid var(--border-color); padding-bottom:0.5rem; font-weight:800;">
+                    Order Summary</h3>
+
                 <div class="summary-row">
                     <span>Subtotal</span>
                     <span id="summarySubtotal">₹0</span>
@@ -65,15 +66,20 @@
                     <span>Shipping</span>
                     <span id="summaryShipping">FREE</span>
                 </div>
-                
+
                 <!-- PROMO CODE INPUT -->
-                <div style="margin: 1rem 0; padding: 0.9rem; background:var(--bg-cream); border:1px solid var(--border-color); border-radius:var(--radius-sm);">
-                    <label style="font-size:0.82rem; font-weight:700; display:block; margin-bottom:0.3rem;">Have a Promo Code?</label>
+                <div
+                    style="margin: 1rem 0; padding: 0.9rem; background:var(--bg-cream); border:1px solid var(--border-color); border-radius:var(--radius-sm);">
+                    <label style="font-size:0.82rem; font-weight:700; display:block; margin-bottom:0.3rem;">Have a Promo
+                        Code?</label>
                     <div style="display:flex; gap:0.5rem;">
-                        <input type="text" id="promoInput" placeholder="Try 'ROYAL10'" style="flex:1; padding:0.45rem; border:2px solid var(--border-color); border-radius:4px; font-size:0.85rem; font-weight:600;">
-                        <button type="button" id="applyPromoBtn" class="btn btn-outline" style="padding:0.4rem 0.8rem; font-size:0.75rem;">Apply</button>
+                        <input type="text" id="promoInput" placeholder="Try 'ROYAL10'"
+                            style="flex:1; padding:0.45rem; border:2px solid var(--border-color); border-radius:4px; font-size:0.85rem; font-weight:600;">
+                        <button type="button" id="applyPromoBtn" class="btn btn-outline"
+                            style="padding:0.4rem 0.8rem; font-size:0.75rem;">Apply</button>
                     </div>
-                    <span id="promoStatusMsg" style="font-size:0.75rem; color:#065F46; font-weight:700; margin-top:0.3rem; display:block;"></span>
+                    <span id="promoStatusMsg"
+                        style="font-size:0.75rem; color:#065F46; font-weight:700; margin-top:0.3rem; display:block;"></span>
                 </div>
 
                 <div class="summary-row" id="discountRow" style="display:none; color:#065F46;">
@@ -86,7 +92,8 @@
                     <span id="summaryGrandTotal">₹0</span>
                 </div>
 
-                <a href="checkout.html" class="btn btn-primary" style="width:100%; margin-top:1.5rem; text-align:center;">PROCEED TO CHECKOUT</a>
+                <a href="checkout.html" class="btn btn-primary"
+                    style="width:100%; margin-top:1.5rem; text-align:center;">PROCEED TO CHECKOUT</a>
             </div>
         </div>
     </main>
@@ -145,23 +152,23 @@
             const totals = getCartTotals(activePromo);
             document.getElementById('summarySubtotal').textContent = `₹${totals.subtotal.toLocaleString('en-IN')}`;
             document.getElementById('summaryShipping').textContent = totals.shipping === 0 ? 'FREE' : `₹${totals.shipping}`;
-            
+
             if (totals.discount > 0) {
                 document.getElementById('discountRow').style.display = 'flex';
                 document.getElementById('summaryDiscount').textContent = `-₹${totals.discount.toLocaleString('en-IN')}`;
             } else {
                 document.getElementById('discountRow').style.display = 'none';
             }
-            
+
             document.getElementById('summaryGrandTotal').textContent = `₹${totals.grandTotal.toLocaleString('en-IN')}`;
         }
 
-        window.changeQty = function(id, newQty) {
+        window.changeQty = function (id, newQty) {
             updateCartQuantity(id, newQty);
             renderCartPage();
         };
 
-        window.deleteItem = function(id) {
+        window.deleteItem = function (id) {
             removeFromCart(id);
             renderCartPage();
         };
@@ -181,5 +188,7 @@
 
         document.addEventListener('DOMContentLoaded', renderCartPage);
     </script>
+    <script type="module" src="js/mobile.js"></script>
 </body>
+
 </html>

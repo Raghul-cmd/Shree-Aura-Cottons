@@ -59,16 +59,24 @@ async function loadProductsGrid() {
         const products = await fetchAndFilterProducts(currentFilters);
         renderActiveFilterPills();
         
-        // Update Title & Breadcrumbs
+        // Update Title & Breadcrumbs Dynamically
         const titleEl = document.querySelector('.shop-title-row h1');
         const breadcrumbEl = document.getElementById('currentCategoryBreadcrumb');
         let displayCat = 'All Saree Collections';
+
         if (currentFilters.category) {
             const formatted = currentFilters.category.replace(/-/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
             displayCat = formatted.toLowerCase().includes('saree') ? formatted : `${formatted} Sarees`;
+        } else if (currentFilters.fabrics && currentFilters.fabrics.length > 0) {
+            displayCat = `${currentFilters.fabrics.join(', ')} Sarees`;
+        } else if (currentFilters.occasions && currentFilters.occasions.length > 0) {
+            displayCat = `${currentFilters.occasions.join(', ')} Collection`;
+        } else if (currentFilters.colors && currentFilters.colors.length > 0) {
+            displayCat = `${currentFilters.colors.join(', ')} Sarees`;
         } else if (currentFilters.search) {
             displayCat = `Search: "${currentFilters.search}"`;
         }
+
         if (titleEl) titleEl.textContent = displayCat;
         if (breadcrumbEl) breadcrumbEl.textContent = displayCat;
 
@@ -173,8 +181,16 @@ function setupFilterListeners() {
         loadProductsGrid();
     });
 
-    // Clear All Filters Button
-    document.getElementById('clearFiltersBtn')?.addEventListener('click', clearAllFilters);
+    // Special Offers % Button Toggle
+    let onlyOffers = false;
+    document.getElementById('offerFilterBtn')?.addEventListener('click', (e) => {
+        onlyOffers = !onlyOffers;
+        const btn = e.currentTarget;
+        btn.classList.toggle('active', onlyOffers);
+        btn.innerHTML = onlyOffers ? '🏷️ Offers Active %' : '🏷️ Special Offers %';
+        currentFilters.onlyOffers = onlyOffers;
+        loadProductsGrid();
+    });
 }
 
 function clearAllFilters() {

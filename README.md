@@ -1,4 +1,4 @@
-# 🛍️ Weaves Saree Collections - Production Saree E-Commerce Store & Admin Portal
+# 🛍️ Weaves Saree Collections - Production Saree E-Commerce Store
 
 A full-featured, luxury Indian saree e-commerce website inspired by the visual layout and shopping experience of **Kalamandir Daily Wear**, built with **HTML5, Vanilla CSS3, ES Module JavaScript, Supabase PostgreSQL, Supabase Auth, and Supabase Storage**.
 
@@ -28,17 +28,6 @@ A full-featured, luxury Indian saree e-commerce website inspired by the visual l
   - Delivery address collection & pincode validation.
   - Payment method picker (Cash on Delivery / UPI Pay QR simulation).
   - Order submission to Supabase `orders` & `order_items` tables with order confirmation reference ID.
-
-### Admin Management Portal (`/admin/*`)
-- **Role Security Protection**: Session role verification (`profiles.role === 'admin'`). Non-admin users are automatically blocked and redirected to `/admin/login.html`.
-- **Executive Dashboard (`admin/index.html`)**: Real-time KPI metrics (Total Products, Active Listings, Low Stock Alert count `< 5`, Total Orders, Sales Revenue) & Recent Orders log.
-- **Products Catalog (`admin/products.html`)**:
-  - Full product list with image thumbnail, SKU, Product Title, Price, Inline stock editor, Active/Archived pill status.
-  - Soft-delete (Archive) and Restore capability.
-- **Add Product (`admin/add-product.html`)**:
-  - Form with automatic slug generation, discount calculation, fabric/color selectors, and direct image upload to Supabase Storage `product-images` bucket.
-- **Edit Product (`admin/edit-product.html`)**: Pre-populates existing product data and allows updating imagery and metadata.
-- **Orders Management (`admin/orders.html`)**: View customer orders, update payment status (`pending`, `paid`) and order status (`placed`, `processing`, `shipped`, `delivered`, `cancelled`).
 
 ---
 
@@ -86,14 +75,6 @@ git push -u origin main
   - `SUPABASE_URL` = `https://your-project-id.supabase.co`
   - `SUPABASE_ANON_KEY` = `your-publishable-anon-key`
 - Click **Deploy**.
-
----
-
-## 🔐 Admin Demo Credentials
-
-- **Admin Login Page**: `/admin/login.html`
-- **Email**: `admin@vanamala.com`
-- **Password**: `admin123`
 
 ---
 

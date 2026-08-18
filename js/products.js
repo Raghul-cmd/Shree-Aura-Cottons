@@ -56,6 +56,11 @@ export async function fetchAndFilterProducts(filters = {}) {
         });
     }
     
+    // Only Offers Filter
+    if (filters.onlyOffers) {
+        products = products.filter(p => (p.compare_price && p.compare_price > p.price) || (p.discount_percentage && p.discount_percentage > 0));
+    }
+
     // Search Query Filter
     if (filters.search) {
         const q = filters.search.toLowerCase().trim();

@@ -84,13 +84,3 @@ export async function logoutUser() {
     localStorage.removeItem('vw_session');
     window.location.href = '/login.html';
 }
-
-export async function adminGuard() {
-    const user = await getCurrentUser();
-    if (!user || user.role !== 'admin') {
-        console.warn("Unauthorized admin access attempt. Redirecting to login...");
-        window.location.href = '/admin/login.html';
-        return false;
-    }
-    return true;
-}

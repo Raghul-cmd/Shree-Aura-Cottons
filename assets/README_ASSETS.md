@@ -7,5 +7,5 @@ To replace the fallback monogram text with your official shop logo image:
 3. Paste it directly into this directory:
    `d:\WeavesSareeCollections\assets\logo.png`
 
-The website and admin portal will automatically load your custom logo image seamlessly!
+The website will automatically load your custom logo image seamlessly!
 If no image file is present in `assets/logo.png`, the system gracefully defaults to the luxury Cinzel monogram text emblem.
