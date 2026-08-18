@@ -79,7 +79,7 @@ function initMobileBottomNav() {
 
     const currentPath = window.location.pathname.toLowerCase();
     
-    const isHome = currentPath.endsWith('index.html') || currentPath.endsWith('/') || currentPath === '' || currentPath.endsWith('weavessareecollections');
+    const isHome = currentPath.endsWith('index.html') || currentPath.endsWith('/') || currentPath === '' || currentPath.endsWith('weavessareecollections') || currentPath.endsWith('shree-aura-cottons') || currentPath.endsWith('shreeauracottons');
     const isShop = currentPath.includes('shop.html') || currentPath.includes('product.html');
     const isWishlist = currentPath.includes('wishlist.html');
     const isCart = currentPath.includes('cart.html') || currentPath.includes('checkout.html');

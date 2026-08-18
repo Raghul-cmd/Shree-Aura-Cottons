@@ -1,6 +1,6 @@
-# 🛍️ Weaves Saree Collections - Production Saree E-Commerce Store
+# 🛍️ Shree Aura Cottons - Production Saree E-Commerce Store & Mobile PWA App
 
-A full-featured, luxury Indian saree e-commerce website inspired by the visual layout and shopping experience of **Kalamandir Daily Wear**, built with **HTML5, Vanilla CSS3, ES Module JavaScript, Supabase PostgreSQL, Supabase Auth, and Supabase Storage**.
+A full-featured, luxury Indian saree e-commerce website and mobile application built with **HTML5, Vanilla CSS3, ES Module JavaScript, PWA Service Worker, Supabase PostgreSQL, Supabase Auth, and Supabase Storage**.
 
 ---
 
