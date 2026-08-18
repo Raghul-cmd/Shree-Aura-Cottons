@@ -36,7 +36,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 function renderProductDetails(product) {
     // Title & Breadcrumb
-    document.title = `${product.name} - Weaves Saree Collections`;
+    document.title = `${product.name} - Shree Aura Cottons`;
     document.getElementById('breadcrumbCategory').textContent = product.fabric || product.category_name || 'Collection';
     document.getElementById('breadcrumbTitle').textContent = product.name;
 

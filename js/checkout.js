@@ -90,7 +90,7 @@ function showSuccessModal(order) {
             <div style="background:var(--bg-white); border-radius:var(--radius-lg); padding:2.5rem; max-width:500px; width:100%; text-align:center; box-shadow:var(--shadow-lg);">
                 <div style="width:60px; height:60px; background:#D1FAE5; color:#065F46; border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto 1rem; font-size:2rem;">✓</div>
                 <h2 style="font-family:var(--font-heading); font-size:2rem; color:var(--primary-maroon); margin-bottom:0.5rem;">Order Placed Successfully!</h2>
-                <p style="color:var(--text-muted); font-size:0.9rem; margin-bottom:1.5rem;">Thank you for shopping with Weaves Saree Collections. Your order reference ID is <strong>${order.id}</strong>.</p>
+                <p style="color:var(--text-muted); font-size:0.9rem; margin-bottom:1.5rem;">Thank you for shopping with Shree Aura Cottons. Your order reference ID is <strong>${order.id}</strong>.</p>
                 <div style="background:var(--bg-cream); padding:1rem; border-radius:var(--radius-md); text-align:left; margin-bottom:1.5rem; font-size:0.85rem;">
                     <p style="margin-bottom:0.3rem;"><strong>Recipient:</strong> ${order.customer_name}</p>
                     <p style="margin-bottom:0.3rem;"><strong>Delivery Address:</strong> ${order.address}, ${order.city}, ${order.state} - ${order.pincode}</p>

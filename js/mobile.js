@@ -25,7 +25,7 @@ function ensureMobileElements() {
             <div class="mobile-nav-overlay" id="mobileNavOverlay"></div>
             <div class="mobile-drawer" id="mobileDrawer">
                 <div class="mobile-drawer-header">
-                    <span style="font-family:var(--font-heading); font-size:0.95rem; color:var(--primary-maroon); font-weight:800; letter-spacing:0.5px;">WEAVES SAREE COLLECTIONS</span>
+                    <span style="font-family:var(--font-heading); font-size:0.95rem; color:var(--primary-maroon); font-weight:800; letter-spacing:0.5px;">SHREE AURA COTTONS</span>
                     <button class="mobile-filter-close" id="mobileNavClose">✕</button>
                 </div>
                 <ul class="mobile-menu-links">
