@@ -43,10 +43,8 @@ const INITIAL_MOCK_PRODUCTS = [
         occasion: 'Daily Wear',
         stock: 15,
         sku: 'SAR-COT-001',
-        main_image: 'https://kuajhwywwvjykxjaaxkg.supabase.co/storage/v1/object/public/product-images/sarees/1.jpeg',
-        images: [
-            'https://kuajhwywwvjykxjaaxkg.supabase.co/storage/v1/object/public/product-images/sarees/1.jpeg'
-        ],
+        main_image: 'assets/Saree Folder/1.jpeg',
+        images: ['assets/Saree Folder/1.jpeg'],
         is_active: true,
         is_featured: true,
         created_at: new Date(Date.now() - 86400000 * 2).toISOString()
@@ -66,10 +64,8 @@ const INITIAL_MOCK_PRODUCTS = [
         occasion: 'Wedding',
         stock: 8,
         sku: 'SAR-SLK-002',
-        main_image: 'https://kuajhwywwvjykxjaaxkg.supabase.co/storage/v1/object/public/product-images/sarees/2.jpeg',
-        images: [
-            'https://kuajhwywwvjykxjaaxkg.supabase.co/storage/v1/object/public/product-images/sarees/2.jpeg'
-        ],
+        main_image: 'assets/Saree Folder/2.jpeg',
+        images: ['assets/Saree Folder/2.jpeg'],
         is_active: true,
         is_featured: true,
         created_at: new Date(Date.now() - 86400000 * 4).toISOString()
@@ -89,10 +85,8 @@ const INITIAL_MOCK_PRODUCTS = [
         occasion: 'Wedding',
         stock: 6,
         sku: 'SAR-BAN-003',
-        main_image: 'https://kuajhwywwvjykxjaaxkg.supabase.co/storage/v1/object/public/product-images/sarees/3.jpeg',
-        images: [
-            'https://kuajhwywwvjykxjaaxkg.supabase.co/storage/v1/object/public/product-images/sarees/3.jpeg'
-        ],
+        main_image: 'assets/Saree Folder/3.jpeg',
+        images: ['assets/Saree Folder/3.jpeg'],
         is_active: true,
         is_featured: true,
         created_at: new Date(Date.now() - 86400000 * 1).toISOString()
@@ -112,10 +106,8 @@ const INITIAL_MOCK_PRODUCTS = [
         occasion: 'Office Wear',
         stock: 20,
         sku: 'SAR-GEO-004',
-        main_image: 'https://kuajhwywwvjykxjaaxkg.supabase.co/storage/v1/object/public/product-images/sarees/4.jpeg',
-        images: [
-            'https://kuajhwywwvjykxjaaxkg.supabase.co/storage/v1/object/public/product-images/sarees/4.jpeg'
-        ],
+        main_image: 'assets/Saree Folder/4.jpeg',
+        images: ['assets/Saree Folder/4.jpeg'],
         is_active: true,
         is_featured: false,
         created_at: new Date(Date.now() - 86400000 * 6).toISOString()
@@ -135,10 +127,8 @@ const INITIAL_MOCK_PRODUCTS = [
         occasion: 'Daily Wear',
         stock: 12,
         sku: 'SAR-LIN-005',
-        main_image: 'https://kuajhwywwvjykxjaaxkg.supabase.co/storage/v1/object/public/product-images/sarees/5.jpeg',
-        images: [
-            'https://kuajhwywwvjykxjaaxkg.supabase.co/storage/v1/object/public/product-images/sarees/5.jpeg'
-        ],
+        main_image: 'assets/Saree Folder/5.jpeg',
+        images: ['assets/Saree Folder/5.jpeg'],
         is_active: true,
         is_featured: true,
         created_at: new Date(Date.now() - 86400000 * 3).toISOString()
@@ -158,10 +148,8 @@ const INITIAL_MOCK_PRODUCTS = [
         occasion: 'Festive Celebration',
         stock: 10,
         sku: 'SAR-CHN-006',
-        main_image: 'https://kuajhwywwvjykxjaaxkg.supabase.co/storage/v1/object/public/product-images/sarees/6.jpeg',
-        images: [
-            'https://kuajhwywwvjykxjaaxkg.supabase.co/storage/v1/object/public/product-images/sarees/6.jpeg'
-        ],
+        main_image: 'assets/Saree Folder/6.jpeg',
+        images: ['assets/Saree Folder/6.jpeg'],
         is_active: true,
         is_featured: true,
         created_at: new Date(Date.now() - 86400000 * 5).toISOString()
@@ -181,10 +169,8 @@ const INITIAL_MOCK_PRODUCTS = [
         occasion: 'Office Wear',
         stock: 14,
         sku: 'SAR-TUS-007',
-        main_image: 'https://kuajhwywwvjykxjaaxkg.supabase.co/storage/v1/object/public/product-images/sarees/7.jpeg',
-        images: [
-            'https://kuajhwywwvjykxjaaxkg.supabase.co/storage/v1/object/public/product-images/sarees/7.jpeg'
-        ],
+        main_image: 'assets/Saree Folder/7.jpeg',
+        images: ['assets/Saree Folder/7.jpeg'],
         is_active: true,
         is_featured: false,
         created_at: new Date(Date.now() - 86400000 * 7).toISOString()
@@ -204,10 +190,8 @@ const INITIAL_MOCK_PRODUCTS = [
         occasion: 'Wedding',
         stock: 5,
         sku: 'SAR-KNJ-008',
-        main_image: 'https://kuajhwywwvjykxjaaxkg.supabase.co/storage/v1/object/public/product-images/sarees/8.jpeg',
-        images: [
-            'https://kuajhwywwvjykxjaaxkg.supabase.co/storage/v1/object/public/product-images/sarees/8.jpeg'
-        ],
+        main_image: 'assets/Saree Folder/8.jpeg',
+        images: ['assets/Saree Folder/8.jpeg'],
         is_active: true,
         is_featured: true,
         created_at: new Date(Date.now() - 86400000 * 8).toISOString()
@@ -227,10 +211,8 @@ const INITIAL_MOCK_PRODUCTS = [
         occasion: 'Festive Celebration',
         stock: 18,
         sku: 'SAR-ORG-009',
-        main_image: 'https://kuajhwywwvjykxjaaxkg.supabase.co/storage/v1/object/public/product-images/sarees/9.jpeg',
-        images: [
-            'https://kuajhwywwvjykxjaaxkg.supabase.co/storage/v1/object/public/product-images/sarees/9.jpeg'
-        ],
+        main_image: 'assets/Saree Folder/9.jpeg',
+        images: ['assets/Saree Folder/9.jpeg'],
         is_active: true,
         is_featured: true,
         created_at: new Date(Date.now() - 86400000 * 9).toISOString()
@@ -250,10 +232,8 @@ const INITIAL_MOCK_PRODUCTS = [
         occasion: 'Daily Wear',
         stock: 25,
         sku: 'SAR-CHT-010',
-        main_image: 'https://kuajhwywwvjykxjaaxkg.supabase.co/storage/v1/object/public/product-images/sarees/10.jpeg',
-        images: [
-            'https://kuajhwywwvjykxjaaxkg.supabase.co/storage/v1/object/public/product-images/sarees/10.jpeg'
-        ],
+        main_image: 'assets/Saree Folder/10.jpeg',
+        images: ['assets/Saree Folder/10.jpeg'],
         is_active: true,
         is_featured: false,
         created_at: new Date(Date.now() - 86400000 * 10).toISOString()
@@ -322,7 +302,7 @@ const INITIAL_MOCK_ORDERS = [
 function initMockStorage() {
     if (typeof localStorage === 'undefined') return;
     const existing = localStorage.getItem('vw_mock_products');
-    if (!existing || JSON.parse(existing).length < 10) {
+    if (!existing || JSON.parse(existing).length < 10 || existing.includes('unsplash')) {
         localStorage.setItem('vw_mock_products', JSON.stringify(INITIAL_MOCK_PRODUCTS));
     }
     if (!localStorage.getItem('vw_mock_categories')) {
