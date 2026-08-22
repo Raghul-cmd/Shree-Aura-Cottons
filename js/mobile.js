@@ -37,11 +37,9 @@ function ensureMobileElements() {
                 <ul class="mobile-menu-links">
                     <li><a href="index.html">🏠 Home</a></li>
                     <li><a href="shop.html">👗 Shop All Sarees</a></li>
-                    <li><a href="shop.html?category=cotton-sarees">🌿 Cotton Sarees</a></li>
-                    <li><a href="shop.html?category=silk-sarees">✨ Pure Silk Sarees</a></li>
-                    <li><a href="shop.html?category=banarasi-sarees">👑 Banarasi Sarees</a></li>
+                    <li><a href="shop.html?category=wedding-sarees">💍 Wedding Sarees</a></li>
+                    <li><a href="shop.html?category=office-wear">💼 Office Wear</a></li>
                     <li><a href="shop.html?category=daily-wear">🌸 Daily Wear Collection</a></li>
-                    <li><a href="shop.html?category=wedding-sarees">💍 Wedding Heritage</a></li>
                     <li><a href="wishlist.html">💖 My Saved Wishlist</a></li>
                     <li><a href="cart.html">🛒 Shopping Cart</a></li>
                     <li><a href="login.html">👤 Customer Account</a></li>
