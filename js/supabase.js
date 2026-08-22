@@ -237,6 +237,111 @@ const INITIAL_MOCK_PRODUCTS = [
         is_active: true,
         is_featured: false,
         created_at: new Date(Date.now() - 86400000 * 10).toISOString()
+    },
+    {
+        id: 'SAR-COT-011',
+        name: 'Teal Blue Green Zari Cotton Saree',
+        slug: 'teal-blue-green-zari-cotton-saree',
+        description: 'Vibrant green pure cotton saree featuring checks with rich peacock blue zari border and vibrant elephant print blouse piece.',
+        category_id: 'c1',
+        category_name: 'Cotton Sarees',
+        price: 1299,
+        compare_price: 1799,
+        discount_percentage: 28,
+        fabric: 'Cotton',
+        color: 'Green',
+        occasion: 'Daily Wear',
+        stock: 15,
+        sku: 'SAR-COT-011',
+        main_image: 'assets/Saree Folder/11.jpeg',
+        images: ['assets/Saree Folder/11.jpeg'],
+        is_active: true,
+        is_featured: true,
+        created_at: new Date(Date.now() - 86400000 * 11).toISOString()
+    },
+    {
+        id: 'SAR-COT-012',
+        name: 'Monochrome Grey Checked Handloom Saree',
+        slug: 'monochrome-grey-checked-handloom-saree',
+        description: 'Elegant grey handloom saree with dark black grid border and contrasting floral black blouse piece.',
+        category_id: 'c1',
+        category_name: 'Cotton Sarees',
+        price: 1199,
+        compare_price: 1699,
+        discount_percentage: 29,
+        fabric: 'Cotton',
+        color: 'Grey',
+        occasion: 'Office Wear',
+        stock: 18,
+        sku: 'SAR-COT-012',
+        main_image: 'assets/Saree Folder/12.jpeg',
+        images: ['assets/Saree Folder/12.jpeg'],
+        is_active: true,
+        is_featured: true,
+        created_at: new Date(Date.now() - 86400000 * 12).toISOString()
+    },
+    {
+        id: 'SAR-SLK-013',
+        name: 'Royal Purple Gold Zari Weave Silk Saree',
+        slug: 'royal-purple-gold-zari-weave-silk-saree',
+        description: 'Regal muted purple silk saree with rich gold zari woven border and matching brocade unstitched blouse.',
+        category_id: 'c2',
+        category_name: 'Silk Sarees',
+        price: 2299,
+        compare_price: 3499,
+        discount_percentage: 34,
+        fabric: 'Silk',
+        color: 'Purple',
+        occasion: 'Wedding',
+        stock: 10,
+        sku: 'SAR-SLK-013',
+        main_image: 'assets/Saree Folder/13.jpeg',
+        images: ['assets/Saree Folder/13.jpeg'],
+        is_active: true,
+        is_featured: true,
+        created_at: new Date(Date.now() - 86400000 * 13).toISOString()
+    },
+    {
+        id: 'SAR-COT-014',
+        name: 'Deep Plum Checked Kalamkari Saree',
+        slug: 'deep-plum-checked-kalamkari-saree',
+        description: 'Deep plum maroon cotton saree featuring fine zari checks and hand block Kalamkari floral blouse piece.',
+        category_id: 'c1',
+        category_name: 'Cotton Sarees',
+        price: 1399,
+        compare_price: 1999,
+        discount_percentage: 30,
+        fabric: 'Cotton',
+        color: 'Maroon',
+        occasion: 'Daily Wear',
+        stock: 20,
+        sku: 'SAR-COT-014',
+        main_image: 'assets/Saree Folder/14.jpeg',
+        images: ['assets/Saree Folder/14.jpeg'],
+        is_active: true,
+        is_featured: false,
+        created_at: new Date(Date.now() - 86400000 * 14).toISOString()
+    },
+    {
+        id: 'SAR-COT-015',
+        name: 'Midnight Black Zari Striped Saree',
+        slug: 'midnight-black-zari-striped-saree',
+        description: 'Chic midnight black organza-cotton saree with gold metallic stripes, tassel pallu, and ornate printed blouse.',
+        category_id: 'c4',
+        category_name: 'Daily Wear',
+        price: 1499,
+        compare_price: 2199,
+        discount_percentage: 32,
+        fabric: 'Cotton',
+        color: 'Black',
+        occasion: 'Festive Celebration',
+        stock: 14,
+        sku: 'SAR-COT-015',
+        main_image: 'assets/Saree Folder/15.jpeg',
+        images: ['assets/Saree Folder/15.jpeg'],
+        is_active: true,
+        is_featured: true,
+        created_at: new Date(Date.now() - 86400000 * 15).toISOString()
     }
 ];
 
@@ -246,7 +351,7 @@ const INITIAL_MOCK_ORDERS = [];
 function initMockStorage() {
     if (typeof localStorage === 'undefined') return;
     const existing = localStorage.getItem('vw_mock_products');
-    if (!existing || JSON.parse(existing).length < 10 || existing.includes('unsplash') || existing.includes('"p1"')) {
+    if (!existing || JSON.parse(existing).length < 15 || existing.includes('unsplash') || existing.includes('"p1"')) {
         localStorage.setItem('vw_mock_products', JSON.stringify(INITIAL_MOCK_PRODUCTS));
     }
     if (!localStorage.getItem('vw_mock_categories')) {
@@ -279,7 +384,7 @@ export async function getProducts(includeInactive = false) {
         try {
             localProds = JSON.parse(localStorage.getItem('vw_mock_products') || '[]');
         } catch(e) {}
-        if (!localProds || localProds.length < 10 || (localProds[0] && localProds[0].id === 'p1')) {
+        if (!localProds || localProds.length < 15 || (localProds[0] && localProds[0].id === 'p1')) {
             localProds = INITIAL_MOCK_PRODUCTS;
             localStorage.setItem('vw_mock_products', JSON.stringify(INITIAL_MOCK_PRODUCTS));
         }
