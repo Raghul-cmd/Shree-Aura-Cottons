@@ -20,20 +20,20 @@ if (typeof window !== 'undefined' && window.supabase && isSupabaseConfigured()) 
 
 // SEED MOCK DATASTORE FOR DIRECT LOCAL PREVIEW
 const INITIAL_MOCK_CATEGORIES = [
-    { id: 1, name: 'Cotton Sarees', slug: 'cotton-sarees', description: 'Breathable handcrafted daily cotton sarees', image_url: 'https://kuajhwywwvjykxjaaxkg.supabase.co/storage/v1/object/public/product-images/sarees/1.jpeg' },
-    { id: 2, name: 'Silk Sarees', slug: 'silk-sarees', description: 'Pure silk weaves with regal gold zari borders', image_url: 'https://kuajhwywwvjykxjaaxkg.supabase.co/storage/v1/object/public/product-images/sarees/2.jpeg' },
-    { id: 3, name: 'Banarasi Sarees', slug: 'banarasi-sarees', description: 'Varanasi brocade heirloom sarees', image_url: 'https://kuajhwywwvjykxjaaxkg.supabase.co/storage/v1/object/public/product-images/sarees/3.jpeg' },
-    { id: 4, name: 'Daily Wear', slug: 'daily-wear', description: 'Lightweight everyday sarees', image_url: 'https://kuajhwywwvjykxjaaxkg.supabase.co/storage/v1/object/public/product-images/sarees/4.jpeg' },
-    { id: 5, name: 'Wedding Sarees', slug: 'wedding-sarees', description: 'Opulent Kanchipuram & Banarasi bridal wear', image_url: 'https://kuajhwywwvjykxjaaxkg.supabase.co/storage/v1/object/public/product-images/sarees/8.jpeg' }
+    { id: 'c1000000-0000-0000-0000-000000000001', name: 'Cotton Sarees', slug: 'cotton-sarees', description: 'Breathable handcrafted daily cotton sarees', image_url: 'https://kuajhwywwvjykxjaaxkg.supabase.co/storage/v1/object/public/product-images/sarees/1.jpeg' },
+    { id: 'c1000000-0000-0000-0000-000000000002', name: 'Silk Sarees', slug: 'silk-sarees', description: 'Pure silk weaves with regal gold zari borders', image_url: 'https://kuajhwywwvjykxjaaxkg.supabase.co/storage/v1/object/public/product-images/sarees/2.jpeg' },
+    { id: 'c1000000-0000-0000-0000-000000000003', name: 'Banarasi Sarees', slug: 'banarasi-sarees', description: 'Varanasi brocade heirloom sarees', image_url: 'https://kuajhwywwvjykxjaaxkg.supabase.co/storage/v1/object/public/product-images/sarees/3.jpeg' },
+    { id: 'c1000000-0000-0000-0000-000000000004', name: 'Daily Wear', slug: 'daily-wear', description: 'Lightweight everyday sarees', image_url: 'https://kuajhwywwvjykxjaaxkg.supabase.co/storage/v1/object/public/product-images/sarees/4.jpeg' },
+    { id: 'c1000000-0000-0000-0000-000000000005', name: 'Wedding Sarees', slug: 'wedding-sarees', description: 'Opulent Kanchipuram & Banarasi bridal wear', image_url: 'https://kuajhwywwvjykxjaaxkg.supabase.co/storage/v1/object/public/product-images/sarees/8.jpeg' }
 ];
 
 const INITIAL_MOCK_PRODUCTS = [
     {
-        id: 'SAR-COT-001',
+        id: 'p1',
         name: 'Fancy Cotton Maroon Daily Saree',
         slug: 'fancy-cotton-maroon-daily-saree',
         description: 'Elegant maroon pure cotton saree featuring intricate floral block prints and a contrasting beige zari border. Perfect for all-day office and daily comfort.',
-        category_id: 1,
+        category_id: 'c1',
         category_name: 'Cotton Sarees',
         price: 899,
         compare_price: 1299,
@@ -52,11 +52,11 @@ const INITIAL_MOCK_PRODUCTS = [
         created_at: new Date(Date.now() - 86400000 * 2).toISOString()
     },
     {
-        id: 'SAR-SLK-002',
+        id: 'p2',
         name: 'Royal Kanjivaram Soft Silk Saree',
         slug: 'royal-kanjivaram-soft-silk-saree',
         description: 'Rich peacock blue soft silk saree with heavy gold brocade zari weave along the pallu and traditional temple border motifs.',
-        category_id: 2,
+        category_id: 'c2',
         category_name: 'Silk Sarees',
         price: 2499,
         compare_price: 3999,
@@ -75,11 +75,11 @@ const INITIAL_MOCK_PRODUCTS = [
         created_at: new Date(Date.now() - 86400000 * 4).toISOString()
     },
     {
-        id: 'SAR-BAN-003',
+        id: 'p3',
         name: 'Handwoven Banarasi Zari Crimson Saree',
         slug: 'handwoven-banarasi-zari-crimson-saree',
         description: 'Traditional crimson red Banarasi silk saree featuring antique silver brocade motifs and hand-finished tassels.',
-        category_id: 3,
+        category_id: 'c3',
         category_name: 'Banarasi Sarees',
         price: 3299,
         compare_price: 4999,
@@ -98,11 +98,11 @@ const INITIAL_MOCK_PRODUCTS = [
         created_at: new Date(Date.now() - 86400000 * 1).toISOString()
     },
     {
-        id: 'SAR-GEO-004',
+        id: 'p4',
         name: 'Contemporary Georgette Printed Saree',
         slug: 'contemporary-georgette-printed-saree',
         description: 'Lightweight pastel green georgette saree accented with micro-sequin border work and smooth flowy drape.',
-        category_id: 4,
+        category_id: 'c4',
         category_name: 'Daily Wear',
         price: 1199,
         compare_price: 1699,
@@ -349,12 +349,16 @@ export async function getProducts(includeInactive = false) {
     
     // Mock Fallback
     let localProds = [];
-    try {
-        localProds = JSON.parse(localStorage.getItem('vw_mock_products') || '[]');
-    } catch(e) {}
-    if (!localProds || localProds.length < 10) {
+    if (typeof localStorage !== 'undefined') {
+        try {
+            localProds = JSON.parse(localStorage.getItem('vw_mock_products') || '[]');
+        } catch(e) {}
+        if (!localProds || localProds.length < 10) {
+            localProds = INITIAL_MOCK_PRODUCTS;
+            localStorage.setItem('vw_mock_products', JSON.stringify(INITIAL_MOCK_PRODUCTS));
+        }
+    } else {
         localProds = INITIAL_MOCK_PRODUCTS;
-        localStorage.setItem('vw_mock_products', JSON.stringify(INITIAL_MOCK_PRODUCTS));
     }
     return includeInactive ? localProds : localProds.filter(p => p.is_active);
 }
@@ -374,9 +378,11 @@ export async function getProductById(id) {
     }
     
     let localProds = [];
-    try {
-        localProds = JSON.parse(localStorage.getItem('vw_mock_products') || '[]');
-    } catch(e) {}
+    if (typeof localStorage !== 'undefined') {
+        try {
+            localProds = JSON.parse(localStorage.getItem('vw_mock_products') || '[]');
+        } catch(e) {}
+    }
     if (!localProds || localProds.length === 0) localProds = INITIAL_MOCK_PRODUCTS;
     return localProds.find(p => p.id === id || p.slug === id) || null;
 }
@@ -391,24 +397,21 @@ export async function getCategories() {
         }
     }
     let cats = [];
-    try {
-        cats = JSON.parse(localStorage.getItem('vw_mock_categories') || '[]');
-    } catch(e) {}
-    if (!cats || cats.length === 0) {
+    if (typeof localStorage !== 'undefined') {
+        try {
+            cats = JSON.parse(localStorage.getItem('vw_mock_categories') || '[]');
+        } catch(e) {}
+        if (!cats || cats.length === 0) {
+            cats = INITIAL_MOCK_CATEGORIES;
+            localStorage.setItem('vw_mock_categories', JSON.stringify(INITIAL_MOCK_CATEGORIES));
+        }
+    } else {
         cats = INITIAL_MOCK_CATEGORIES;
-        localStorage.setItem('vw_mock_categories', JSON.stringify(INITIAL_MOCK_CATEGORIES));
     }
     return cats;
 }
 
 export async function saveProduct(productData) {
-    if (!productData.id) {
-        productData.id = productData.sku || ('SAR-' + Date.now());
-    }
-    if (productData.category_id) {
-        productData.category_id = Number(productData.category_id);
-    }
-
     if (supabaseClient) {
         try {
             const { data, error } = await supabaseClient.from('products').insert([productData]).select();
@@ -425,6 +428,7 @@ export async function saveProduct(productData) {
     
     const newProd = {
         ...productData,
+        id: 'p_' + Date.now(),
         created_at: new Date().toISOString(),
         is_active: productData.is_active !== undefined ? productData.is_active : true,
         images: productData.images || [productData.main_image]
@@ -438,8 +442,16 @@ export async function updateProduct(id, productData) {
     if (supabaseClient) {
         try {
             const payload = { ...productData };
-            if (payload.category_id) {
-                payload.category_id = Number(payload.category_id);
+            const uuidRegex = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/;
+
+            if (payload.category_id === 'c1') payload.category_id = 'c1000000-0000-0000-0000-000000000001';
+            if (payload.category_id === 'c2') payload.category_id = 'c1000000-0000-0000-0000-000000000002';
+            if (payload.category_id === 'c3') payload.category_id = 'c1000000-0000-0000-0000-000000000003';
+            if (payload.category_id === 'c4') payload.category_id = 'c1000000-0000-0000-0000-000000000004';
+            if (payload.category_id === 'c5') payload.category_id = 'c1000000-0000-0000-0000-000000000005';
+
+            if (payload.category_id && !uuidRegex.test(payload.category_id)) {
+                delete payload.category_id;
             }
 
             const { data, error } = await supabaseClient.from('products').update(payload).eq('id', id).select();
@@ -527,11 +539,12 @@ export async function createOrder(orderPayload, items) {
                 console.warn("Supabase order insert notice (falling back to guaranteed order completion):", orderErr.message);
             } else if (order) {
                 const itemRows = items.map(item => {
-                    const rawProdId = item.id || item.sku || item.product_id;
+                    const rawProdId = item.id || item.product_id;
+                    const validProdId = (rawProdId && uuidRegex.test(rawProdId)) ? rawProdId : null;
 
                     return {
                         order_id: order.id,
-                        product_id: rawProdId || null,
+                        product_id: validProdId,
                         product_name: item.name || item.product_name || 'Saree',
                         quantity: Number(item.quantity || 1),
                         price: Number(item.price || 0),
@@ -559,16 +572,15 @@ export async function createOrder(orderPayload, items) {
         }
     }
     
-    // 2. Guaranteed Order Completion Fallback
+    // 2. Guaranteed Order Completion Fallback (if Supabase RLS policies block insert)
     let orders = [];
     if (typeof localStorage !== 'undefined') {
         try { orders = JSON.parse(localStorage.getItem('vw_mock_orders') || '[]'); } catch(e) {}
     }
     
-    const fallbackId = 10001 + orders.length;
+    const fallbackId = 'ORD-' + Math.floor(100000 + Math.random() * 900000);
     const itemRows = (items || []).map((i, idx) => ({
-        id: idx + 1,
-        product_id: i.id || i.sku || 'SAR-COT-001',
+        id: 'item_' + idx,
         product_name: i.name || i.product_name || 'Handcrafted Saree',
         quantity: Number(i.quantity || 1),
         price: Number(i.price || 0),
