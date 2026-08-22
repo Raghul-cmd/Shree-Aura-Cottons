@@ -132,15 +132,15 @@ function renderOverviewStats() {
     const recentTbody = document.getElementById('recentOrdersTbody');
     if (recentTbody) {
         if (recentOrders.length === 0) {
-            recentTbody.innerHTML = `<tr><td colspan="5" style="text-align:center; padding:1.8rem; color:#64748B;">No recent orders recorded</td></tr>`;
+            recentTbody.innerHTML = `<tr><td colspan="5" style="text-align:center; padding:1.8rem; color:#475569; font-weight:700;">No recent orders recorded</td></tr>`;
         } else {
             recentTbody.innerHTML = recentOrders.map(o => `
-                <tr style="border-bottom: 1px solid rgba(255,255,255,0.05); transition:background 0.2s;" onmouseenter="this.style.background='rgba(255,255,255,0.02)'" onmouseleave="this.style.background='transparent'">
-                    <td style="padding:1rem; font-weight:700; color:#F8FAFC; font-family:monospace;">#${o.id.substring(0, 8)}</td>
-                    <td style="padding:1rem; color:#CBD5E1;">${escapeHtml(o.customer_name || 'Customer')}</td>
-                    <td style="padding:1rem; font-weight:800; color:#10B981;">₹${Number(o.total_amount || 0).toFixed(2)}</td>
+                <tr style="border-bottom: 1px solid #E2E8F0; transition:background 0.2s;" onmouseenter="this.style.background='#FDFBF7'" onmouseleave="this.style.background='transparent'">
+                    <td style="padding:1rem; font-weight:800; color:#7A1C30; font-family:monospace;">#${o.id.substring(0, 8)}</td>
+                    <td style="padding:1rem; color:#000000; font-weight:700;">${escapeHtml(o.customer_name || 'Customer')}</td>
+                    <td style="padding:1rem; font-weight:800; color:#065F46;">₹${Number(o.total_amount || 0).toFixed(2)}</td>
                     <td style="padding:1rem;">${getStatusBadge(o.order_status)}</td>
-                    <td style="padding:1rem; color:#94A3B8; font-size:0.82rem;">${new Date(o.created_at).toLocaleDateString()}</td>
+                    <td style="padding:1rem; color:#475569; font-size:0.85rem; font-weight:600;">${new Date(o.created_at).toLocaleDateString()}</td>
                 </tr>
             `).join('');
         }
@@ -164,7 +164,7 @@ function renderProductsTable() {
     });
 
     if (filtered.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; padding:2.5rem; color:#64748B;">No saree products match your search query</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; padding:2.5rem; color:#475569; font-weight:700;">No saree products match your search query</td></tr>`;
         return;
     }
 
@@ -174,40 +174,40 @@ function renderProductsTable() {
         const isLowStock = p.stock <= 5;
 
         return `
-            <tr style="border-bottom:1px solid rgba(255,255,255,0.06); transition:background 0.2s;" onmouseenter="this.style.background='rgba(255,255,255,0.02)'" onmouseleave="this.style.background='transparent'">
+            <tr style="border-bottom:1px solid #E2E8F0; transition:background 0.2s;" onmouseenter="this.style.background='#FDFBF7'" onmouseleave="this.style.background='transparent'">
                 <td style="padding:0.9rem;">
-                    <img src="${imgUrl}" alt="${escapeHtml(p.name)}" style="width:52px; height:64px; object-fit:cover; border-radius:8px; border:1px solid rgba(212,175,55,0.3); box-shadow:0 4px 10px rgba(0,0,0,0.3);" onError="this.src='assets/Saree Folder/1.jpeg'">
+                    <img src="${imgUrl}" alt="${escapeHtml(p.name)}" style="width:52px; height:64px; object-fit:cover; border-radius:8px; border:1px solid #D4AF37; box-shadow:0 4px 10px rgba(0,0,0,0.08);" onError="this.src='assets/Saree Folder/1.jpeg'">
                 </td>
                 <td style="padding:0.9rem;">
-                    <div style="font-weight:700; color:#F8FAFC; font-size:0.95rem;">${escapeHtml(p.name)}</div>
-                    <div style="font-size:0.75rem; color:#94A3B8; font-family:monospace; margin-top:3px;">SKU: ${escapeHtml(p.sku || 'N/A')}</div>
+                    <div style="font-weight:800; color:#000000; font-size:0.95rem;">${escapeHtml(p.name)}</div>
+                    <div style="font-size:0.78rem; color:#7A1C30; font-weight:800; font-family:monospace; margin-top:3px;">SKU: ${escapeHtml(p.sku || 'N/A')}</div>
                 </td>
                 <td style="padding:0.9rem;">
-                    <span style="background:rgba(212,175,55,0.12); color:#D4AF37; padding:0.3rem 0.7rem; border-radius:6px; font-size:0.78rem; font-weight:700; border:1px solid rgba(212,175,55,0.25);">
+                    <span style="background:#FDF7E7; color:#7A1C30; padding:0.3rem 0.7rem; border-radius:6px; font-size:0.8rem; font-weight:800; border:1px solid #D4AF37;">
                         ${escapeHtml(catName)}
                     </span>
                 </td>
                 <td style="padding:0.9rem;">
-                    <div style="font-weight:800; color:#10B981; font-size:1rem;">₹${Number(p.price).toFixed(2)}</div>
-                    ${p.compare_price ? `<div style="font-size:0.75rem; color:#64748B; text-decoration:line-through;">₹${Number(p.compare_price).toFixed(2)}</div>` : ''}
+                    <div style="font-weight:900; color:#065F46; font-size:1.05rem;">₹${Number(p.price).toFixed(2)}</div>
+                    ${p.compare_price ? `<div style="font-size:0.78rem; color:#64748B; text-decoration:line-through; font-weight:600;">₹${Number(p.compare_price).toFixed(2)}</div>` : ''}
                 </td>
                 <td style="padding:0.9rem;">
-                    <span style="padding:0.25rem 0.6rem; border-radius:6px; font-size:0.8rem; font-weight:700; ${isLowStock ? 'background:rgba(239,68,68,0.15); color:#EF4444; border:1px solid rgba(239,68,68,0.3);' : 'background:rgba(16,185,129,0.15); color:#10B981; border:1px solid rgba(16,185,129,0.3);'}">
+                    <span style="padding:0.28rem 0.65rem; border-radius:6px; font-size:0.82rem; font-weight:800; ${isLowStock ? 'background:#FEE2E2; color:#B91C1C; border:1px solid #FCA5A5;' : 'background:#D1FAE5; color:#065F46; border:1px solid #6EE7B7;'}">
                         ${p.stock} units
                     </span>
                 </td>
                 <td style="padding:0.9rem;">
                     <label style="position:relative; display:inline-block; width:42px; height:24px;">
                         <input type="checkbox" ${p.is_active ? 'checked' : ''} onchange="window.handleToggleProductActive('${p.id}', this.checked)" style="opacity:0; width:0; height:0;">
-                        <span style="position:absolute; cursor:pointer; top:0; left:0; right:0; bottom:0; background:${p.is_active ? '#10B981' : '#475569'}; transition:.3s; border-radius:24px; box-shadow:inset 0 2px 4px rgba(0,0,0,0.3);">
+                        <span style="position:absolute; cursor:pointer; top:0; left:0; right:0; bottom:0; background:${p.is_active ? '#065F46' : '#94A3B8'}; transition:.3s; border-radius:24px; box-shadow:inset 0 2px 4px rgba(0,0,0,0.15);">
                             <span style="position:absolute; content:''; height:18px; width:18px; left:${p.is_active ? '21px' : '3px'}; bottom:3px; background:white; transition:.3s; border-radius:50%;"></span>
                         </span>
                     </label>
                 </td>
                 <td style="padding:0.9rem;">
                     <div style="display:flex; gap:0.5rem;">
-                        <button onclick="window.handleEditProduct('${p.id}')" style="background:#2563EB; color:white; border:none; padding:0.45rem 0.8rem; border-radius:6px; font-weight:700; cursor:pointer; font-size:0.8rem; transition:transform 0.2s;" onmouseenter="this.style.transform='scale(1.05)'" onmouseleave="this.style.transform='scale(1)'">Edit</button>
-                        <button onclick="window.handleDeleteProduct('${p.id}', '${escapeHtml(p.name)}')" style="background:#DC2626; color:white; border:none; padding:0.45rem 0.8rem; border-radius:6px; font-weight:700; cursor:pointer; font-size:0.8rem; transition:transform 0.2s;" onmouseenter="this.style.transform='scale(1.05)'" onmouseleave="this.style.transform='scale(1)'">Delete</button>
+                        <button onclick="window.handleEditProduct('${p.id}')" style="background:#7A1C30; color:white; border:1px solid #D4AF37; padding:0.45rem 0.85rem; border-radius:6px; font-weight:800; cursor:pointer; font-size:0.82rem; transition:transform 0.2s;" onmouseenter="this.style.transform='scale(1.05)'" onmouseleave="this.style.transform='scale(1)'">Edit</button>
+                        <button onclick="window.handleDeleteProduct('${p.id}', '${escapeHtml(p.name)}')" style="background:#B91C1C; color:white; border:none; padding:0.45rem 0.85rem; border-radius:6px; font-weight:800; cursor:pointer; font-size:0.82rem; transition:transform 0.2s;" onmouseenter="this.style.transform='scale(1.05)'" onmouseleave="this.style.transform='scale(1)'">Delete</button>
                     </div>
                 </td>
             </tr>
@@ -234,7 +234,7 @@ function renderOrdersTable() {
     });
 
     if (filtered.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; padding:2.5rem; color:#64748B;">No customer orders found</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; padding:2.5rem; color:#475569; font-weight:700;">No customer orders found</td></tr>`;
         return;
     }
 
@@ -242,21 +242,21 @@ function renderOrdersTable() {
         const itemsSummary = (o.order_items || []).map(i => `${i.product_name} (x${i.quantity})`).join(', ') || 'Saree Order';
 
         return `
-            <tr style="border-bottom:1px solid rgba(255,255,255,0.06); transition:background 0.2s;" onmouseenter="this.style.background='rgba(255,255,255,0.02)'" onmouseleave="this.style.background='transparent'">
-                <td style="padding:1rem; font-weight:800; color:#F8FAFC; font-family:monospace;">#${o.id.substring(0, 8)}</td>
+            <tr style="border-bottom:1px solid #E2E8F0; transition:background 0.2s;" onmouseenter="this.style.background='#FDFBF7'" onmouseleave="this.style.background='transparent'">
+                <td style="padding:1rem; font-weight:800; color:#7A1C30; font-family:monospace; font-size:0.95rem;">#${o.id.substring(0, 8)}</td>
                 <td style="padding:1rem;">
-                    <div style="font-weight:700; color:#F8FAFC;">${escapeHtml(o.customer_name || 'Customer')}</div>
-                    <div style="font-size:0.8rem; color:#94A3B8;">${escapeHtml(o.phone || '')} • ${escapeHtml(o.email || '')}</div>
-                    <div style="font-size:0.75rem; color:#64748B; margin-top:2px;">${escapeHtml(o.address || '')}, ${escapeHtml(o.city || '')}</div>
+                    <div style="font-weight:800; color:#000000; font-size:0.95rem;">${escapeHtml(o.customer_name || 'Customer')}</div>
+                    <div style="font-size:0.82rem; color:#334155; font-weight:700; margin-top:2px;">${escapeHtml(o.phone || '')} • ${escapeHtml(o.email || '')}</div>
+                    <div style="font-size:0.78rem; color:#475569; font-weight:600; margin-top:2px;">${escapeHtml(o.address || '')}, ${escapeHtml(o.city || '')}</div>
                 </td>
-                <td style="padding:1rem; font-size:0.85rem; color:#CBD5E1; max-width:240px;">
+                <td style="padding:1rem; font-size:0.88rem; color:#000000; font-weight:600; max-width:240px;">
                     ${escapeHtml(itemsSummary)}
                 </td>
-                <td style="padding:1rem; font-weight:800; color:#10B981; font-size:1.1rem;">
+                <td style="padding:1rem; font-weight:900; color:#065F46; font-size:1.1rem;">
                     ₹${Number(o.total_amount || 0).toFixed(2)}
                 </td>
                 <td style="padding:1rem;">
-                    <select onchange="window.handleUpdateOrderStatus('${o.id}', this.value, null)" style="background:#151C2C; color:#F8FAFC; border:1px solid #334155; padding:0.45rem 0.7rem; border-radius:6px; font-weight:700; font-size:0.85rem; cursor:pointer; outline:none;">
+                    <select onchange="window.handleUpdateOrderStatus('${o.id}', this.value, null)" style="background:#FFFFFF; color:#000000; border:1.5px solid #94A3B8; padding:0.45rem 0.7rem; border-radius:6px; font-weight:700; font-size:0.85rem; cursor:pointer; outline:none;">
                         <option value="placed" ${o.order_status === 'placed' ? 'selected' : ''}>Placed</option>
                         <option value="processing" ${o.order_status === 'processing' ? 'selected' : ''}>Processing</option>
                         <option value="shipped" ${o.order_status === 'shipped' ? 'selected' : ''}>Shipped</option>
@@ -265,13 +265,13 @@ function renderOrdersTable() {
                     </select>
                 </td>
                 <td style="padding:1rem;">
-                    <select onchange="window.handleUpdateOrderStatus('${o.id}', null, this.value)" style="background:#151C2C; color:#F8FAFC; border:1px solid #334155; padding:0.45rem 0.7rem; border-radius:6px; font-weight:700; font-size:0.85rem; cursor:pointer; outline:none;">
+                    <select onchange="window.handleUpdateOrderStatus('${o.id}', null, this.value)" style="background:#FFFFFF; color:#000000; border:1.5px solid #94A3B8; padding:0.45rem 0.7rem; border-radius:6px; font-weight:700; font-size:0.85rem; cursor:pointer; outline:none;">
                         <option value="pending" ${o.payment_status === 'pending' ? 'selected' : ''}>Pending</option>
                         <option value="paid" ${o.payment_status === 'paid' ? 'selected' : ''}>Paid</option>
                         <option value="failed" ${o.payment_status === 'failed' ? 'selected' : ''}>Failed</option>
                     </select>
                 </td>
-                <td style="padding:1rem; color:#94A3B8; font-size:0.8rem;">
+                <td style="padding:1rem; color:#475569; font-size:0.82rem; font-weight:600;">
                     ${new Date(o.created_at).toLocaleString()}
                 </td>
             </tr>
@@ -287,22 +287,22 @@ function renderCategoriesGrid() {
     if (!grid) return;
 
     if (allCategories.length === 0) {
-        grid.innerHTML = `<div style="grid-column:1/-1; text-align:center; padding:3rem; color:#64748B;">No category collections created yet</div>`;
+        grid.innerHTML = `<div style="grid-column:1/-1; text-align:center; padding:3rem; color:#475569; font-weight:700;">No category collections created yet</div>`;
         return;
     }
 
     grid.innerHTML = allCategories.map(c => `
-        <div style="background:#151C2C; border:1px solid rgba(255,255,255,0.08); border-radius:12px; overflow:hidden; display:flex; flex-direction:column; box-shadow:0 8px 24px rgba(0,0,0,0.3); transition:transform 0.3s;" onmouseenter="this.style.transform='translateY(-3px)'" onmouseleave="this.style.transform='translateY(0)'">
-            <div style="height:140px; overflow:hidden; position:relative; background:#0B0F19;">
+        <div style="background:#FFFFFF; border:1.5px solid #E2E8F0; border-radius:12px; overflow:hidden; display:flex; flex-direction:column; box-shadow:0 8px 24px rgba(0,0,0,0.06); transition:transform 0.3s;" onmouseenter="this.style.transform='translateY(-3px)'" onmouseleave="this.style.transform='translateY(0)'">
+            <div style="height:140px; overflow:hidden; position:relative; background:#FAF8F5;">
                 <img src="${c.image_url || 'assets/Saree Folder/1.jpeg'}" alt="${escapeHtml(c.name)}" style="width:100%; height:100%; object-fit:cover;" onError="this.src='assets/Saree Folder/1.jpeg'">
-                <div style="position:absolute; top:10px; right:10px; background:rgba(11,15,25,0.85); backdrop-filter:blur(6px); padding:3px 10px; border-radius:6px; color:#D4AF37; font-size:0.75rem; font-weight:700; border:1px solid rgba(212,175,55,0.3);">
+                <div style="position:absolute; top:10px; right:10px; background:rgba(255,255,255,0.92); backdrop-filter:blur(6px); padding:3px 10px; border-radius:6px; color:#7A1C30; font-size:0.78rem; font-weight:800; border:1px solid #D4AF37;">
                     ${c.slug}
                 </div>
             </div>
             <div style="padding:1.2rem; flex:1; display:flex; flex-direction:column; justify-content:space-between;">
                 <div>
-                    <h4 style="color:#F8FAFC; margin:0 0 0.4rem 0; font-size:1.15rem; font-weight:800; font-family:var(--font-heading);">${escapeHtml(c.name)}</h4>
-                    <p style="color:#94A3B8; font-size:0.85rem; margin:0; line-height:1.4;">${escapeHtml(c.description || 'No description provided')}</p>
+                    <h4 style="color:#7A1C30; margin:0 0 0.4rem 0; font-size:1.15rem; font-weight:800; font-family:var(--font-heading);">${escapeHtml(c.name)}</h4>
+                    <p style="color:#334155; font-size:0.88rem; font-weight:600; margin:0; line-height:1.4;">${escapeHtml(c.description || 'No description provided')}</p>
                 </div>
             </div>
         </div>
@@ -317,22 +317,22 @@ function renderCustomersTable() {
     if (!tbody) return;
 
     if (allCustomers.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding:2.5rem; color:#64748B;">No customer accounts registered</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding:2.5rem; color:#475569; font-weight:700;">No customer accounts registered</td></tr>`;
         return;
     }
 
     tbody.innerHTML = allCustomers.map(c => `
-        <tr style="border-bottom:1px solid rgba(255,255,255,0.06); transition:background 0.2s;" onmouseenter="this.style.background='rgba(255,255,255,0.02)'" onmouseleave="this.style.background='transparent'">
-            <td style="padding:1rem; font-weight:700; color:#F8FAFC;">${escapeHtml(c.name || 'Customer')}</td>
-            <td style="padding:1rem; color:#CBD5E1;">${escapeHtml(c.email || 'N/A')}</td>
-            <td style="padding:1rem; color:#CBD5E1;">${escapeHtml(c.phone || 'N/A')}</td>
+        <tr style="border-bottom:1px solid #E2E8F0; transition:background 0.2s;" onmouseenter="this.style.background='#FDFBF7'" onmouseleave="this.style.background='transparent'">
+            <td style="padding:1rem; font-weight:800; color:#000000;">${escapeHtml(c.name || 'Customer')}</td>
+            <td style="padding:1rem; color:#334155; font-weight:600;">${escapeHtml(c.email || 'N/A')}</td>
+            <td style="padding:1rem; color:#334155; font-weight:600;">${escapeHtml(c.phone || 'N/A')}</td>
             <td style="padding:1rem;">
-                <span style="padding:0.3rem 0.7rem; border-radius:6px; font-size:0.78rem; font-weight:700; ${c.role === 'admin' ? 'background:rgba(239,68,68,0.15); color:#EF4444; border:1px solid rgba(239,68,68,0.3);' : 'background:rgba(59,130,246,0.15); color:#3B82F6; border:1px solid rgba(59,130,246,0.3);'}">
+                <span style="padding:0.3rem 0.7rem; border-radius:6px; font-size:0.78rem; font-weight:800; ${c.role === 'admin' ? 'background:#FEE2E2; color:#B91C1C; border:1px solid #FCA5A5;' : 'background:#DBEAFE; color:#1D4ED8; border:1px solid #93C5FD;'}">
                     ${(c.role || 'customer').toUpperCase()}
                 </span>
             </td>
-            <td style="padding:1rem; font-weight:700; color:#F8FAFC;">${c.total_orders || 0} orders</td>
-            <td style="padding:1rem; font-weight:800; color:#10B981; font-size:1.05rem;">₹${Number(c.total_spent || 0).toFixed(2)}</td>
+            <td style="padding:1rem; font-weight:800; color:#000000;">${c.total_orders || 0} orders</td>
+            <td style="padding:1rem; font-weight:900; color:#065F46; font-size:1.05rem;">₹${Number(c.total_spent || 0).toFixed(2)}</td>
         </tr>
     `).join('');
 }
