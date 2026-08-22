@@ -397,7 +397,7 @@ svg {
 /* HERO BANNER */
 .hero-banner {
     position: relative;
-    background: linear-gradient(135deg, rgba(122, 28, 48, 0.72), rgba(27, 54, 93, 0.75)), url('../assets/Logo/Site Preview Logo.jpeg');
+    background: linear-gradient(135deg, rgba(122, 28, 48, 0.35), rgba(15, 23, 42, 0.40)), url('../assets/Logo/preview_logo.jpeg');
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
