@@ -349,11 +349,11 @@ const INITIAL_MOCK_ORDERS = [];
 function initMockStorage() {
     if (typeof localStorage === 'undefined') return;
     const existingCat = localStorage.getItem('vw_mock_categories');
-    if (!existingCat || JSON.parse(existingCat).length !== 3 || existingCat.includes('cotton-sarees')) {
+    if (!existingCat || JSON.parse(existingCat).length !== 3 || existingCat.includes('cotton-sarees') || existingCat.includes('Cotton Sarees') || existingCat.includes('Silk Sarees') || existingCat.includes('Banarasi Sarees')) {
         localStorage.setItem('vw_mock_categories', JSON.stringify(INITIAL_MOCK_CATEGORIES));
     }
     const existing = localStorage.getItem('vw_mock_products');
-    if (!existing || JSON.parse(existing).length < 15 || existing.includes('unsplash') || existing.includes('"p1"')) {
+    if (!existing || JSON.parse(existing).length < 15 || existing.includes('unsplash') || existing.includes('"p1"') || existing.includes('Cotton Sarees') || existing.includes('Silk Sarees') || existing.includes('Banarasi Sarees')) {
         localStorage.setItem('vw_mock_products', JSON.stringify(INITIAL_MOCK_PRODUCTS));
     }
     const existingOrders = localStorage.getItem('vw_mock_orders');
@@ -382,7 +382,8 @@ export async function getProducts(includeInactive = false) {
         try {
             localProds = JSON.parse(localStorage.getItem('vw_mock_products') || '[]');
         } catch(e) {}
-        if (!localProds || localProds.length < 15 || (localProds[0] && localProds[0].id === 'p1')) {
+        const str = JSON.stringify(localProds);
+        if (!localProds || localProds.length < 15 || (localProds[0] && localProds[0].id === 'p1') || str.includes('Cotton Sarees') || str.includes('Silk Sarees') || str.includes('Banarasi Sarees')) {
             localProds = INITIAL_MOCK_PRODUCTS;
             localStorage.setItem('vw_mock_products', JSON.stringify(INITIAL_MOCK_PRODUCTS));
         }
@@ -430,7 +431,7 @@ export async function getCategories() {
         try {
             cats = JSON.parse(localStorage.getItem('vw_mock_categories') || '[]');
         } catch(e) {}
-        if (!cats || cats.length === 0) {
+        if (!cats || cats.length !== 3 || JSON.stringify(cats).includes('cotton-sarees') || JSON.stringify(cats).includes('Cotton Sarees')) {
             cats = INITIAL_MOCK_CATEGORIES;
             localStorage.setItem('vw_mock_categories', JSON.stringify(INITIAL_MOCK_CATEGORIES));
         }

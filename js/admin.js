@@ -171,7 +171,9 @@ function renderProductsTable() {
     }
 
     tbody.innerHTML = filtered.map(p => {
-        const catName = p.categories?.name || p.category_name || 'Uncategorized';
+        let catName = p.categories?.name || p.category_name || 'Uncategorized';
+        if (catName === 'Cotton Sarees') catName = 'Daily Wear';
+        if (catName === 'Silk Sarees' || catName === 'Banarasi Sarees') catName = 'Wedding Sarees';
         const imgUrl = p.main_image || 'assets/Saree Folder/1.jpeg';
         const isLowStock = p.stock <= 5;
 
