@@ -134,6 +134,31 @@ ALTER TABLE public.order_items DISABLE ROW LEVEL SECURITY;
 ALTER TABLE public.wishlist DISABLE ROW LEVEL SECURITY;
 ALTER TABLE public.profiles DISABLE ROW LEVEL SECURITY;
 
+-- Grant table privileges to anon and authenticated roles for seamless order placement
+GRANT ALL ON public.categories TO anon, authenticated, service_role;
+GRANT ALL ON public.products TO anon, authenticated, service_role;
+GRANT ALL ON public.product_images TO anon, authenticated, service_role;
+GRANT ALL ON public.orders TO anon, authenticated, service_role;
+GRANT ALL ON public.order_items TO anon, authenticated, service_role;
+GRANT ALL ON public.wishlist TO anon, authenticated, service_role;
+GRANT ALL ON public.profiles TO anon, authenticated, service_role;
+
+-- Permissive policies if RLS is re-enabled in Supabase
+DROP POLICY IF EXISTS "Public Orders Insert" ON public.orders;
+CREATE POLICY "Public Orders Insert" ON public.orders FOR INSERT WITH CHECK (true);
+
+DROP POLICY IF EXISTS "Public Orders Select" ON public.orders;
+CREATE POLICY "Public Orders Select" ON public.orders FOR SELECT USING (true);
+
+DROP POLICY IF EXISTS "Public Orders Update" ON public.orders;
+CREATE POLICY "Public Orders Update" ON public.orders FOR UPDATE USING (true);
+
+DROP POLICY IF EXISTS "Public Order Items Insert" ON public.order_items;
+CREATE POLICY "Public Order Items Insert" ON public.order_items FOR INSERT WITH CHECK (true);
+
+DROP POLICY IF EXISTS "Public Order Items Select" ON public.order_items;
+CREATE POLICY "Public Order Items Select" ON public.order_items FOR SELECT USING (true);
+
 -- 6. STORAGE BUCKET & ROW LEVEL SECURITY (RLS) POLICIES
 -- Run these commands to ensure 'product-images' bucket is public and writable:
 INSERT INTO storage.buckets (id, name, public)
