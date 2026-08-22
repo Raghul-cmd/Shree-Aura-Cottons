@@ -420,9 +420,15 @@ svg {
 .hero-content p {
     font-size: 1.2rem;
     max-width: 700px;
-    margin: 0 auto 2.2rem;
+    margin: 0 auto 4.5rem;
     font-weight: 400;
     color: var(--gold-light);
+    text-shadow: 0 2px 6px rgba(0,0,0,0.5);
+}
+
+.hero-banner .btn {
+    margin-top: 0.5rem;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
 }
 
 /* SOLID COLOR ATTRACTIVE BUTTONS */
