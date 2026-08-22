@@ -557,7 +557,7 @@ async function handleSaveProduct() {
     const id = document.getElementById('productIdHidden').value;
     const name = document.getElementById('formProductName').value.trim();
     const sku = document.getElementById('formProductSKU').value.trim();
-    const category_id = document.getElementById('formProductCategory').value;
+    const category_id_raw = document.getElementById('formProductCategory').value;
     const price = parseFloat(document.getElementById('formProductPrice').value);
     const compare_price = parseFloat(document.getElementById('formProductComparePrice').value) || null;
     const stock = parseInt(document.getElementById('formProductStock').value);
@@ -570,12 +570,16 @@ async function handleSaveProduct() {
     const is_featured = document.getElementById('formProductIsFeatured').checked;
 
     const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+    let category_id = null;
+    if (category_id_raw) {
+        category_id = !isNaN(Number(category_id_raw)) ? Number(category_id_raw) : category_id_raw;
+    }
 
     const payload = {
         name,
         slug,
-        sku,
-        category_id: category_id || null,
+        sku: sku || ('SAR-' + Date.now()),
+        category_id,
         price,
         compare_price,
         stock,
@@ -594,6 +598,7 @@ async function handleSaveProduct() {
             await updateProduct(id, payload);
             showToast("Product updated in Supabase DB!", "success");
         } else {
+            payload.id = payload.sku;
             await saveProduct(payload);
             showToast("New Product saved to Supabase DB!", "success");
         }
