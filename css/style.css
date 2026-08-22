@@ -397,12 +397,12 @@ svg {
 /* HERO BANNER */
 .hero-banner {
     position: relative;
-    background: linear-gradient(135deg, rgba(122, 28, 48, 0.35), rgba(15, 23, 42, 0.40)), url('../assets/Logo/preview_logo.jpeg');
+    background: url('../assets/Logo/preview_logo.jpeg');
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
-    color: #FFFFFF;
-    padding: 6.5rem 0;
+    min-height: 480px;
+    padding: 10rem 0;
     text-align: center;
     border-bottom: 3px solid var(--gold-accent);
 }
