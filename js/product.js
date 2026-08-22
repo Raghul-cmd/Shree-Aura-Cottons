@@ -15,7 +15,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const productId = urlParams.get('id') || urlParams.get('slug');
     
     if (!productId) {
-        window.location.href = '/shop.html';
+        window.location.href = 'shop.html';
         return;
     }
     
@@ -77,13 +77,16 @@ function renderProductDetails(product) {
     // Gallery Setup
     const allImages = product.images && product.images.length > 0 ? product.images : [product.main_image];
     const mainImgEl = document.getElementById('mainProductImg');
-    mainImgEl.src = allImages[0];
+    if (mainImgEl) {
+        mainImgEl.src = allImages[0] || 'assets/Saree Folder/1.jpeg';
+        mainImgEl.onerror = function() { this.onerror = null; this.src = 'assets/Saree Folder/1.jpeg'; };
+    }
     
     const thumbContainer = document.getElementById('thumbnailList');
     if (thumbContainer) {
         thumbContainer.innerHTML = allImages.map((img, idx) => `
             <div class="thumb-item ${idx === 0 ? 'active' : ''}" data-src="${img}">
-                <img src="${img}" alt="${product.name}">
+                <img src="${img}" alt="${product.name}" onError="this.onerror=null; this.src='assets/Saree Folder/1.jpeg';">
             </div>
         `).join('');
 

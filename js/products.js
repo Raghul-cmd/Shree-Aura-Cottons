@@ -105,6 +105,7 @@ export function renderProductCardHTML(product) {
     const isSaved = isInWishlist(product.id);
     const discount = product.discount_percentage || 
         (product.compare_price ? Math.round(((product.compare_price - product.price) / product.compare_price) * 100) : 0);
+    const imgUrl = product.main_image || 'assets/Saree Folder/1.jpeg';
         
     return `
         <div class="product-card" data-id="${product.id}">
@@ -115,14 +116,14 @@ export function renderProductCardHTML(product) {
                         <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
                     </svg>
                 </button>
-                <a href="/product.html?id=${product.id}">
-                    <img src="${product.main_image}" alt="${product.name}" loading="lazy" onError="this.src='https://images.unsplash.com/photo-1610030469983-98e550d6193c?auto=format&fit=crop&w=600&q=80'">
+                <a href="product.html?id=${product.id}">
+                    <img src="${imgUrl}" alt="${product.name}" loading="lazy" onError="this.onerror=null; this.src='assets/Saree Folder/1.jpeg';">
                 </a>
             </div>
             <div class="product-info">
                 <span class="product-category-tag">${product.fabric || 'Pure Handloom'} • ${product.occasion || 'Daily Wear'}</span>
                 <h3 class="product-title">
-                    <a href="/product.html?id=${product.id}">${product.name}</a>
+                    <a href="product.html?id=${product.id}">${product.name}</a>
                 </h3>
                 <div class="price-row">
                     <span class="sale-price">₹${Number(product.price).toLocaleString('en-IN')}</span>
