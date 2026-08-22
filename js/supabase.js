@@ -694,17 +694,19 @@ export async function getCustomers() {
 
             if (!profileErr && profiles && profiles.length > 0) {
                 profiles.forEach(p => {
-                    const key = (p.email || p.phone || p.full_name || p.id).toLowerCase();
-                    customerMap.set(key, {
-                        id: p.id,
-                        name: p.full_name || 'Registered Customer',
-                        phone: p.phone || 'N/A',
-                        email: p.email || 'N/A',
-                        role: p.role || 'customer',
-                        total_orders: 0,
-                        total_spent: 0,
-                        created_at: p.created_at
-                    });
+                    const key = String(p.email || p.phone || p.full_name || p.id || '').toLowerCase();
+                    if (key) {
+                        customerMap.set(key, {
+                            id: p.id,
+                            name: p.full_name || 'Registered Customer',
+                            phone: p.phone || 'N/A',
+                            email: p.email || 'N/A',
+                            role: p.role || 'customer',
+                            total_orders: 0,
+                            total_spent: 0,
+                            created_at: p.created_at
+                        });
+                    }
                 });
             }
         } catch (e) {
@@ -716,9 +718,9 @@ export async function getCustomers() {
     const orders = await getOrders();
     if (orders && orders.length > 0) {
         orders.forEach(o => {
-            const emailKey = (o.email || '').toLowerCase();
-            const phoneKey = (o.phone || '').toLowerCase();
-            const nameKey = (o.customer_name || '').toLowerCase();
+            const emailKey = String(o.email || '').toLowerCase();
+            const phoneKey = String(o.phone || '').toLowerCase();
+            const nameKey = String(o.customer_name || '').toLowerCase();
             const lookupKey = emailKey || phoneKey || nameKey;
 
             if (lookupKey) {

@@ -387,19 +387,23 @@ function setupEventListeners() {
         logoutUser();
     });
 
-    // Navigation Tabs
+    // Navigation Tabs (Desktop & Touch Mobile)
     document.querySelectorAll('.admin-nav-item').forEach(item => {
-        item.addEventListener('click', (e) => {
-            e.preventDefault();
+        const handleTabSwitch = (e) => {
+            if (e) e.preventDefault();
             const targetTab = item.dataset.tab;
 
             document.querySelectorAll('.admin-nav-item').forEach(el => el.classList.remove('active'));
             document.querySelectorAll('.admin-tab-content').forEach(el => el.style.display = 'none');
 
             item.classList.add('active');
+            try { item.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' }); } catch(err) {}
+
             const targetEl = document.getElementById(`tab_${targetTab}`);
             if (targetEl) targetEl.style.display = 'block';
-        });
+        };
+
+        item.addEventListener('click', handleTabSwitch);
     });
 
     // Search and Filters
