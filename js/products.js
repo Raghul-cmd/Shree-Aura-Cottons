@@ -105,7 +105,11 @@ export function renderProductCardHTML(product) {
     const isSaved = isInWishlist(product.id);
     const discount = product.discount_percentage || 
         (product.compare_price ? Math.round(((product.compare_price - product.price) / product.compare_price) * 100) : 0);
-    const imgUrl = product.main_image || 'assets/Saree Folder/1.jpeg';
+
+    const numMatch = (product.sku || product.id || '').match(/\d+/);
+    const imgNum = numMatch ? ((parseInt(numMatch[0], 10) - 1) % 10) + 1 : 1;
+    const localFallback = `assets/Saree Folder/${imgNum}.jpeg`;
+    const imgUrl = product.main_image || localFallback;
         
     return `
         <div class="product-card" data-id="${product.id}">
@@ -117,7 +121,7 @@ export function renderProductCardHTML(product) {
                     </svg>
                 </button>
                 <a href="product.html?id=${product.id}">
-                    <img src="${imgUrl}" alt="${product.name}" loading="lazy" onError="this.onerror=null; this.src='assets/Saree Folder/1.jpeg';">
+                    <img src="${imgUrl}" alt="${product.name}" loading="lazy" onError="this.onerror=null; this.src='${localFallback}';">
                 </a>
             </div>
             <div class="product-info">

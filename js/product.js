@@ -75,18 +75,22 @@ function renderProductDetails(product) {
     document.getElementById('specCare').textContent = 'Dry Clean Only for lasting zari shimmer';
 
     // Gallery Setup
+    const numMatch = (product.sku || product.id || '').match(/\d+/);
+    const imgNum = numMatch ? ((parseInt(numMatch[0], 10) - 1) % 10) + 1 : 1;
+    const localFallback = `assets/Saree Folder/${imgNum}.jpeg`;
+
     const allImages = product.images && product.images.length > 0 ? product.images : [product.main_image];
     const mainImgEl = document.getElementById('mainProductImg');
     if (mainImgEl) {
-        mainImgEl.src = allImages[0] || 'assets/Saree Folder/1.jpeg';
-        mainImgEl.onerror = function() { this.onerror = null; this.src = 'assets/Saree Folder/1.jpeg'; };
+        mainImgEl.src = allImages[0] || localFallback;
+        mainImgEl.onerror = function() { this.onerror = null; this.src = localFallback; };
     }
     
     const thumbContainer = document.getElementById('thumbnailList');
     if (thumbContainer) {
         thumbContainer.innerHTML = allImages.map((img, idx) => `
             <div class="thumb-item ${idx === 0 ? 'active' : ''}" data-src="${img}">
-                <img src="${img}" alt="${product.name}" onError="this.onerror=null; this.src='assets/Saree Folder/1.jpeg';">
+                <img src="${img}" alt="${product.name}" onError="this.onerror=null; this.src='${localFallback}';">
             </div>
         `).join('');
 
