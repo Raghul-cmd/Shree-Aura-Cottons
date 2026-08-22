@@ -139,7 +139,7 @@
         left: 0.8rem;
         top: 50%;
         transform: translateY(-50%);
-        display: flex;
+        display: flex !important;
         align-items: center;
         justify-content: center;
         width: 38px;
@@ -462,7 +462,7 @@
         background: #FFFFFF;
         border-top: 1px solid var(--border-color);
         box-shadow: 0 -4px 15px rgba(0, 0, 0, 0.08);
-        display: flex;
+        display: flex !important;
         align-items: center;
         justify-content: space-around;
         z-index: 999;

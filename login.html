@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Customer Login - Shree Aura Cottons</title>
+    <title>Account Access - Shree Aura Cottons</title>
     <meta name="theme-color" content="#7A1C2C">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
@@ -15,6 +15,33 @@
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/responsive.css">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        .auth-tabs {
+            display: flex;
+            background: var(--bg-cream);
+            border-radius: var(--radius-md);
+            padding: 0.3rem;
+            margin-bottom: 1.5rem;
+            border: 1px solid var(--border-color);
+        }
+        .auth-tab-btn {
+            flex: 1;
+            padding: 0.65rem;
+            border: none;
+            background: transparent;
+            font-size: 0.88rem;
+            font-weight: 700;
+            color: var(--text-muted);
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .auth-tab-btn.active {
+            background: var(--bg-white);
+            color: var(--primary-maroon);
+            box-shadow: var(--shadow-sm);
+        }
+    </style>
 </head>
 <body style="background:var(--bg-cream); display:flex; flex-direction:column; min-height:100vh;">
 
@@ -36,12 +63,19 @@
     </header>
 
     <main style="flex:1; display:flex; align-items:center; justify-content:center; padding:2rem 1rem;">
-        <div style="background:var(--bg-white); border:2px solid var(--border-color); border-radius:var(--radius-lg); padding:2.5rem; width:100%; max-width:440px; box-shadow:var(--shadow-lg);">
+        <div style="background:var(--bg-white); border:2px solid var(--border-color); border-radius:var(--radius-lg); padding:2.5rem; width:100%; max-width:460px; box-shadow:var(--shadow-lg);">
             
-            <h2 style="font-family:var(--font-heading); font-size:2.2rem; color:var(--primary-maroon); text-align:center; margin-bottom:0.5rem; font-weight:800;">Welcome Back</h2>
-            <p style="text-align:center; color:var(--text-muted); font-size:0.9rem; font-weight:500; margin-bottom:1.5rem;">Log in to view your orders & saved sarees</p>
+            <!-- AUTH TAB SWITCHER -->
+            <div class="auth-tabs">
+                <button type="button" class="auth-tab-btn active" id="tabBtnLogin">SIGN IN</button>
+                <button type="button" class="auth-tab-btn" id="tabBtnRegister">CREATE ACCOUNT</button>
+            </div>
 
+            <!-- FORM 1: LOGIN -->
             <form id="customerLoginForm" style="display:flex; flex-direction:column; gap:1.1rem;">
+                <h2 style="font-family:var(--font-heading); font-size:1.8rem; color:var(--primary-maroon); text-align:center; margin:0; font-weight:800;">Welcome Back</h2>
+                <p style="text-align:center; color:var(--text-muted); font-size:0.85rem; font-weight:500; margin:0 0 0.5rem 0;">Log in with your Supabase account</p>
+
                 <div>
                     <label style="font-size:0.85rem; font-weight:700; display:block; margin-bottom:0.3rem;">Email Address</label>
                     <input type="email" id="loginEmail" required style="width:100%; padding:0.7rem; border:2px solid var(--border-color); border-radius:6px; font-size:0.9rem; font-weight:500;" placeholder="name@example.com">
@@ -50,24 +84,91 @@
                     <label style="font-size:0.85rem; font-weight:700; display:block; margin-bottom:0.3rem;">Password</label>
                     <input type="password" id="loginPassword" required style="width:100%; padding:0.7rem; border:2px solid var(--border-color); border-radius:6px; font-size:0.9rem; font-weight:500;" placeholder="••••••••">
                 </div>
-                <button type="submit" class="btn btn-primary" style="margin-top:0.5rem; padding:0.85rem;">SIGN IN</button>
+                <button type="submit" class="btn btn-primary" style="margin-top:0.5rem; padding:0.85rem;">SIGN IN TO SUPABASE</button>
             </form>
+
+            <!-- FORM 2: REGISTER (CREATE ACCOUNT) -->
+            <form id="customerRegisterForm" style="display:none; flex-direction:column; gap:1.1rem;">
+                <h2 style="font-family:var(--font-heading); font-size:1.8rem; color:var(--primary-maroon); text-align:center; margin:0; font-weight:800;">Create Account</h2>
+                <p style="text-align:center; color:var(--text-muted); font-size:0.85rem; font-weight:500; margin:0 0 0.5rem 0;">Register directly in Supabase Authentication</p>
+
+                <div>
+                    <label style="font-size:0.85rem; font-weight:700; display:block; margin-bottom:0.3rem;">Full Name *</label>
+                    <input type="text" id="regFullName" required style="width:100%; padding:0.7rem; border:2px solid var(--border-color); border-radius:6px; font-size:0.9rem; font-weight:500;" placeholder="e.g. Priya Sundaram">
+                </div>
+                <div>
+                    <label style="font-size:0.85rem; font-weight:700; display:block; margin-bottom:0.3rem;">Phone Number</label>
+                    <input type="tel" id="regPhone" style="width:100%; padding:0.7rem; border:2px solid var(--border-color); border-radius:6px; font-size:0.9rem; font-weight:500;" placeholder="+91 98765 43210">
+                </div>
+                <div>
+                    <label style="font-size:0.85rem; font-weight:700; display:block; margin-bottom:0.3rem;">Email Address *</label>
+                    <input type="email" id="regEmail" required style="width:100%; padding:0.7rem; border:2px solid var(--border-color); border-radius:6px; font-size:0.9rem; font-weight:500;" placeholder="name@example.com">
+                </div>
+                <div>
+                    <label style="font-size:0.85rem; font-weight:700; display:block; margin-bottom:0.3rem;">Password *</label>
+                    <input type="password" id="regPassword" required minlength="6" style="width:100%; padding:0.7rem; border:2px solid var(--border-color); border-radius:6px; font-size:0.9rem; font-weight:500;" placeholder="At least 6 characters">
+                </div>
+                <button type="submit" class="btn btn-primary" style="margin-top:0.5rem; padding:0.85rem; background:var(--gold-dark);">REGISTER ACCOUNT</button>
+            </form>
+
+            <div style="margin-top:1.5rem; padding-top:1rem; border-top:1px solid var(--border-color); text-align:center;">
+                <p style="font-size:0.85rem; color:var(--text-muted); margin-bottom:0.5rem;">Store Owner or Administrator?</p>
+                <a href="admin.html" style="display:inline-block; padding:0.55rem 1.1rem; background:var(--primary-maroon); color:white; border-radius:6px; font-weight:700; font-size:0.85rem; text-decoration:none;">Go to Admin Portal 🔐</a>
+            </div>
         </div>
     </main>
 
     <script type="module">
-        import { loginUser } from './js/auth.js';
+        import { loginUser, signUpUser } from './js/auth.js';
 
-        document.getElementById('customerLoginForm')?.addEventListener('submit', async (e) => {
+        // Tab Switching
+        const tabBtnLogin = document.getElementById('tabBtnLogin');
+        const tabBtnRegister = document.getElementById('tabBtnRegister');
+        const formLogin = document.getElementById('customerLoginForm');
+        const formRegister = document.getElementById('customerRegisterForm');
+
+        tabBtnLogin.addEventListener('click', () => {
+            tabBtnLogin.classList.add('active');
+            tabBtnRegister.classList.remove('active');
+            formLogin.style.display = 'flex';
+            formRegister.style.display = 'none';
+        });
+
+        tabBtnRegister.addEventListener('click', () => {
+            tabBtnRegister.classList.add('active');
+            tabBtnLogin.classList.remove('active');
+            formRegister.style.display = 'flex';
+            formLogin.style.display = 'none';
+        });
+
+        // Sign In Handler
+        formLogin?.addEventListener('submit', async (e) => {
             e.preventDefault();
             const email = document.getElementById('loginEmail').value;
             const password = document.getElementById('loginPassword').value;
 
             try {
                 await loginUser(email, password);
-                window.location.href = '/shop.html';
+                window.location.href = 'shop.html';
             } catch (err) {
                 alert("Login failed: " + err.message);
+            }
+        });
+
+        // Sign Up Handler
+        formRegister?.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const fullName = document.getElementById('regFullName').value.trim();
+            const phone = document.getElementById('regPhone').value.trim();
+            const email = document.getElementById('regEmail').value.trim();
+            const password = document.getElementById('regPassword').value;
+
+            try {
+                await signUpUser(email, password, fullName, phone, 'customer');
+                alert("Account created successfully in Supabase! Welcome to Shree Aura Cottons.");
+                window.location.href = 'shop.html';
+            } catch (err) {
+                alert("Registration failed: " + err.message);
             }
         });
     </script>

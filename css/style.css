@@ -84,6 +84,19 @@ img {
     display: block;
 }
 
+svg {
+    max-width: 100%;
+}
+
+/* MOBILE ONLY NAVIGATION & DRAWER - STRICTLY HIDDEN ON DESKTOP & TABLET VIEW */
+.mobile-bottom-nav,
+.mobile-nav-toggle,
+.mobile-drawer,
+.mobile-nav-overlay,
+.mobile-filter-close {
+    display: none !important;
+}
+
 .container {
     width: 100%;
     max-width: 1280px;
@@ -273,7 +286,7 @@ img {
 .icon-btn svg {
     width: 24px;
     height: 24px;
-    stroke: var(--text-dark);
+    stroke: currentColor;
     transition: var(--transition);
 }
 

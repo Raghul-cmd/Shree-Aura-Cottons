@@ -20,11 +20,11 @@ if (window.supabase && isSupabaseConfigured()) {
 
 // SEED MOCK DATASTORE FOR DIRECT LOCAL PREVIEW
 const INITIAL_MOCK_CATEGORIES = [
-    { id: 'c1000000-0000-0000-0000-000000000001', name: 'Cotton Sarees', slug: 'cotton-sarees', description: 'Breathable handcrafted daily cotton sarees', image_url: 'https://images.unsplash.com/photo-1610030469983-98e550d6193c?auto=format&fit=crop&w=600&q=80' },
-    { id: 'c1000000-0000-0000-0000-000000000002', name: 'Silk Sarees', slug: 'silk-sarees', description: 'Pure silk weaves with regal gold zari borders', image_url: 'https://images.unsplash.com/photo-1617627143750-d86bc21e42bb?auto=format&fit=crop&w=600&q=80' },
-    { id: 'c1000000-0000-0000-0000-000000000003', name: 'Banarasi Sarees', slug: 'banarasi-sarees', description: 'Varanasi brocade heirloom sarees', image_url: 'https://images.unsplash.com/photo-1583391733956-3750e0ff4e8b?auto=format&fit=crop&w=600&q=80' },
-    { id: 'c1000000-0000-0000-0000-000000000004', name: 'Daily Wear', slug: 'daily-wear', description: 'Lightweight everyday sarees', image_url: 'https://images.unsplash.com/photo-1609357605129-26f69add5d6e?auto=format&fit=crop&w=600&q=80' },
-    { id: 'c1000000-0000-0000-0000-000000000005', name: 'Wedding Sarees', slug: 'wedding-sarees', description: 'Opulent Kanchipuram & Banarasi bridal wear', image_url: 'https://images.unsplash.com/photo-1610030469983-98e550d6193c?auto=format&fit=crop&w=600&q=80' }
+    { id: 'c1000000-0000-0000-0000-000000000001', name: 'Cotton Sarees', slug: 'cotton-sarees', description: 'Breathable handcrafted daily cotton sarees', image_url: 'https://kuajhwywwvjykxjaaxkg.supabase.co/storage/v1/object/public/product-images/sarees/1.jpeg' },
+    { id: 'c1000000-0000-0000-0000-000000000002', name: 'Silk Sarees', slug: 'silk-sarees', description: 'Pure silk weaves with regal gold zari borders', image_url: 'https://kuajhwywwvjykxjaaxkg.supabase.co/storage/v1/object/public/product-images/sarees/2.jpeg' },
+    { id: 'c1000000-0000-0000-0000-000000000003', name: 'Banarasi Sarees', slug: 'banarasi-sarees', description: 'Varanasi brocade heirloom sarees', image_url: 'https://kuajhwywwvjykxjaaxkg.supabase.co/storage/v1/object/public/product-images/sarees/3.jpeg' },
+    { id: 'c1000000-0000-0000-0000-000000000004', name: 'Daily Wear', slug: 'daily-wear', description: 'Lightweight everyday sarees', image_url: 'https://kuajhwywwvjykxjaaxkg.supabase.co/storage/v1/object/public/product-images/sarees/4.jpeg' },
+    { id: 'c1000000-0000-0000-0000-000000000005', name: 'Wedding Sarees', slug: 'wedding-sarees', description: 'Opulent Kanchipuram & Banarasi bridal wear', image_url: 'https://kuajhwywwvjykxjaaxkg.supabase.co/storage/v1/object/public/product-images/sarees/8.jpeg' }
 ];
 
 const INITIAL_MOCK_PRODUCTS = [
@@ -43,10 +43,9 @@ const INITIAL_MOCK_PRODUCTS = [
         occasion: 'Daily Wear',
         stock: 15,
         sku: 'SAR-COT-001',
-        main_image: 'https://images.unsplash.com/photo-1610030469983-98e550d6193c?auto=format&fit=crop&w=800&q=80',
+        main_image: 'https://kuajhwywwvjykxjaaxkg.supabase.co/storage/v1/object/public/product-images/sarees/1.jpeg',
         images: [
-            'https://images.unsplash.com/photo-1610030469983-98e550d6193c?auto=format&fit=crop&w=800&q=80',
-            'https://images.unsplash.com/photo-1617627143750-d86bc21e42bb?auto=format&fit=crop&w=800&q=80'
+            'https://kuajhwywwvjykxjaaxkg.supabase.co/storage/v1/object/public/product-images/sarees/1.jpeg'
         ],
         is_active: true,
         is_featured: true,
@@ -67,10 +66,9 @@ const INITIAL_MOCK_PRODUCTS = [
         occasion: 'Wedding',
         stock: 8,
         sku: 'SAR-SLK-002',
-        main_image: 'https://images.unsplash.com/photo-1617627143750-d86bc21e42bb?auto=format&fit=crop&w=800&q=80',
+        main_image: 'https://kuajhwywwvjykxjaaxkg.supabase.co/storage/v1/object/public/product-images/sarees/2.jpeg',
         images: [
-            'https://images.unsplash.com/photo-1617627143750-d86bc21e42bb?auto=format&fit=crop&w=800&q=80',
-            'https://images.unsplash.com/photo-1583391733956-3750e0ff4e8b?auto=format&fit=crop&w=800&q=80'
+            'https://kuajhwywwvjykxjaaxkg.supabase.co/storage/v1/object/public/product-images/sarees/2.jpeg'
         ],
         is_active: true,
         is_featured: true,
@@ -91,9 +89,9 @@ const INITIAL_MOCK_PRODUCTS = [
         occasion: 'Wedding',
         stock: 6,
         sku: 'SAR-BAN-003',
-        main_image: 'https://images.unsplash.com/photo-1583391733956-3750e0ff4e8b?auto=format&fit=crop&w=800&q=80',
+        main_image: 'https://kuajhwywwvjykxjaaxkg.supabase.co/storage/v1/object/public/product-images/sarees/3.jpeg',
         images: [
-            'https://images.unsplash.com/photo-1583391733956-3750e0ff4e8b?auto=format&fit=crop&w=800&q=80'
+            'https://kuajhwywwvjykxjaaxkg.supabase.co/storage/v1/object/public/product-images/sarees/3.jpeg'
         ],
         is_active: true,
         is_featured: true,
@@ -114,9 +112,9 @@ const INITIAL_MOCK_PRODUCTS = [
         occasion: 'Office Wear',
         stock: 20,
         sku: 'SAR-GEO-004',
-        main_image: 'https://images.unsplash.com/photo-1609357605129-26f69add5d6e?auto=format&fit=crop&w=800&q=80',
+        main_image: 'https://kuajhwywwvjykxjaaxkg.supabase.co/storage/v1/object/public/product-images/sarees/4.jpeg',
         images: [
-            'https://images.unsplash.com/photo-1609357605129-26f69add5d6e?auto=format&fit=crop&w=800&q=80'
+            'https://kuajhwywwvjykxjaaxkg.supabase.co/storage/v1/object/public/product-images/sarees/4.jpeg'
         ],
         is_active: true,
         is_featured: false,
@@ -137,9 +135,9 @@ const INITIAL_MOCK_PRODUCTS = [
         occasion: 'Daily Wear',
         stock: 12,
         sku: 'SAR-LIN-005',
-        main_image: 'https://images.unsplash.com/photo-1610030469983-98e550d6193c?auto=format&fit=crop&w=800&q=80',
+        main_image: 'https://kuajhwywwvjykxjaaxkg.supabase.co/storage/v1/object/public/product-images/sarees/5.jpeg',
         images: [
-            'https://images.unsplash.com/photo-1610030469983-98e550d6193c?auto=format&fit=crop&w=800&q=80'
+            'https://kuajhwywwvjykxjaaxkg.supabase.co/storage/v1/object/public/product-images/sarees/5.jpeg'
         ],
         is_active: true,
         is_featured: true,
@@ -160,9 +158,9 @@ const INITIAL_MOCK_PRODUCTS = [
         occasion: 'Festive Celebration',
         stock: 10,
         sku: 'SAR-CHN-006',
-        main_image: 'https://images.unsplash.com/photo-1617627143750-d86bc21e42bb?auto=format&fit=crop&w=800&q=80',
+        main_image: 'https://kuajhwywwvjykxjaaxkg.supabase.co/storage/v1/object/public/product-images/sarees/6.jpeg',
         images: [
-            'https://images.unsplash.com/photo-1617627143750-d86bc21e42bb?auto=format&fit=crop&w=800&q=80'
+            'https://kuajhwywwvjykxjaaxkg.supabase.co/storage/v1/object/public/product-images/sarees/6.jpeg'
         ],
         is_active: true,
         is_featured: true,
@@ -183,9 +181,9 @@ const INITIAL_MOCK_PRODUCTS = [
         occasion: 'Office Wear',
         stock: 14,
         sku: 'SAR-TUS-007',
-        main_image: 'https://images.unsplash.com/photo-1583391733956-3750e0ff4e8b?auto=format&fit=crop&w=800&q=80',
+        main_image: 'https://kuajhwywwvjykxjaaxkg.supabase.co/storage/v1/object/public/product-images/sarees/7.jpeg',
         images: [
-            'https://images.unsplash.com/photo-1583391733956-3750e0ff4e8b?auto=format&fit=crop&w=800&q=80'
+            'https://kuajhwywwvjykxjaaxkg.supabase.co/storage/v1/object/public/product-images/sarees/7.jpeg'
         ],
         is_active: true,
         is_featured: false,
@@ -206,9 +204,9 @@ const INITIAL_MOCK_PRODUCTS = [
         occasion: 'Wedding',
         stock: 5,
         sku: 'SAR-KNJ-008',
-        main_image: 'https://images.unsplash.com/photo-1610030469983-98e550d6193c?auto=format&fit=crop&w=800&q=80',
+        main_image: 'https://kuajhwywwvjykxjaaxkg.supabase.co/storage/v1/object/public/product-images/sarees/8.jpeg',
         images: [
-            'https://images.unsplash.com/photo-1610030469983-98e550d6193c?auto=format&fit=crop&w=800&q=80'
+            'https://kuajhwywwvjykxjaaxkg.supabase.co/storage/v1/object/public/product-images/sarees/8.jpeg'
         ],
         is_active: true,
         is_featured: true,
@@ -229,9 +227,9 @@ const INITIAL_MOCK_PRODUCTS = [
         occasion: 'Festive Celebration',
         stock: 18,
         sku: 'SAR-ORG-009',
-        main_image: 'https://images.unsplash.com/photo-1609357605129-26f69add5d6e?auto=format&fit=crop&w=800&q=80',
+        main_image: 'https://kuajhwywwvjykxjaaxkg.supabase.co/storage/v1/object/public/product-images/sarees/9.jpeg',
         images: [
-            'https://images.unsplash.com/photo-1609357605129-26f69add5d6e?auto=format&fit=crop&w=800&q=80'
+            'https://kuajhwywwvjykxjaaxkg.supabase.co/storage/v1/object/public/product-images/sarees/9.jpeg'
         ],
         is_active: true,
         is_featured: true,
@@ -252,9 +250,9 @@ const INITIAL_MOCK_PRODUCTS = [
         occasion: 'Daily Wear',
         stock: 25,
         sku: 'SAR-CHT-010',
-        main_image: 'https://images.unsplash.com/photo-1610030469983-98e550d6193c?auto=format&fit=crop&w=800&q=80',
+        main_image: 'https://kuajhwywwvjykxjaaxkg.supabase.co/storage/v1/object/public/product-images/sarees/10.jpeg',
         images: [
-            'https://images.unsplash.com/photo-1610030469983-98e550d6193c?auto=format&fit=crop&w=800&q=80'
+            'https://kuajhwywwvjykxjaaxkg.supabase.co/storage/v1/object/public/product-images/sarees/10.jpeg'
         ],
         is_active: true,
         is_featured: false,
@@ -689,4 +687,40 @@ export async function getCustomers() {
     return Array.from(customerMap.values());
 }
 
+export async function deleteProduct(id) {
+    if (supabaseClient) {
+        try {
+            const { error } = await supabaseClient.from('products').delete().eq('id', id);
+            if (error) console.error("Supabase delete product error:", error);
+        } catch (e) {
+            console.warn("Supabase delete product failed, fallback to local store:", e);
+        }
+    }
+    
+    let prods = [];
+    try { prods = JSON.parse(localStorage.getItem('vw_mock_products') || '[]'); } catch(e) {}
+    prods = prods.filter(p => p.id !== id);
+    localStorage.setItem('vw_mock_products', JSON.stringify(prods));
+    return true;
+}
+
+export async function saveCategory(categoryData) {
+    if (supabaseClient) {
+        try {
+            const { data, error } = await supabaseClient.from('categories').insert([categoryData]).select();
+            if (!error && data && data[0]) return data[0];
+        } catch (e) {
+            console.warn("Supabase save category failed:", e);
+        }
+    }
+    
+    let cats = [];
+    try { cats = JSON.parse(localStorage.getItem('vw_mock_categories') || '[]'); } catch(e) {}
+    const newCat = { ...categoryData, id: 'cat_' + Date.now() };
+    cats.push(newCat);
+    localStorage.setItem('vw_mock_categories', JSON.stringify(cats));
+    return newCat;
+}
+
 export { supabaseClient };
+

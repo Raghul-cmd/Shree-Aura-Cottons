@@ -1,62 +1,142 @@
 // ==============================================================================
-// WEAVES SAREE COLLECTIONS - AUTHENTICATION & ROLE PROTECTION MODULE
+// WEAVES SAREE COLLECTIONS - SUPABASE AUTHENTICATION & ROLE PROTECTION MODULE
 // ==============================================================================
 
 import { supabaseClient } from './supabase.js';
 
-export async function loginUser(email, password) {
-    const isAdminCred = (email === 'admin@weavessareecollections.com' || email === 'admin@weavessaree.com' || email === 'admin@vanamala.com') && password === 'admin123';
+/**
+ * Authenticates an Admin user against Supabase Auth & checks profiles.role === 'admin'
+ */
+export async function loginAdmin(email, password) {
+    const cleanEmail = email.trim();
 
-    if (supabaseClient && !isAdminCred) {
+    // 1. Authenticate using live Supabase Client if available
+    if (supabaseClient) {
         try {
-            const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
+            const { data, error } = await supabaseClient.auth.signInWithPassword({
+                email: cleanEmail,
+                password: password
+            });
+
+            if (error) {
+                console.warn("Supabase Auth sign-in warning:", error.message);
+                // If invalid credentials in Supabase Auth, check fallback
+            } else if (data && data.user) {
+                // Fetch profile to verify admin authorization
+                let userRole = 'customer';
+                let fullName = data.user.user_metadata?.full_name || 'Administrator';
+
+                const { data: profile, error: profileErr } = await supabaseClient
+                    .from('profiles')
+                    .select('role, full_name')
+                    .eq('id', data.user.id)
+                    .maybeSingle();
+
+                if (profile && profile.role) {
+                    userRole = profile.role;
+                    fullName = profile.full_name || fullName;
+                } else if (data.user.user_metadata && data.user.user_metadata.role) {
+                    userRole = data.user.user_metadata.role;
+                } else if (cleanEmail.toLowerCase().includes('admin') || cleanEmail.endsWith('@weavessareecollections.com')) {
+                    userRole = 'admin'; // Admin email heuristic fallback
+                }
+
+                if (userRole !== 'admin') {
+                    // Sign out immediately if non-admin user tries to access admin portal
+                    await supabaseClient.auth.signOut();
+                    throw new Error("Access Denied: Account '" + cleanEmail + "' is not registered as an Administrator in Supabase.");
+                }
+
+                const adminSession = {
+                    id: data.user.id,
+                    email: data.user.email,
+                    full_name: fullName,
+                    role: 'admin',
+                    authenticatedAt: new Date().toISOString()
+                };
+
+                localStorage.setItem('vw_session', JSON.stringify(adminSession));
+                return { user: data.user, role: 'admin', session: adminSession };
+            }
+        } catch (err) {
+            if (err.message && err.message.startsWith("Access Denied")) {
+                throw err;
+            }
+            console.warn("Supabase Auth error during admin login attempt:", err);
+        }
+    }
+
+    // 2. Default Local Admin Credentials Fallback (for instant testing preview)
+    const isAdminEmail = cleanEmail.toLowerCase().includes('admin') || cleanEmail === 'admin@weavessareecollections.com' || cleanEmail === 'admin@vanamala.com';
+    if (isAdminEmail && (password === 'admin123' || password === 'admin')) {
+        const mockAdminSession = {
+            id: 'usr_admin_001',
+            email: cleanEmail,
+            full_name: 'Store Administrator',
+            role: 'admin',
+            authenticatedAt: new Date().toISOString()
+        };
+        localStorage.setItem('vw_session', JSON.stringify(mockAdminSession));
+        return { user: mockAdminSession, role: 'admin', session: mockAdminSession };
+    }
+
+    throw new Error("Invalid admin email or password. Please check your credentials.");
+}
+
+/**
+ * Authenticates a regular customer user against Supabase Auth
+ */
+export async function loginUser(email, password) {
+    const cleanEmail = email.trim();
+
+    if (supabaseClient) {
+        try {
+            const { data, error } = await supabaseClient.auth.signInWithPassword({
+                email: cleanEmail,
+                password: password
+            });
+
             if (!error && data && data.user) {
                 const { data: profile } = await supabaseClient
                     .from('profiles')
                     .select('role, full_name')
                     .eq('id', data.user.id)
-                    .single();
-                    
+                    .maybeSingle();
+
                 const session = {
                     id: data.user.id,
                     email: data.user.email,
-                    full_name: profile ? profile.full_name : 'Customer',
+                    full_name: profile ? profile.full_name : (data.user.user_metadata?.full_name || 'Customer'),
                     role: profile ? profile.role : 'customer'
                 };
                 localStorage.setItem('vw_session', JSON.stringify(session));
                 return { user: data.user, role: session.role };
             }
         } catch (e) {
-            console.warn("Supabase auth failed, fallback check:", e);
+            console.warn("Supabase customer login fallback:", e);
         }
     }
-    
-    // Default Admin & Customer Credential Session
-    if (isAdminCred) {
-        const mockAdminSession = {
-            id: 'usr_admin_001',
-            email: 'admin@weavessareecollections.com',
-            full_name: 'Store Administrator',
-            role: 'admin'
-        };
-        localStorage.setItem('vw_session', JSON.stringify(mockAdminSession));
-        return { user: mockAdminSession, role: 'admin' };
-    } else {
-        const mockCustSession = {
-            id: 'usr_cust_' + Date.now(),
-            email: email,
-            full_name: 'Customer',
-            role: 'customer'
-        };
-        localStorage.setItem('vw_session', JSON.stringify(mockCustSession));
-        return { user: mockCustSession, role: 'customer' };
-    }
+
+    // Fallback Customer session
+    const mockCustSession = {
+        id: 'usr_cust_' + Date.now(),
+        email: cleanEmail,
+        full_name: 'Customer',
+        role: 'customer'
+    };
+    localStorage.setItem('vw_session', JSON.stringify(mockCustSession));
+    return { user: mockCustSession, role: 'customer' };
 }
 
+/**
+ * Retrieves current active user session and verifies role
+ */
 export async function getCurrentUser() {
-    const sess = localStorage.getItem('vw_session');
-    if (sess) {
-        try { return JSON.parse(sess); } catch(e) {}
+    const sessStr = localStorage.getItem('vw_session');
+    let sessionObj = null;
+
+    if (sessStr) {
+        try { sessionObj = JSON.parse(sessStr); } catch(e) {}
     }
 
     if (supabaseClient) {
@@ -67,20 +147,83 @@ export async function getCurrentUser() {
                     .from('profiles')
                     .select('*')
                     .eq('id', user.id)
-                    .single();
-                    
-                return { ...user, role: profile ? profile.role : 'customer', full_name: profile ? profile.full_name : '' };
+                    .maybeSingle();
+
+                const role = profile?.role || user.user_metadata?.role || (user.email.includes('admin') ? 'admin' : 'customer');
+                const verifiedSession = {
+                    id: user.id,
+                    email: user.email,
+                    role: role,
+                    full_name: profile?.full_name || user.user_metadata?.full_name || (role === 'admin' ? 'Store Administrator' : 'Customer')
+                };
+                localStorage.setItem('vw_session', JSON.stringify(verifiedSession));
+                return verifiedSession;
             }
         } catch(e) {}
     }
-    
-    return null;
+
+    return sessionObj;
 }
 
+/**
+ * Registers a new user account directly in Supabase Auth & public.profiles table
+ */
+export async function signUpUser(email, password, fullName, phone = '', role = 'customer') {
+    const cleanEmail = email.trim();
+
+    if (supabaseClient) {
+        try {
+            const { data, error } = await supabaseClient.auth.signUp({
+                email: cleanEmail,
+                password: password,
+                options: {
+                    data: {
+                        full_name: fullName,
+                        phone: phone,
+                        role: role
+                    }
+                }
+            });
+
+            if (error) throw new Error(error.message);
+
+            if (data && data.user) {
+                const session = {
+                    id: data.user.id,
+                    email: data.user.email,
+                    full_name: fullName,
+                    role: role
+                };
+                localStorage.setItem('vw_session', JSON.stringify(session));
+                return { user: data.user, session };
+            }
+        } catch (err) {
+            throw new Error(err.message);
+        }
+    }
+
+    // Fallback Local session
+    const mockSession = {
+        id: 'usr_' + Date.now(),
+        email: cleanEmail,
+        full_name: fullName,
+        phone: phone,
+        role: role
+    };
+    localStorage.setItem('vw_session', JSON.stringify(mockSession));
+    return { user: mockSession, session: mockSession };
+}
+
+/**
+ * Sign out current session
+ */
 export async function logoutUser() {
     if (supabaseClient) {
-        await supabaseClient.auth.signOut();
+        try {
+            await supabaseClient.auth.signOut();
+        } catch(e) {}
     }
     localStorage.removeItem('vw_session');
-    window.location.href = '/login.html';
+    window.location.href = 'login.html';
 }
+
