@@ -134,15 +134,17 @@ function renderOverviewStats() {
         if (recentOrders.length === 0) {
             recentTbody.innerHTML = `<tr><td colspan="5" style="text-align:center; padding:1.8rem; color:#475569; font-weight:700;">No recent orders recorded</td></tr>`;
         } else {
-            recentTbody.innerHTML = recentOrders.map(o => `
+            recentTbody.innerHTML = recentOrders.map(o => {
+                const orderIdStr = String(o.id || '');
+                return `
                 <tr style="border-bottom: 1px solid #E2E8F0; transition:background 0.2s;" onmouseenter="this.style.background='#FDFBF7'" onmouseleave="this.style.background='transparent'">
-                    <td style="padding:1rem; font-weight:800; color:#7A1C30; font-family:monospace;">#${o.id.substring(0, 8)}</td>
+                    <td style="padding:1rem; font-weight:800; color:#7A1C30; font-family:monospace;">#${orderIdStr.length > 8 ? orderIdStr.substring(0, 8) : orderIdStr}</td>
                     <td style="padding:1rem; color:#000000; font-weight:700;">${escapeHtml(o.customer_name || 'Customer')}</td>
                     <td style="padding:1rem; font-weight:800; color:#065F46;">₹${Number(o.total_amount || 0).toFixed(2)}</td>
                     <td style="padding:1rem;">${getStatusBadge(o.order_status)}</td>
                     <td style="padding:1rem; color:#475569; font-size:0.85rem; font-weight:600;">${new Date(o.created_at).toLocaleDateString()}</td>
                 </tr>
-            `).join('');
+            `}).join('');
         }
     }
 }
@@ -226,7 +228,8 @@ function renderOrdersTable() {
     const statusFilter = document.getElementById('orderStatusFilter')?.value || '';
 
     const filtered = allOrders.filter(o => {
-        const matchesSearch = o.id.toLowerCase().includes(searchTerm) || 
+        const orderIdStr = String(o.id || '').toLowerCase();
+        const matchesSearch = orderIdStr.includes(searchTerm) || 
                               (o.customer_name && o.customer_name.toLowerCase().includes(searchTerm)) ||
                               (o.phone && o.phone.includes(searchTerm));
         const matchesStatus = !statusFilter || o.order_status === statusFilter;
@@ -240,10 +243,11 @@ function renderOrdersTable() {
 
     tbody.innerHTML = filtered.map(o => {
         const itemsSummary = (o.order_items || []).map(i => `${i.product_name} (x${i.quantity})`).join(', ') || 'Saree Order';
+        const orderIdStr = String(o.id || '');
 
         return `
             <tr style="border-bottom:1px solid #E2E8F0; transition:background 0.2s;" onmouseenter="this.style.background='#FDFBF7'" onmouseleave="this.style.background='transparent'">
-                <td style="padding:1rem; font-weight:800; color:#7A1C30; font-family:monospace; font-size:0.95rem;">#${o.id.substring(0, 8)}</td>
+                <td style="padding:1rem; font-weight:800; color:#7A1C30; font-family:monospace; font-size:0.95rem;">#${orderIdStr.length > 8 ? orderIdStr.substring(0, 8) : orderIdStr}</td>
                 <td style="padding:1rem;">
                     <div style="font-weight:800; color:#000000; font-size:0.95rem;">${escapeHtml(o.customer_name || 'Customer')}</div>
                     <div style="font-size:0.82rem; color:#334155; font-weight:700; margin-top:2px;">${escapeHtml(o.phone || '')} • ${escapeHtml(o.email || '')}</div>
