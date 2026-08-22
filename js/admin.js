@@ -65,7 +65,7 @@ function showAdminDashboard() {
     const nameEl = document.getElementById('adminProfileName');
     const emailEl = document.getElementById('adminProfileEmail');
     if (nameEl) nameEl.textContent = currentAdmin?.full_name || 'Store Administrator';
-    if (emailEl) emailEl.textContent = currentAdmin?.email || 'admin@weavessareecollections.com';
+    if (emailEl) emailEl.textContent = currentAdmin?.email || 'shreeauracottons@gmail.com';
 
     // Supabase Connection Status Badge
     const statusBadge = document.getElementById('supabaseStatusBadge');

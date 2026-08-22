@@ -37,8 +37,8 @@ export async function loginAdmin(email, password) {
                     fullName = profile.full_name || fullName;
                 } else if (data.user.user_metadata && data.user.user_metadata.role) {
                     userRole = data.user.user_metadata.role;
-                } else if (cleanEmail.toLowerCase().includes('admin') || cleanEmail.endsWith('@weavessareecollections.com')) {
-                    userRole = 'admin'; // Admin email heuristic fallback
+                } else if (cleanEmail.toLowerCase() === 'shreeauracottons@gmail.com' || cleanEmail.toLowerCase().includes('admin') || cleanEmail.endsWith('@weavessareecollections.com')) {
+                    userRole = 'admin'; // Primary store owner / admin email
                 }
 
                 if (userRole !== 'admin') {
@@ -67,7 +67,7 @@ export async function loginAdmin(email, password) {
     }
 
     // 2. Default Local Admin Credentials Fallback (for instant testing preview)
-    const isAdminEmail = cleanEmail.toLowerCase().includes('admin') || cleanEmail === 'admin@weavessareecollections.com' || cleanEmail === 'admin@vanamala.com';
+    const isAdminEmail = cleanEmail.toLowerCase() === 'shreeauracottons@gmail.com' || cleanEmail.toLowerCase().includes('admin') || cleanEmail === 'admin@weavessareecollections.com';
     if (isAdminEmail && (password === 'admin123' || password === 'admin')) {
         const mockAdminSession = {
             id: 'usr_admin_001',
