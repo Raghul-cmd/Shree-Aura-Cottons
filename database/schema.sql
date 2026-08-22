@@ -1,15 +1,24 @@
 -- ==============================================================================
--- WEAVES SAREE COLLECTIONS - COMPLETE & PERFECTED SUPABASE DATABASE SCHEMA
+-- SHREE AURA COTTONS - COMPLETE & PERFECTED SUPABASE DATABASE SCHEMA
 -- ==============================================================================
 -- Run this complete script in your Supabase SQL Editor (SQL Editor -> New Query -> Run)
 
 -- 1. EXTENSIONS
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
--- 2. TABLES DEFINITIONS
+-- 2. DROP EXISTING TABLES IN REVERSE DEPENDENCY ORDER
+DROP TABLE IF EXISTS public.order_items CASCADE;
+DROP TABLE IF EXISTS public.orders CASCADE;
+DROP TABLE IF EXISTS public.wishlist CASCADE;
+DROP TABLE IF EXISTS public.product_images CASCADE;
+DROP TABLE IF EXISTS public.products CASCADE;
+DROP TABLE IF EXISTS public.categories CASCADE;
+DROP TABLE IF EXISTS public.profiles CASCADE;
 
--- CATEGORIES TABLE
-CREATE TABLE IF NOT EXISTS public.categories (
+-- 3. TABLE DEFINITIONS FOR ALL 7 DATABASE TABLES
+
+-- 1. CATEGORIES TABLE
+CREATE TABLE public.categories (
     id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
     name VARCHAR(100) NOT NULL,
     slug VARCHAR(100) UNIQUE NOT NULL,
@@ -18,8 +27,8 @@ CREATE TABLE IF NOT EXISTS public.categories (
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
--- PRODUCTS TABLE
-CREATE TABLE IF NOT EXISTS public.products (
+-- 2. PRODUCTS TABLE
+CREATE TABLE public.products (
     id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
     slug VARCHAR(255) UNIQUE NOT NULL,
@@ -40,8 +49,8 @@ CREATE TABLE IF NOT EXISTS public.products (
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
--- PRODUCT IMAGES TABLE
-CREATE TABLE IF NOT EXISTS public.product_images (
+-- 3. PRODUCT IMAGES TABLE
+CREATE TABLE public.product_images (
     id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
     product_id UUID REFERENCES public.products(id) ON DELETE CASCADE,
     image_url TEXT NOT NULL,
@@ -49,8 +58,8 @@ CREATE TABLE IF NOT EXISTS public.product_images (
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
--- USER PROFILES TABLE
-CREATE TABLE IF NOT EXISTS public.profiles (
+-- 4. PROFILES TABLE (Linked to Supabase auth.users)
+CREATE TABLE public.profiles (
     id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
     full_name VARCHAR(255),
     phone VARCHAR(20),
@@ -58,8 +67,8 @@ CREATE TABLE IF NOT EXISTS public.profiles (
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
--- WISHLIST TABLE
-CREATE TABLE IF NOT EXISTS public.wishlist (
+-- 5. WISHLIST TABLE
+CREATE TABLE public.wishlist (
     id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
     user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
     product_id UUID REFERENCES public.products(id) ON DELETE CASCADE,
@@ -67,8 +76,8 @@ CREATE TABLE IF NOT EXISTS public.wishlist (
     UNIQUE(user_id, product_id)
 );
 
--- ORDERS TABLE
-CREATE TABLE IF NOT EXISTS public.orders (
+-- 6. ORDERS TABLE
+CREATE TABLE public.orders (
     id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
     user_id UUID REFERENCES auth.users(id) ON DELETE SET NULL,
     customer_name VARCHAR(255) NOT NULL,
@@ -84,8 +93,8 @@ CREATE TABLE IF NOT EXISTS public.orders (
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
--- ORDER ITEMS TABLE
-CREATE TABLE IF NOT EXISTS public.order_items (
+-- 7. ORDER ITEMS TABLE
+CREATE TABLE public.order_items (
     id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
     order_id UUID REFERENCES public.orders(id) ON DELETE CASCADE,
     product_id UUID REFERENCES public.products(id) ON DELETE SET NULL,
@@ -95,17 +104,17 @@ CREATE TABLE IF NOT EXISTS public.order_items (
     subtotal DECIMAL(10,2) NOT NULL
 );
 
--- 3. INDEXES FOR PERFORMANCE
-CREATE INDEX IF NOT EXISTS idx_products_category ON public.products(category_id);
-CREATE INDEX IF NOT EXISTS idx_products_fabric ON public.products(fabric);
-CREATE INDEX IF NOT EXISTS idx_products_color ON public.products(color);
-CREATE INDEX IF NOT EXISTS idx_products_occasion ON public.products(occasion);
-CREATE INDEX IF NOT EXISTS idx_products_price ON public.products(price);
-CREATE INDEX IF NOT EXISTS idx_products_active ON public.products(is_active);
-CREATE INDEX IF NOT EXISTS idx_orders_user ON public.orders(user_id);
-CREATE INDEX IF NOT EXISTS idx_wishlist_user ON public.wishlist(user_id);
+-- 4. PERFORMANCE INDEXES
+CREATE INDEX idx_products_category ON public.products(category_id);
+CREATE INDEX idx_products_fabric ON public.products(fabric);
+CREATE INDEX idx_products_color ON public.products(color);
+CREATE INDEX idx_products_occasion ON public.products(occasion);
+CREATE INDEX idx_products_price ON public.products(price);
+CREATE INDEX idx_products_active ON public.products(is_active);
+CREATE INDEX idx_orders_user ON public.orders(user_id);
+CREATE INDEX idx_wishlist_user ON public.wishlist(user_id);
 
--- 4. PROFILE CREATION TRIGGER ON SIGNUP
+-- 5. USER SIGNUP PROFILE TRIGGER
 CREATE OR REPLACE FUNCTION public.handle_new_user()
 RETURNS TRIGGER AS $$
 BEGIN
@@ -115,7 +124,8 @@ BEGIN
     COALESCE(new.raw_user_meta_data->>'full_name', 'Customer'),
     COALESCE(new.raw_user_meta_data->>'phone', ''),
     COALESCE(new.raw_user_meta_data->>'role', 'customer')
-  );
+  )
+  ON CONFLICT (id) DO NOTHING;
   RETURN NEW;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
@@ -125,7 +135,7 @@ CREATE TRIGGER on_auth_user_created
   AFTER INSERT ON auth.users
   FOR EACH ROW EXECUTE FUNCTION public.handle_new_user();
 
--- 5. ACCESS CONTROL & RLS PERMISSIONS
+-- 6. PERMISSIONS & ACCESS CONTROL (Enables instant public order placement)
 ALTER TABLE public.categories DISABLE ROW LEVEL SECURITY;
 ALTER TABLE public.products DISABLE ROW LEVEL SECURITY;
 ALTER TABLE public.product_images DISABLE ROW LEVEL SECURITY;
@@ -134,7 +144,6 @@ ALTER TABLE public.order_items DISABLE ROW LEVEL SECURITY;
 ALTER TABLE public.wishlist DISABLE ROW LEVEL SECURITY;
 ALTER TABLE public.profiles DISABLE ROW LEVEL SECURITY;
 
--- Grant table privileges to anon and authenticated roles for seamless order placement
 GRANT ALL ON public.categories TO anon, authenticated, service_role;
 GRANT ALL ON public.products TO anon, authenticated, service_role;
 GRANT ALL ON public.product_images TO anon, authenticated, service_role;
@@ -143,7 +152,6 @@ GRANT ALL ON public.order_items TO anon, authenticated, service_role;
 GRANT ALL ON public.wishlist TO anon, authenticated, service_role;
 GRANT ALL ON public.profiles TO anon, authenticated, service_role;
 
--- Permissive policies if RLS is re-enabled in Supabase
 DROP POLICY IF EXISTS "Public Orders Insert" ON public.orders;
 CREATE POLICY "Public Orders Insert" ON public.orders FOR INSERT WITH CHECK (true);
 
@@ -159,28 +167,24 @@ CREATE POLICY "Public Order Items Insert" ON public.order_items FOR INSERT WITH 
 DROP POLICY IF EXISTS "Public Order Items Select" ON public.order_items;
 CREATE POLICY "Public Order Items Select" ON public.order_items FOR SELECT USING (true);
 
--- 6. STORAGE BUCKET & ROW LEVEL SECURITY (RLS) POLICIES
--- Run these commands to ensure 'product-images' bucket is public and writable:
+-- 7. STORAGE BUCKET FOR PRODUCT IMAGES
 INSERT INTO storage.buckets (id, name, public)
 VALUES ('product-images', 'product-images', true)
 ON CONFLICT (id) DO UPDATE SET public = true;
 
--- Allow public read access for product images
 DROP POLICY IF EXISTS "Public Access product-images" ON storage.objects;
 CREATE POLICY "Public Access product-images" ON storage.objects
 FOR SELECT USING (bucket_id = 'product-images');
 
--- Allow public upload access for product images
 DROP POLICY IF EXISTS "Public Insert product-images" ON storage.objects;
 CREATE POLICY "Public Insert product-images" ON storage.objects
 FOR INSERT WITH CHECK (bucket_id = 'product-images');
 
--- Allow public update access for product images
 DROP POLICY IF EXISTS "Public Update product-images" ON storage.objects;
 CREATE POLICY "Public Update product-images" ON storage.objects
 FOR UPDATE USING (bucket_id = 'product-images');
 
--- 7. INITIAL SEED DATASET (CATEGORIES & 10 SAMPLE SAREES)
+-- 8. INITIAL SEED DATASET (CATEGORIES & 10 SAMPLE SAREES)
 INSERT INTO public.categories (name, slug, description, image_url) VALUES
 ('Cotton Sarees', 'cotton-sarees', 'Breathable, soft, and daily-wear handcrafted cotton sarees.', 'https://kuajhwywwvjykxjaaxkg.supabase.co/storage/v1/object/public/product-images/sarees/1.jpeg'),
 ('Silk Sarees', 'silk-sarees', 'Pure silk weaves with regal gold zari borders for grand occasions.', 'https://kuajhwywwvjykxjaaxkg.supabase.co/storage/v1/object/public/product-images/sarees/2.jpeg'),
