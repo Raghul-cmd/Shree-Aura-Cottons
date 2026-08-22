@@ -161,7 +161,18 @@ function renderProductsTable() {
 
     const filtered = allProducts.filter(p => {
         const matchesSearch = p.name.toLowerCase().includes(searchTerm) || (p.sku && p.sku.toLowerCase().includes(searchTerm));
-        const matchesCat = !catFilter || p.category_id === catFilter || p.category_name === catFilter;
+        
+        let matchesCat = !catFilter;
+        if (catFilter) {
+            const filterStr = String(catFilter).toLowerCase();
+            const pCatId = p.category_id != null ? String(p.category_id).toLowerCase() : '';
+            const pCatName = String(p.category_name || p.categories?.name || '').toLowerCase();
+            const pCatSlug = String(p.categories?.slug || '').toLowerCase();
+            const joinedCatId = p.categories?.id != null ? String(p.categories.id).toLowerCase() : '';
+
+            matchesCat = (pCatId === filterStr) || (joinedCatId === filterStr) || (pCatName === filterStr) || (pCatSlug === filterStr);
+        }
+
         return matchesSearch && matchesCat;
     });
 
