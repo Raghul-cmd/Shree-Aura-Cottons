@@ -27,9 +27,9 @@ CREATE TABLE public.categories (
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
 );
 
--- PRODUCTS TABLE (Sequential IDs: 1, 2, 3...)
+-- PRODUCTS TABLE (Product ID = Product Code, e.g., 'SAR-COT-001')
 CREATE TABLE public.products (
-    id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+    id VARCHAR(100) PRIMARY KEY,
     name VARCHAR(255) NOT NULL,
     slug VARCHAR(255) UNIQUE NOT NULL,
     description TEXT,
@@ -52,7 +52,7 @@ CREATE TABLE public.products (
 -- PRODUCT IMAGES GALLERY TABLE
 CREATE TABLE public.product_images (
     id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
-    product_id BIGINT REFERENCES public.products(id) ON DELETE CASCADE,
+    product_id VARCHAR(100) REFERENCES public.products(id) ON DELETE CASCADE,
     image_url TEXT NOT NULL,
     display_order INT DEFAULT 0,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
@@ -71,7 +71,7 @@ CREATE TABLE public.profiles (
 CREATE TABLE public.wishlist (
     id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE,
-    product_id BIGINT REFERENCES public.products(id) ON DELETE CASCADE,
+    product_id VARCHAR(100) REFERENCES public.products(id) ON DELETE CASCADE,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
     UNIQUE(user_id, product_id)
 );
@@ -97,7 +97,7 @@ CREATE TABLE public.orders (
 CREATE TABLE public.order_items (
     id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     order_id BIGINT REFERENCES public.orders(id) ON DELETE CASCADE,
-    product_id BIGINT REFERENCES public.products(id) ON DELETE SET NULL,
+    product_id VARCHAR(100) REFERENCES public.products(id) ON DELETE SET NULL,
     product_name VARCHAR(255) NOT NULL,
     quantity INT NOT NULL CHECK (quantity > 0),
     price DECIMAL(10,2) NOT NULL,
@@ -194,18 +194,18 @@ INSERT INTO public.categories (name, slug, description, image_url) VALUES
 ('Wedding Sarees', 'wedding-sarees', 'Opulent Kanchipuram and Banarasi bridal heirloom collections.', 'https://kuajhwywwvjykxjaaxkg.supabase.co/storage/v1/object/public/product-images/sarees/8.jpeg')
 ON CONFLICT (slug) DO NOTHING;
 
-INSERT INTO public.products (name, slug, description, category_id, price, compare_price, discount_percentage, fabric, color, occasion, stock, sku, main_image, is_active, is_featured) VALUES
-('Fancy Cotton Maroon Daily Saree', 'fancy-cotton-maroon-daily-saree', 'Elegant maroon pure cotton saree featuring floral block prints and a contrasting beige zari border.', (SELECT id FROM public.categories WHERE slug = 'cotton-sarees'), 899.00, 1299.00, 30, 'Cotton', 'Maroon', 'Daily Wear', 15, 'SAR-COT-001', 'https://kuajhwywwvjykxjaaxkg.supabase.co/storage/v1/object/public/product-images/sarees/1.jpeg', true, true),
-('Royal Kanjivaram Soft Silk Saree', 'royal-kanjivaram-soft-silk-saree', 'Rich peacock blue soft silk saree with heavy gold brocade zari weave along the pallu and temple border motifs.', (SELECT id FROM public.categories WHERE slug = 'silk-sarees'), 2499.00, 3999.00, 37, 'Silk', 'Blue', 'Wedding', 8, 'SAR-SLK-002', 'https://kuajhwywwvjykxjaaxkg.supabase.co/storage/v1/object/public/product-images/sarees/2.jpeg', true, true),
-('Handwoven Banarasi Zari Silk Saree', 'handwoven-banarasi-zari-silk-saree', 'Traditional crimson red Banarasi silk saree featuring antique silver brocade motifs and hand-finished tassels.', (SELECT id FROM public.categories WHERE slug = 'banarasi-sarees'), 3299.00, 4999.00, 34, 'Banarasi', 'Red', 'Wedding', 6, 'SAR-BAN-003', 'https://kuajhwywwvjykxjaaxkg.supabase.co/storage/v1/object/public/product-images/sarees/3.jpeg', true, true),
-('Contemporary Georgette Printed Saree', 'contemporary-georgette-printed-saree', 'Lightweight pastel green georgette saree accented with micro-sequin border work and smooth flowy drape.', (SELECT id FROM public.categories WHERE slug = 'daily-wear'), 1199.00, 1699.00, 29, 'Georgette', 'Green', 'Office Wear', 20, 'SAR-GEO-004', 'https://kuajhwywwvjykxjaaxkg.supabase.co/storage/v1/object/public/product-images/sarees/4.jpeg', true, false),
-('Pure Linen Handloom Mustard Saree', 'pure-linen-handloom-mustard-saree', 'Breathable organic linen saree in bright mustard yellow with silver tissue pallu and unstitched blouse piece included.', (SELECT id FROM public.categories WHERE slug = 'cotton-sarees'), 1599.00, 2199.00, 27, 'Linen', 'Yellow', 'Daily Wear', 12, 'SAR-LIN-005', 'https://kuajhwywwvjykxjaaxkg.supabase.co/storage/v1/object/public/product-images/sarees/5.jpeg', true, true),
-('Chanderi Silk Cotton Olive Saree', 'chanderi-silk-cotton-olive-saree', 'Lustrous olive green Chanderi silk saree with hand-woven gold zari motifs and lightweight sheen.', (SELECT id FROM public.categories WHERE slug = 'silk-sarees'), 1899.00, 2599.00, 27, 'Silk', 'Green', 'Festive Celebration', 10, 'SAR-CHN-006', 'https://kuajhwywwvjykxjaaxkg.supabase.co/storage/v1/object/public/product-images/sarees/6.jpeg', true, true),
-('Tussar Silk Hand Block Printed Saree', 'tussar-silk-hand-block-printed-saree', 'Authentic terracotta orange Tussar silk saree featuring traditional Ajrakh hand block prints and raw silk texture.', (SELECT id FROM public.categories WHERE slug = 'silk-sarees'), 2199.00, 3199.00, 31, 'Soft Silk', 'Orange', 'Office Wear', 14, 'SAR-TUS-007', 'https://kuajhwywwvjykxjaaxkg.supabase.co/storage/v1/object/public/product-images/sarees/7.jpeg', true, false),
-('Kanjeevaram Bridal Ruby Red Saree', 'kanjeevaram-bridal-ruby-red-saree', 'Opulent ruby red Kanjeevaram pure silk saree with heavy gold brocade zari work across the body and pallu.', (SELECT id FROM public.categories WHERE slug = 'wedding-sarees'), 4599.00, 6999.00, 34, 'Silk', 'Red', 'Wedding', 5, 'SAR-KNJ-008', 'https://kuajhwywwvjykxjaaxkg.supabase.co/storage/v1/object/public/product-images/sarees/8.jpeg', true, true),
-('Organza Floral Pastel Pink Saree', 'organza-floral-pastel-pink-saree', 'Delicate pastel pink sheer organza saree with hand-painted digital floral prints and embroidered pearl scalloped border.', (SELECT id FROM public.categories WHERE slug = 'daily-wear'), 1499.00, 1999.00, 25, 'Georgette', 'Pink', 'Festive Celebration', 18, 'SAR-ORG-009', 'https://kuajhwywwvjykxjaaxkg.supabase.co/storage/v1/object/public/product-images/sarees/9.jpeg', true, true),
-('Chettinad Cotton Temple Border Saree', 'chettinad-cotton-temple-border-saree', 'Authentic Chettinad handloom cotton saree in deep navy and mustard with traditional rudraksham temple zari border.', (SELECT id FROM public.categories WHERE slug = 'cotton-sarees'), 999.00, 1499.00, 33, 'Cotton', 'Blue', 'Daily Wear', 25, 'SAR-CHT-010', 'https://kuajhwywwvjykxjaaxkg.supabase.co/storage/v1/object/public/product-images/sarees/10.jpeg', true, false)
-ON CONFLICT (slug) DO UPDATE SET main_image = EXCLUDED.main_image;
+INSERT INTO public.products (id, name, slug, description, category_id, price, compare_price, discount_percentage, fabric, color, occasion, stock, sku, main_image, is_active, is_featured) VALUES
+('SAR-COT-001', 'Fancy Cotton Maroon Daily Saree', 'fancy-cotton-maroon-daily-saree', 'Elegant maroon pure cotton saree featuring floral block prints and a contrasting beige zari border.', (SELECT id FROM public.categories WHERE slug = 'cotton-sarees'), 899.00, 1299.00, 30, 'Cotton', 'Maroon', 'Daily Wear', 15, 'SAR-COT-001', 'https://kuajhwywwvjykxjaaxkg.supabase.co/storage/v1/object/public/product-images/sarees/1.jpeg', true, true),
+('SAR-SLK-002', 'Royal Kanjivaram Soft Silk Saree', 'royal-kanjivaram-soft-silk-saree', 'Rich peacock blue soft silk saree with heavy gold brocade zari weave along the pallu and temple border motifs.', (SELECT id FROM public.categories WHERE slug = 'silk-sarees'), 2499.00, 3999.00, 37, 'Silk', 'Blue', 'Wedding', 8, 'SAR-SLK-002', 'https://kuajhwywwvjykxjaaxkg.supabase.co/storage/v1/object/public/product-images/sarees/2.jpeg', true, true),
+('SAR-BAN-003', 'Handwoven Banarasi Zari Silk Saree', 'handwoven-banarasi-zari-silk-saree', 'Traditional crimson red Banarasi silk saree featuring antique silver brocade motifs and hand-finished tassels.', (SELECT id FROM public.categories WHERE slug = 'banarasi-sarees'), 3299.00, 4999.00, 34, 'Banarasi', 'Red', 'Wedding', 6, 'SAR-BAN-003', 'https://kuajhwywwvjykxjaaxkg.supabase.co/storage/v1/object/public/product-images/sarees/3.jpeg', true, true),
+('SAR-GEO-004', 'Contemporary Georgette Printed Saree', 'contemporary-georgette-printed-saree', 'Lightweight pastel green georgette saree accented with micro-sequin border work and smooth flowy drape.', (SELECT id FROM public.categories WHERE slug = 'daily-wear'), 1199.00, 1699.00, 29, 'Georgette', 'Green', 'Office Wear', 20, 'SAR-GEO-004', 'https://kuajhwywwvjykxjaaxkg.supabase.co/storage/v1/object/public/product-images/sarees/4.jpeg', true, false),
+('SAR-LIN-005', 'Pure Linen Handloom Mustard Saree', 'pure-linen-handloom-mustard-saree', 'Breathable organic linen saree in bright mustard yellow with silver tissue pallu and unstitched blouse piece included.', (SELECT id FROM public.categories WHERE slug = 'cotton-sarees'), 1599.00, 2199.00, 27, 'Linen', 'Yellow', 'Daily Wear', 12, 'SAR-LIN-005', 'https://kuajhwywwvjykxjaaxkg.supabase.co/storage/v1/object/public/product-images/sarees/5.jpeg', true, true),
+('SAR-CHN-006', 'Chanderi Silk Cotton Olive Saree', 'chanderi-silk-cotton-olive-saree', 'Lustrous olive green Chanderi silk saree with hand-woven gold zari motifs and lightweight sheen.', (SELECT id FROM public.categories WHERE slug = 'silk-sarees'), 1899.00, 2599.00, 27, 'Silk', 'Green', 'Festive Celebration', 10, 'SAR-CHN-006', 'https://kuajhwywwvjykxjaaxkg.supabase.co/storage/v1/object/public/product-images/sarees/6.jpeg', true, true),
+('SAR-TUS-007', 'Tussar Silk Hand Block Printed Saree', 'tussar-silk-hand-block-printed-saree', 'Authentic terracotta orange Tussar silk saree featuring traditional Ajrakh hand block prints and raw silk texture.', (SELECT id FROM public.categories WHERE slug = 'silk-sarees'), 2199.00, 3199.00, 31, 'Soft Silk', 'Orange', 'Office Wear', 14, 'SAR-TUS-007', 'https://kuajhwywwvjykxjaaxkg.supabase.co/storage/v1/object/public/product-images/sarees/7.jpeg', true, false),
+('SAR-KNJ-008', 'Kanjeevaram Bridal Ruby Red Saree', 'kanjeevaram-bridal-ruby-red-saree', 'Opulent ruby red Kanjeevaram pure silk saree with heavy gold brocade zari work across the body and pallu.', (SELECT id FROM public.categories WHERE slug = 'wedding-sarees'), 4599.00, 6999.00, 34, 'Silk', 'Red', 'Wedding', 5, 'SAR-KNJ-008', 'https://kuajhwywwvjykxjaaxkg.supabase.co/storage/v1/object/public/product-images/sarees/8.jpeg', true, true),
+('SAR-ORG-009', 'Organza Floral Pastel Pink Saree', 'organza-floral-pastel-pink-saree', 'Delicate pastel pink sheer organza saree with hand-painted digital floral prints and embroidered pearl scalloped border.', (SELECT id FROM public.categories WHERE slug = 'daily-wear'), 1499.00, 1999.00, 25, 'Georgette', 'Pink', 'Festive Celebration', 18, 'SAR-ORG-009', 'https://kuajhwywwvjykxjaaxkg.supabase.co/storage/v1/object/public/product-images/sarees/9.jpeg', true, true),
+('SAR-CHT-010', 'Chettinad Cotton Temple Border Saree', 'chettinad-cotton-temple-border-saree', 'Authentic Chettinad handloom cotton saree in deep navy and mustard with traditional rudraksham temple zari border.', (SELECT id FROM public.categories WHERE slug = 'cotton-sarees'), 999.00, 1499.00, 33, 'Cotton', 'Blue', 'Daily Wear', 25, 'SAR-CHT-010', 'https://kuajhwywwvjykxjaaxkg.supabase.co/storage/v1/object/public/product-images/sarees/10.jpeg', true, false)
+ON CONFLICT (id) DO UPDATE SET main_image = EXCLUDED.main_image;
 
 -- POPULATE GALLERY IMAGES TABLE FOR PRODUCTS
 INSERT INTO public.product_images (product_id, image_url, display_order)

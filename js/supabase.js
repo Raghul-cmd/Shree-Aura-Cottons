@@ -29,7 +29,7 @@ const INITIAL_MOCK_CATEGORIES = [
 
 const INITIAL_MOCK_PRODUCTS = [
     {
-        id: 'p1',
+        id: 'SAR-COT-001',
         name: 'Fancy Cotton Maroon Daily Saree',
         slug: 'fancy-cotton-maroon-daily-saree',
         description: 'Elegant maroon pure cotton saree featuring intricate floral block prints and a contrasting beige zari border. Perfect for all-day office and daily comfort.',
@@ -50,7 +50,7 @@ const INITIAL_MOCK_PRODUCTS = [
         created_at: new Date(Date.now() - 86400000 * 2).toISOString()
     },
     {
-        id: 'p2',
+        id: 'SAR-SLK-002',
         name: 'Royal Kanjivaram Soft Silk Saree',
         slug: 'royal-kanjivaram-soft-silk-saree',
         description: 'Rich peacock blue soft silk saree with heavy gold brocade zari weave along the pallu and traditional temple border motifs.',
@@ -71,7 +71,7 @@ const INITIAL_MOCK_PRODUCTS = [
         created_at: new Date(Date.now() - 86400000 * 4).toISOString()
     },
     {
-        id: 'p3',
+        id: 'SAR-BAN-003',
         name: 'Handwoven Banarasi Zari Crimson Saree',
         slug: 'handwoven-banarasi-zari-crimson-saree',
         description: 'Traditional crimson red Banarasi silk saree featuring antique silver brocade motifs and hand-finished tassels.',
@@ -92,7 +92,7 @@ const INITIAL_MOCK_PRODUCTS = [
         created_at: new Date(Date.now() - 86400000 * 1).toISOString()
     },
     {
-        id: 'p4',
+        id: 'SAR-GEO-004',
         name: 'Contemporary Georgette Printed Saree',
         slug: 'contemporary-georgette-printed-saree',
         description: 'Lightweight pastel green georgette saree accented with micro-sequin border work and smooth flowy drape.',
@@ -113,7 +113,7 @@ const INITIAL_MOCK_PRODUCTS = [
         created_at: new Date(Date.now() - 86400000 * 6).toISOString()
     },
     {
-        id: 'p5',
+        id: 'SAR-LIN-005',
         name: 'Pure Linen Handloom Mustard Saree',
         slug: 'pure-linen-handloom-mustard-saree',
         description: 'Breathable organic linen saree in bright mustard yellow with silver tissue pallu and unstitched blouse piece included.',
@@ -134,7 +134,7 @@ const INITIAL_MOCK_PRODUCTS = [
         created_at: new Date(Date.now() - 86400000 * 3).toISOString()
     },
     {
-        id: 'p6',
+        id: 'SAR-CHN-006',
         name: 'Chanderi Silk Cotton Olive Saree',
         slug: 'chanderi-silk-cotton-olive-saree',
         description: 'Lustrous olive green Chanderi silk saree with hand-woven gold zari motifs and lightweight sheen.',
@@ -155,7 +155,7 @@ const INITIAL_MOCK_PRODUCTS = [
         created_at: new Date(Date.now() - 86400000 * 5).toISOString()
     },
     {
-        id: 'p7',
+        id: 'SAR-TUS-007',
         name: 'Tussar Silk Hand Block Printed Saree',
         slug: 'tussar-silk-hand-block-printed-saree',
         description: 'Authentic terracotta orange Tussar silk saree featuring traditional Ajrakh hand block prints and raw silk texture.',
@@ -176,7 +176,7 @@ const INITIAL_MOCK_PRODUCTS = [
         created_at: new Date(Date.now() - 86400000 * 7).toISOString()
     },
     {
-        id: 'p8',
+        id: 'SAR-KNJ-008',
         name: 'Kanjeevaram Bridal Ruby Red Saree',
         slug: 'kanjeevaram-bridal-ruby-red-saree',
         description: 'Opulent ruby red Kanjeevaram pure silk saree with heavy gold brocade zari work across the body and pallu.',
@@ -197,7 +197,7 @@ const INITIAL_MOCK_PRODUCTS = [
         created_at: new Date(Date.now() - 86400000 * 8).toISOString()
     },
     {
-        id: 'p9',
+        id: 'SAR-ORG-009',
         name: 'Organza Floral Pastel Pink Saree',
         slug: 'organza-floral-pastel-pink-saree',
         description: 'Delicate pastel pink sheer organza saree with hand-painted digital floral prints and embroidered pearl scalloped border.',
@@ -218,7 +218,7 @@ const INITIAL_MOCK_PRODUCTS = [
         created_at: new Date(Date.now() - 86400000 * 9).toISOString()
     },
     {
-        id: 'p10',
+        id: 'SAR-CHT-010',
         name: 'Chettinad Cotton Temple Border Saree',
         slug: 'chettinad-cotton-temple-border-saree',
         description: 'Authentic Chettinad handloom cotton saree in deep navy and mustard with traditional rudraksham temple zari border.',
