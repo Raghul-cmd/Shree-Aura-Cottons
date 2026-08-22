@@ -181,12 +181,12 @@ CREATE POLICY "Public Update product-images" ON storage.objects
 FOR UPDATE USING (bucket_id = 'product-images');
 
 -- 7. INITIAL SEED DATASET (CATEGORIES & 10 SAMPLE SAREES)
-INSERT INTO public.categories (id, name, slug, description, image_url) VALUES
-('c1000000-0000-0000-0000-000000000001', 'Cotton Sarees', 'cotton-sarees', 'Breathable, soft, and daily-wear handcrafted cotton sarees.', 'https://kuajhwywwvjykxjaaxkg.supabase.co/storage/v1/object/public/product-images/sarees/1.jpeg'),
-('c1000000-0000-0000-0000-000000000002', 'Silk Sarees', 'silk-sarees', 'Pure silk weaves with regal gold zari borders for grand occasions.', 'https://kuajhwywwvjykxjaaxkg.supabase.co/storage/v1/object/public/product-images/sarees/2.jpeg'),
-('c1000000-0000-0000-0000-000000000003', 'Banarasi Sarees', 'banarasi-sarees', 'Varanasi legacy brocade sarees rich with intricate flora motifs.', 'https://kuajhwywwvjykxjaaxkg.supabase.co/storage/v1/object/public/product-images/sarees/3.jpeg'),
-('c1000000-0000-0000-0000-000000000004', 'Daily Wear', 'daily-wear', 'Lightweight, elegant, everyday sarees engineered for comfort.', 'https://kuajhwywwvjykxjaaxkg.supabase.co/storage/v1/object/public/product-images/sarees/4.jpeg'),
-('c1000000-0000-0000-0000-000000000005', 'Wedding Sarees', 'wedding-sarees', 'Opulent Kanchipuram and Banarasi bridal heirloom collections.', 'https://kuajhwywwvjykxjaaxkg.supabase.co/storage/v1/object/public/product-images/sarees/8.jpeg')
+INSERT INTO public.categories (name, slug, description, image_url) VALUES
+('Cotton Sarees', 'cotton-sarees', 'Breathable, soft, and daily-wear handcrafted cotton sarees.', 'https://kuajhwywwvjykxjaaxkg.supabase.co/storage/v1/object/public/product-images/sarees/1.jpeg'),
+('Silk Sarees', 'silk-sarees', 'Pure silk weaves with regal gold zari borders for grand occasions.', 'https://kuajhwywwvjykxjaaxkg.supabase.co/storage/v1/object/public/product-images/sarees/2.jpeg'),
+('Banarasi Sarees', 'banarasi-sarees', 'Varanasi legacy brocade sarees rich with intricate flora motifs.', 'https://kuajhwywwvjykxjaaxkg.supabase.co/storage/v1/object/public/product-images/sarees/3.jpeg'),
+('Daily Wear', 'daily-wear', 'Lightweight, elegant, everyday sarees engineered for comfort.', 'https://kuajhwywwvjykxjaaxkg.supabase.co/storage/v1/object/public/product-images/sarees/4.jpeg'),
+('Wedding Sarees', 'wedding-sarees', 'Opulent Kanchipuram and Banarasi bridal heirloom collections.', 'https://kuajhwywwvjykxjaaxkg.supabase.co/storage/v1/object/public/product-images/sarees/8.jpeg')
 ON CONFLICT (slug) DO NOTHING;
 
 INSERT INTO public.products (name, slug, description, category_id, price, compare_price, discount_percentage, fabric, color, occasion, stock, sku, main_image, is_active, is_featured) VALUES
