@@ -297,22 +297,35 @@ function renderCategoriesGrid() {
         return;
     }
 
-    grid.innerHTML = allCategories.map(c => `
-        <div style="background:#FFFFFF; border:1.5px solid #E2E8F0; border-radius:12px; overflow:hidden; display:flex; flex-direction:column; box-shadow:0 8px 24px rgba(0,0,0,0.06); transition:transform 0.3s;" onmouseenter="this.style.transform='translateY(-3px)'" onmouseleave="this.style.transform='translateY(0)'">
-            <div style="height:140px; overflow:hidden; position:relative; background:#FAF8F5;">
-                <img src="${c.image_url || 'assets/Saree Folder/1.jpeg'}" alt="${escapeHtml(c.name)}" style="width:100%; height:100%; object-fit:cover;" onError="this.src='assets/Saree Folder/1.jpeg'">
-                <div style="position:absolute; top:10px; right:10px; background:rgba(255,255,255,0.92); backdrop-filter:blur(6px); padding:3px 10px; border-radius:6px; color:#7A1C30; font-size:0.78rem; font-weight:800; border:1px solid #D4AF37;">
-                    ${c.slug}
+    grid.innerHTML = allCategories.map(c => {
+        let fallbackImg = 'assets/category showcase/1.png';
+        const slug = (c.slug || '').toLowerCase();
+        if (slug.includes('wedding')) fallbackImg = 'assets/category showcase/1.png';
+        else if (slug.includes('office')) fallbackImg = 'assets/category showcase/3.png';
+        else if (slug.includes('daily')) fallbackImg = 'assets/category showcase/2.png';
+
+        const displayImg = (c.image_url && c.image_url.trim()) ? c.image_url : fallbackImg;
+
+        return `
+            <div style="background:#FFFFFF; border:1.5px solid #E2E8F0; border-radius:12px; overflow:hidden; display:flex; flex-direction:column; box-shadow:0 8px 24px rgba(0,0,0,0.06); transition:transform 0.3s;" onmouseenter="this.style.transform='translateY(-3px)'" onmouseleave="this.style.transform='translateY(0)'">
+                <div style="height:160px; overflow:hidden; position:relative; background:#FAF8F5;">
+                    <img src="${displayImg}" alt="${escapeHtml(c.name)}" style="width:100%; height:100%; object-fit:cover;" onError="this.onerror=null; this.src='${fallbackImg}';">
+                    <div style="position:absolute; top:10px; right:10px; background:rgba(255,255,255,0.92); backdrop-filter:blur(6px); padding:3px 10px; border-radius:6px; color:#7A1C30; font-size:0.78rem; font-weight:800; border:1px solid #D4AF37;">
+                        ${c.slug}
+                    </div>
+                </div>
+                <div style="padding:1.2rem; flex:1; display:flex; flex-direction:column; justify-content:space-between;">
+                    <div>
+                        <h4 style="color:#7A1C30; margin:0 0 0.4rem 0; font-size:1.15rem; font-weight:800; font-family:var(--font-heading);">${escapeHtml(c.name)}</h4>
+                        <p style="color:#334155; font-size:0.88rem; font-weight:600; margin:0 0 1rem 0; line-height:1.4;">${escapeHtml(c.description || 'No description provided')}</p>
+                    </div>
+                    <button onclick="window.handleEditCategory('${c.id}')" class="btn-admin-secondary" style="width:100%; font-size:0.82rem; padding:0.5rem; justify-content:center; display:flex; align-items:center; gap:0.4rem; font-weight:800;">
+                        🖼️ Edit / Upload Category Image
+                    </button>
                 </div>
             </div>
-            <div style="padding:1.2rem; flex:1; display:flex; flex-direction:column; justify-content:space-between;">
-                <div>
-                    <h4 style="color:#7A1C30; margin:0 0 0.4rem 0; font-size:1.15rem; font-weight:800; font-family:var(--font-heading);">${escapeHtml(c.name)}</h4>
-                    <p style="color:#334155; font-size:0.88rem; font-weight:600; margin:0; line-height:1.4;">${escapeHtml(c.description || 'No description provided')}</p>
-                </div>
-            </div>
-        </div>
-    `).join('');
+        `;
+    }).join('');
 }
 
 // ------------------------------------------------------------------------------
@@ -445,6 +458,24 @@ function setupEventListeners() {
         }
     });
 
+    // Category Image Upload Listener
+    document.getElementById('formCatImageFile')?.addEventListener('change', async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        const statusEl = document.getElementById('catImageUploadStatus');
+        if (statusEl) statusEl.textContent = "⏳ Uploading category image to Supabase Storage...";
+
+        try {
+            const publicUrl = await uploadImageToStorage(file);
+            document.getElementById('formCatImage').value = publicUrl;
+            if (statusEl) statusEl.textContent = "✅ Image uploaded to Supabase Storage!";
+            showToast("Category image uploaded to Supabase Storage!", "success");
+        } catch (err) {
+            if (statusEl) statusEl.textContent = "⚠️ Upload error: " + err.message;
+        }
+    });
+
     // Standalone Storage Uploader
     document.getElementById('standaloneImageFile')?.addEventListener('change', async (e) => {
         const file = e.target.files[0];
@@ -486,7 +517,22 @@ window.closeProductModal = () => {
 };
 
 window.openAddCategoryModal = () => {
+    document.getElementById('catFormModalTitle').textContent = "Add New Category";
+    document.getElementById('formCatId').value = "";
     document.getElementById('categoryForm').reset();
+    document.getElementById('catImageUploadStatus').textContent = "";
+    document.getElementById('categoryModalOverlay').style.display = 'flex';
+};
+
+window.handleEditCategory = (id) => {
+    const cat = allCategories.find(c => String(c.id) === String(id));
+    if (!cat) return;
+    document.getElementById('catFormModalTitle').textContent = "Edit Category Image & Info";
+    document.getElementById('formCatId').value = cat.id;
+    document.getElementById('formCatName').value = cat.name || '';
+    document.getElementById('formCatImage').value = cat.image_url || '';
+    document.getElementById('formCatDescription').value = cat.description || '';
+    document.getElementById('catImageUploadStatus').textContent = "";
     document.getElementById('categoryModalOverlay').style.display = 'flex';
 };
 
@@ -612,20 +658,23 @@ async function handleSaveProduct() {
 }
 
 async function handleSaveCategory() {
+    const id = document.getElementById('formCatId').value;
     const name = document.getElementById('formCatName').value.trim();
     const description = document.getElementById('formCatDescription').value.trim();
-    const image_url = document.getElementById('formCatImage').value.trim() || 'assets/Saree Folder/1.jpeg';
+    const image_url = document.getElementById('formCatImage').value.trim();
 
     const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+    const payload = { name, slug, description, image_url };
+    if (id) payload.id = isNaN(Number(id)) ? id : Number(id);
 
     showGlobalLoader(true);
     try {
-        await saveCategory({ name, slug, description, image_url });
-        showToast("Category created in Supabase DB!", "success");
+        await saveCategory(payload);
+        showToast(id ? "Category image & info updated in Supabase DB!" : "Category created in Supabase DB!", "success");
         window.closeCategoryModal();
         await loadDashboardData();
     } catch (err) {
-        showToast("Error creating category: " + err.message, "error");
+        showToast("Error saving category: " + err.message, "error");
     } finally {
         showGlobalLoader(false);
     }

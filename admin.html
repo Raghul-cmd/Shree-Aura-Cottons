@@ -889,30 +889,42 @@
         </div>
     </div>
 
-    <!-- 4. MODAL: ADD CATEGORY -->
+    <!-- 4. MODAL: ADD / EDIT CATEGORY -->
     <div id="categoryModalOverlay" class="modal-overlay">
         <div class="modal-content">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.8rem; border-bottom:2px solid var(--admin-border-gold); padding-bottom:1rem;">
-                <h3 style="margin:0; font-size:1.4rem; font-weight:800; color:#7A1C30; font-family:'Playfair Display', serif;">Add New Category</h3>
+                <h3 id="catFormModalTitle" style="margin:0; font-size:1.4rem; font-weight:800; color:#7A1C30; font-family:'Playfair Display', serif;">Add New Category</h3>
                 <button onclick="closeCategoryModal()" style="background:none; border:none; color:#475569; font-size:1.8rem; cursor:pointer; font-weight:800;">&times;</button>
             </div>
 
             <form id="categoryForm">
+                <input type="hidden" id="formCatId">
+
                 <div class="form-group">
                     <label>Category Name *</label>
                     <input type="text" id="formCatName" class="form-control" required placeholder="e.g. Organza Sarees">
                 </div>
-                <div class="form-group">
-                    <label>Image URL</label>
-                    <input type="text" id="formCatImage" class="form-control" placeholder="https://.../storage/v1/object/public/product-images/sarees/1.jpeg">
+
+                <div class="form-group" style="background:#FAF8F5; padding:1rem; border-radius:10px; border:1.5px solid #CBD5E1;">
+                    <label style="color:#7A1C30; font-weight:800;">Category Image (URL or Supabase Storage Upload)</label>
+                    <div style="display:flex; gap:0.6rem; margin-top:0.5rem;">
+                        <input type="text" id="formCatImage" class="form-control" style="flex:1;" placeholder="assets/category showcase/1.png or https://...">
+                        <input type="file" id="formCatImageFile" accept="image/*" style="display:none;">
+                        <button type="button" onclick="document.getElementById('formCatImageFile').click()" class="btn-admin-secondary" style="font-size:0.8rem; white-space:nowrap;">
+                            📁 Upload Image
+                        </button>
+                    </div>
+                    <div id="catImageUploadStatus" style="font-size:0.8rem; margin-top:6px; color:#065F46; font-weight:700;"></div>
                 </div>
+
                 <div class="form-group">
                     <label>Description</label>
                     <textarea id="formCatDescription" class="form-control" rows="3" placeholder="Short description of this saree collection..."></textarea>
                 </div>
+
                 <div style="display:flex; justify-content:flex-end; gap:0.9rem; margin-top:1.8rem;">
                     <button type="button" onclick="closeCategoryModal()" class="btn-admin-secondary">Cancel</button>
-                    <button type="submit" class="btn-admin">Save Category</button>
+                    <button type="submit" class="btn-admin">Save Category to Supabase</button>
                 </div>
             </form>
         </div>

@@ -497,12 +497,22 @@ export async function deleteProduct(id) {
 export async function saveCategory(categoryData) {
     if (supabaseClient) {
         try {
-            const { data, error } = await supabaseClient.from('categories').insert([categoryData]).select();
-            if (error) {
-                console.error("Supabase save category error:", error.message || error);
-                throw new Error("Supabase error: " + (error.message || JSON.stringify(error)));
+            if (categoryData.id) {
+                const { data, error } = await supabaseClient
+                    .from('categories')
+                    .update(categoryData)
+                    .eq('id', categoryData.id)
+                    .select();
+                if (error) throw new Error("Supabase error: " + error.message);
+                if (data && data[0]) return data[0];
+            } else {
+                const { data, error } = await supabaseClient
+                    .from('categories')
+                    .insert([categoryData])
+                    .select();
+                if (error) throw new Error("Supabase error: " + error.message);
+                if (data && data[0]) return data[0];
             }
-            if (!error && data && data[0]) return data[0];
         } catch (e) {
             console.warn("Supabase save category exception:", e.message);
         }
@@ -510,10 +520,15 @@ export async function saveCategory(categoryData) {
     
     let cats = [];
     try { cats = JSON.parse(localStorage.getItem('vw_mock_categories') || '[]'); } catch(e) {}
-    const newCat = { ...categoryData, id: 'cat_' + Date.now() };
-    cats.push(newCat);
+    if (categoryData.id) {
+        const idx = cats.findIndex(c => String(c.id) === String(categoryData.id));
+        if (idx !== -1) cats[idx] = { ...cats[idx], ...categoryData };
+    } else {
+        const newCat = { ...categoryData, id: Date.now() };
+        cats.push(newCat);
+    }
     localStorage.setItem('vw_mock_categories', JSON.stringify(cats));
-    return newCat;
+    return categoryData;
 }
 
 export { supabaseClient };
