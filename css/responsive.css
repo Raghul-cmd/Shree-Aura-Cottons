@@ -592,6 +592,16 @@
         max-height: 480px;
     }
 
+    /* CATEGORY SHOWCASE MOBILE RESPONSIVE */
+    .category-grid {
+        grid-template-columns: 1fr !important;
+        gap: 1.2rem !important;
+    }
+
+    .category-card {
+        height: 280px !important;
+    }
+
     body {
         padding-bottom: 65px;
     }
