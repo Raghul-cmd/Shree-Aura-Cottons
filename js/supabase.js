@@ -302,7 +302,7 @@ const INITIAL_MOCK_ORDERS = [
 function initMockStorage() {
     if (typeof localStorage === 'undefined') return;
     const existing = localStorage.getItem('vw_mock_products');
-    if (!existing || JSON.parse(existing).length < 10 || existing.includes('unsplash')) {
+    if (!existing || JSON.parse(existing).length < 10 || existing.includes('unsplash') || existing.includes('"p1"')) {
         localStorage.setItem('vw_mock_products', JSON.stringify(INITIAL_MOCK_PRODUCTS));
     }
     if (!localStorage.getItem('vw_mock_categories')) {
@@ -333,7 +333,7 @@ export async function getProducts(includeInactive = false) {
         try {
             localProds = JSON.parse(localStorage.getItem('vw_mock_products') || '[]');
         } catch(e) {}
-        if (!localProds || localProds.length < 10) {
+        if (!localProds || localProds.length < 10 || (localProds[0] && localProds[0].id === 'p1')) {
             localProds = INITIAL_MOCK_PRODUCTS;
             localStorage.setItem('vw_mock_products', JSON.stringify(INITIAL_MOCK_PRODUCTS));
         }
