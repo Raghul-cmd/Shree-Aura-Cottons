@@ -14,18 +14,28 @@ export async function fetchAndFilterProducts(filters = {}) {
         const cleanCat = catTarget.replace('-sarees', '').replace('sarees', '').trim();
 
         products = products.filter(p => {
+            const catStr = String(filters.category || '').toLowerCase().trim();
+            const cleanCat = catStr.replace('-sarees', '').replace('sarees', '').trim();
+
             if (p.categories) {
-                if (p.categories.slug === filters.category || p.categories.id === filters.category) return true;
-                if (p.categories.name && p.categories.name.toLowerCase() === catTarget) return true;
+                const catSlug = String(p.categories.slug || '').toLowerCase();
+                const catId = String(p.categories.id || '');
+                const catName = String(p.categories.name || '').toLowerCase();
+                if (catSlug === catStr || catId === filters.category || catName === catStr) return true;
             }
-            if (p.category_id && (p.category_id === filters.category || p.category_id.toLowerCase() === catTarget)) return true;
+            if (p.category_id != null) {
+                const catIdStr = String(p.category_id).toLowerCase();
+                if (catIdStr === catStr || catIdStr === cleanCat || String(p.category_id) === filters.category) return true;
+            }
             if (p.category_name) {
-                const nameSlug = p.category_name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
-                if (p.category_name.toLowerCase() === catTarget || nameSlug === catTarget || p.category_name.toLowerCase().includes(cleanCat)) return true;
+                const catNameStr = String(p.category_name).toLowerCase();
+                const nameSlug = catNameStr.replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+                if (catNameStr === catStr || nameSlug === catStr || catNameStr.includes(cleanCat)) return true;
             }
             if (p.fabric) {
-                const fabricSlug = p.fabric.toLowerCase().replace(/[^a-z0-9]+/g, '-');
-                if (p.fabric.toLowerCase() === catTarget || fabricSlug === catTarget || p.fabric.toLowerCase().includes(cleanCat) || cleanCat.includes(p.fabric.toLowerCase())) return true;
+                const fabStr = String(p.fabric).toLowerCase();
+                const fabSlug = fabStr.replace(/[^a-z0-9]+/g, '-');
+                if (fabStr === catStr || fabSlug === catStr || fabStr.includes(cleanCat) || cleanCat.includes(fabStr)) return true;
             }
             return false;
         });
@@ -63,13 +73,13 @@ export async function fetchAndFilterProducts(filters = {}) {
 
     // Search Query Filter
     if (filters.search) {
-        const q = filters.search.toLowerCase().trim();
+        const q = String(filters.search).toLowerCase().trim();
         products = products.filter(p => 
-            p.name.toLowerCase().includes(q) ||
-            (p.sku && p.sku.toLowerCase().includes(q)) ||
-            (p.fabric && p.fabric.toLowerCase().includes(q)) ||
-            (p.color && p.color.toLowerCase().includes(q)) ||
-            (p.description && p.description.toLowerCase().includes(q))
+            String(p.name || '').toLowerCase().includes(q) ||
+            (p.sku && String(p.sku).toLowerCase().includes(q)) ||
+            (p.fabric && String(p.fabric).toLowerCase().includes(q)) ||
+            (p.color && String(p.color).toLowerCase().includes(q)) ||
+            (p.description && String(p.description).toLowerCase().includes(q))
         );
     }
 
