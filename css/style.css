@@ -966,11 +966,13 @@ svg {
     grid-template-columns: 1fr 1fr;
     gap: 3rem;
     margin: 2rem 0 4rem;
+    align-items: start;
 }
 
 .gallery-wrapper {
     display: flex;
     gap: 1.25rem;
+    align-items: flex-start;
 }
 
 .thumbnail-list {
@@ -1002,6 +1004,8 @@ svg {
 .main-image-viewer {
     flex: 1;
     aspect-ratio: 3 / 4;
+    max-height: 580px;
+    width: 100%;
     border-radius: var(--radius-md);
     overflow: hidden;
     background: #F1F5F9;

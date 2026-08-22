@@ -569,6 +569,29 @@
         width: auto !important;
     }
 
+    /* PRODUCT DETAILS RESPONSIVE LAYOUT */
+    .product-details-container {
+        grid-template-columns: 1fr;
+        gap: 1.5rem;
+        margin: 1rem 0 3rem;
+    }
+
+    .gallery-wrapper {
+        flex-direction: column-reverse;
+        width: 100%;
+    }
+
+    .thumbnail-list {
+        flex-direction: row;
+        overflow-x: auto;
+        width: 100%;
+    }
+
+    .main-image-viewer {
+        width: 100%;
+        max-height: 480px;
+    }
+
     body {
         padding-bottom: 65px;
     }
