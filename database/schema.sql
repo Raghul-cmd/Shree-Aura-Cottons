@@ -1,12 +1,12 @@
 -- ==============================================================================
--- SHREE AURA COTTONS - NUMERIC SEQUENTIAL IDs SUPABASE DATABASE SCHEMA
+-- SHREE AURA COTTONS - SUPABASE DATABASE SCHEMA (AUG 22 VERSION)
 -- ==============================================================================
 -- Run this complete script in Supabase SQL Editor (SQL Editor -> New Query -> Run)
 
 -- 1. EXTENSIONS
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
--- 2. DROP PREVIOUS TABLES (Clean slate for Numeric IDs)
+-- 2. DROP PREVIOUS TABLES (Clean slate)
 DROP TABLE IF EXISTS public.order_items CASCADE;
 DROP TABLE IF EXISTS public.orders CASCADE;
 DROP TABLE IF EXISTS public.wishlist CASCADE;
@@ -15,7 +15,7 @@ DROP TABLE IF EXISTS public.products CASCADE;
 DROP TABLE IF EXISTS public.categories CASCADE;
 DROP TABLE IF EXISTS public.profiles CASCADE;
 
--- 3. TABLES DEFINITIONS (NUMERIC SEQUENTIAL BIGINT PRIMARY KEYS)
+-- 3. TABLES DEFINITIONS
 
 -- CATEGORIES TABLE (Sequential IDs: 1, 2, 3...)
 CREATE TABLE public.categories (
@@ -190,4 +190,3 @@ INSERT INTO public.categories (name, slug, description, image_url) VALUES
 ('Office Wear', 'office-wear', 'Elegantly styled, comfortable handloom sarees engineered for professional wear.', ''),
 ('Daily Wear', 'daily-wear', 'Lightweight, elegant, everyday sarees engineered for comfort.', '')
 ON CONFLICT (slug) DO NOTHING;
-

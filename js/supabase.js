@@ -45,26 +45,46 @@ initMockStorage();
 
 // DATA ACCESS FUNCTIONS API
 export async function getProducts(includeInactive = false) {
+    let supabaseProducts = [];
     if (supabaseClient) {
         try {
             let query = supabaseClient.from('products').select('*, categories(name, slug)');
             if (!includeInactive) query = query.eq('is_active', true);
             const { data, error } = await query.order('created_at', { ascending: false });
-            if (!error && data) return data;
-            if (error) console.warn("Supabase products fetch warning:", error.message);
+            if (!error && data) {
+                supabaseProducts = data;
+            } else if (error) {
+                console.warn("Supabase products fetch warning:", error.message);
+            }
         } catch (err) {
             console.warn("Supabase fetch failed:", err);
         }
     }
     
-    // Fallback to local storage (products entered via admin)
     let localProds = [];
     if (typeof localStorage !== 'undefined') {
         try {
             localProds = JSON.parse(localStorage.getItem('vw_mock_products') || '[]');
         } catch(e) {}
     }
-    return includeInactive ? localProds : localProds.filter(p => p.is_active);
+
+    const combinedMap = new Map();
+
+    // 1. Local Storage Products
+    localProds.forEach(p => {
+        if (p && (p.id || p.sku)) combinedMap.set(String(p.id || p.sku), p);
+    });
+
+    // 2. Supabase Live Database Products (Authoritative)
+    supabaseProducts.forEach(p => {
+        if (p && (p.id || p.sku)) combinedMap.set(String(p.id || p.sku), p);
+    });
+
+    let allMerged = Array.from(combinedMap.values());
+    if (!includeInactive) {
+        allMerged = allMerged.filter(p => p.is_active !== false);
+    }
+    return allMerged;
 }
 
 export async function getProductById(id) {
@@ -87,16 +107,14 @@ export async function getProductById(id) {
             localProds = JSON.parse(localStorage.getItem('vw_mock_products') || '[]');
         } catch(e) {}
     }
-    if (!localProds || localProds.length === 0) localProds = INITIAL_MOCK_PRODUCTS;
-    return localProds.find(p => p.id === id || p.slug === id) || null;
+    return localProds.find(p => String(p.id) === String(id) || String(p.sku) === String(id) || p.slug === id) || null;
 }
 
 export async function getCategories() {
     if (supabaseClient) {
         try {
-            const { data, error } = await supabaseClient.from('categories').select('*');
+            const { data, error } = await supabaseClient.from('categories').select('*').order('id', { ascending: true });
             if (!error && data && data.length > 0) return data;
-            if (error) console.warn("Supabase categories fetch warning:", error.message);
         } catch (err) {
             console.warn("Supabase categories fetch failed:", err);
         }
@@ -106,7 +124,7 @@ export async function getCategories() {
         try {
             cats = JSON.parse(localStorage.getItem('vw_mock_categories') || '[]');
         } catch(e) {}
-        if (!cats || cats.length !== 3 || JSON.stringify(cats).includes('cotton-sarees') || JSON.stringify(cats).includes('Cotton Sarees')) {
+        if (!cats || cats.length === 0) {
             cats = INITIAL_MOCK_CATEGORIES;
             localStorage.setItem('vw_mock_categories', JSON.stringify(INITIAL_MOCK_CATEGORIES));
         }
@@ -117,6 +135,8 @@ export async function getCategories() {
 }
 
 export async function saveProduct(productData) {
+    let savedRecord = null;
+
     if (supabaseClient) {
         try {
             const payload = { ...productData };
@@ -139,37 +159,55 @@ export async function saveProduct(productData) {
                 if (!payload.sku) payload.sku = payload.id;
             }
 
-            const { data, error } = await supabaseClient.from('products').insert([payload]).select();
-            if (error) {
-                console.error("Supabase save product error:", error.message || error);
-                throw new Error("Supabase error: " + (error.message || JSON.stringify(error)));
+            let { data, error } = await supabaseClient.from('products').insert([payload]).select();
+
+            // Foreign Key / Type Retry Fallback
+            if (error && (error.message.includes('foreign key') || error.code === '23503' || error.message.includes('invalid input syntax'))) {
+                console.warn("Retrying Supabase product insert with flexible payload:", error.message);
+                const flexPayload = { ...payload };
+                delete flexPayload.category_id;
+                const retry = await supabaseClient.from('products').insert([flexPayload]).select();
+                if (!retry.error && retry.data) {
+                    data = retry.data;
+                    error = null;
+                }
             }
+
             if (!error && data && data[0]) {
-                let prods = [];
-                try { prods = JSON.parse(localStorage.getItem('vw_mock_products') || '[]'); } catch(e) {}
-                prods.unshift(data[0]);
-                localStorage.setItem('vw_mock_products', JSON.stringify(prods));
-                return data[0];
+                savedRecord = data[0];
+            } else if (error) {
+                console.warn("Supabase save product notice:", error.message);
             }
         } catch (e) {
-            console.warn("Supabase save product exception, falling back to local storage:", e.message);
+            console.warn("Supabase save product exception:", e.message);
         }
     }
     
-    // Mock save fallback
+    // Always cache in LocalStorage backup
     let prods = [];
-    try { prods = JSON.parse(localStorage.getItem('vw_mock_products') || '[]'); } catch(e) {}
-    if (!prods || prods.length === 0) prods = [...INITIAL_MOCK_PRODUCTS];
-    
-    const newProd = {
+    if (typeof localStorage !== 'undefined') {
+        try { prods = JSON.parse(localStorage.getItem('vw_mock_products') || '[]'); } catch(e) {}
+    }
+
+    const newProd = savedRecord || {
         ...productData,
-        id: productData.sku || ('p_' + Date.now()),
+        id: productData.id || productData.sku || ('p_' + Date.now()),
         created_at: new Date().toISOString(),
         is_active: productData.is_active !== undefined ? productData.is_active : true,
         images: productData.images || [productData.main_image]
     };
-    prods.unshift(newProd);
-    localStorage.setItem('vw_mock_products', JSON.stringify(prods));
+
+    const existingIdx = prods.findIndex(p => String(p.id) === String(newProd.id) || String(p.sku) === String(newProd.sku));
+    if (existingIdx !== -1) {
+        prods[existingIdx] = newProd;
+    } else {
+        prods.unshift(newProd);
+    }
+
+    if (typeof localStorage !== 'undefined') {
+        localStorage.setItem('vw_mock_products', JSON.stringify(prods));
+    }
+    
     return newProd;
 }
 
