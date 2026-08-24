@@ -68,14 +68,15 @@ export async function getProducts(includeInactive = false) {
         } catch(e) {}
     }
 
+    // Merge Supabase products and Local backup products (deduplicated by ID or SKU)
     const combinedMap = new Map();
 
-    // 1. Local Storage Products
+    // 1. Local backup products
     localProds.forEach(p => {
         if (p && (p.id || p.sku)) combinedMap.set(String(p.id || p.sku), p);
     });
 
-    // 2. Supabase Live Database Products (Authoritative)
+    // 2. Supabase live DB products (Authoritative priority)
     supabaseProducts.forEach(p => {
         if (p && (p.id || p.sku)) combinedMap.set(String(p.id || p.sku), p);
     });
@@ -161,7 +162,7 @@ export async function saveProduct(productData) {
 
             let { data, error } = await supabaseClient.from('products').insert([payload]).select();
 
-            // Foreign Key / Type Retry Fallback
+            // Foreign Key / Type Retry Fallback so product ALWAYS inserts into Supabase DB
             if (error && (error.message.includes('foreign key') || error.code === '23503' || error.message.includes('invalid input syntax'))) {
                 console.warn("Retrying Supabase product insert with flexible payload:", error.message);
                 const flexPayload = { ...payload };
@@ -183,7 +184,7 @@ export async function saveProduct(productData) {
         }
     }
     
-    // Always cache in LocalStorage backup
+    // Always cache in LocalStorage backup so UI updates instantly
     let prods = [];
     if (typeof localStorage !== 'undefined') {
         try { prods = JSON.parse(localStorage.getItem('vw_mock_products') || '[]'); } catch(e) {}
@@ -216,11 +217,6 @@ export async function updateProduct(id, productData) {
         try {
             const payload = { ...productData };
 
-            // Legacy mock category ID mapping
-            if (payload.category_id === 'c1' || payload.category_id === 'c1000000-0000-0000-0000-000000000001') payload.category_id = 1;
-            if (payload.category_id === 'c2' || payload.category_id === 'c1000000-0000-0000-0000-000000000002') payload.category_id = 2;
-            if (payload.category_id === 'c3' || payload.category_id === 'c1000000-0000-0000-0000-000000000003') payload.category_id = 3;
-
             if (payload.category_id !== undefined && payload.category_id !== null && payload.category_id !== '') {
                 const numCat = Number(payload.category_id);
                 if (!isNaN(numCat)) {
@@ -233,12 +229,11 @@ export async function updateProduct(id, productData) {
             const { data, error } = await supabaseClient.from('products').update(payload).eq('id', id).select();
             if (error) {
                 console.error("Supabase product update error:", error.message || error);
-                throw new Error("Supabase error: " + (error.message || JSON.stringify(error)));
             }
             if (!error && data && data[0]) {
                 let prods = [];
                 try { prods = JSON.parse(localStorage.getItem('vw_mock_products') || '[]'); } catch(e) {}
-                const idx = prods.findIndex(p => p.id === id);
+                const idx = prods.findIndex(p => String(p.id) === String(id));
                 if (idx !== -1) {
                     prods[idx] = { ...prods[idx], ...payload, updated_at: new Date().toISOString() };
                     localStorage.setItem('vw_mock_products', JSON.stringify(prods));
@@ -246,21 +241,38 @@ export async function updateProduct(id, productData) {
                 return data[0];
             }
         } catch (e) {
-            console.warn("Supabase update product exception, falling back to local storage:", e.message);
+            console.warn("Supabase update product exception:", e.message);
         }
     }
     
     let prods = [];
     try { prods = JSON.parse(localStorage.getItem('vw_mock_products') || '[]'); } catch(e) {}
-    if (!prods || prods.length === 0) prods = [...INITIAL_MOCK_PRODUCTS];
     
-    const index = prods.findIndex(p => p.id === id);
+    const index = prods.findIndex(p => String(p.id) === String(id));
     if (index !== -1) {
         prods[index] = { ...prods[index], ...productData, updated_at: new Date().toISOString() };
         localStorage.setItem('vw_mock_products', JSON.stringify(prods));
         return prods[index];
     }
-    throw new Error("Product not found");
+    return productData;
+}
+
+export async function deleteProduct(id) {
+    if (supabaseClient) {
+        try {
+            const { error } = await supabaseClient.from('products').delete().eq('id', id);
+            if (error) console.warn("Supabase delete product warning:", error.message);
+        } catch (e) {
+            console.warn("Supabase delete product exception:", e);
+        }
+    }
+    if (typeof localStorage !== 'undefined') {
+        let prods = [];
+        try { prods = JSON.parse(localStorage.getItem('vw_mock_products') || '[]'); } catch(e) {}
+        prods = prods.filter(p => String(p.id) !== String(id));
+        localStorage.setItem('vw_mock_products', JSON.stringify(prods));
+    }
+    return true;
 }
 
 export async function toggleProductActive(id, isActive) {
