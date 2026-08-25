@@ -104,7 +104,7 @@ async function loadDashboardData() {
 }
 
 // ------------------------------------------------------------------------------
-// OVERVIEW TAB STATS (EXACT MATCH TO IMAGE 4)
+// OVERVIEW TAB STATS
 // ------------------------------------------------------------------------------
 function renderOverviewStats() {
     const totalRev = allOrders.reduce((sum, o) => sum + (o.payment_status === 'paid' ? Number(o.total_amount || 0) : 0), 0);
@@ -150,7 +150,7 @@ function renderOverviewStats() {
 }
 
 // ------------------------------------------------------------------------------
-// SAREE CATALOG TAB (EXACT MATCH TO IMAGE 2)
+// SAREE CATALOG TAB (ENHANCED ACTIVE VIEW & PURE COTTON FABRIC)
 // ------------------------------------------------------------------------------
 function renderProductsTable(filterQuery = '') {
     const tbody = document.getElementById('productsTableTbody');
@@ -177,6 +177,10 @@ function renderProductsTable(filterQuery = '') {
         const categoryName = p.categories?.name || getCategoryNameById(p.category_id);
         const comparePriceHtml = p.compare_price ? `<div style="font-size:0.75rem; color:#94A3B8; text-decoration:line-through;">₹${Number(p.compare_price).toFixed(2)}</div>` : '';
 
+        const activeStatusBadge = p.is_active !== false 
+            ? `<span class="badge-active-green">● Active</span>`
+            : `<span class="badge-hidden-red">○ Hidden</span>`;
+
         return `
             <tr>
                 <td>
@@ -197,9 +201,10 @@ function renderProductsTable(filterQuery = '') {
                     <span class="pill-badge pill-badge-stock">${p.stock || 10} units</span>
                 </td>
                 <td>
-                    <label style="display:inline-flex; align-items:center; cursor:pointer;">
-                        <input type="checkbox" ${p.is_active ? 'checked' : ''} onchange="window.handleToggleProductActive('${p.id}', this.checked)" style="width:18px; height:18px;">
-                    </label>
+                    <div style="display:flex; align-items:center; gap:0.5rem;">
+                        ${activeStatusBadge}
+                        <input type="checkbox" ${p.is_active !== false ? 'checked' : ''} onchange="window.handleToggleProductActive('${p.id}', this.checked)" style="width:18px; height:18px; cursor:pointer;">
+                    </div>
                 </td>
                 <td>
                     <div style="display:flex; gap:0.4rem;">
@@ -219,7 +224,7 @@ function getCategoryNameById(catId) {
 }
 
 // ------------------------------------------------------------------------------
-// ORDERS & SHIPMENTS TAB (EXACT MATCH TO IMAGE 3)
+// ORDERS & SHIPMENTS TAB
 // ------------------------------------------------------------------------------
 function renderOrdersTable(query = '', statusFilter = '') {
     const tbody = document.getElementById('ordersTableTbody');
@@ -284,7 +289,7 @@ function renderOrdersTable(query = '', statusFilter = '') {
 }
 
 // ------------------------------------------------------------------------------
-// CATEGORIES TAB
+// CATEGORIES TAB (WITH EDIT & IMAGE UPLOAD BUTTON)
 // ------------------------------------------------------------------------------
 function renderCategoriesGrid() {
     const grid = document.getElementById('categoriesGridContainer');
@@ -295,14 +300,20 @@ function renderCategoriesGrid() {
         const img = c.image_url || 'assets/logo.png';
 
         return `
-            <div style="background:#FFFFFF; border:1px solid #E2E8F0; border-radius:12px; overflow:hidden; box-shadow:0 4px 12px rgba(0,0,0,0.04);">
-                <img src="${img}" alt="${c.name}" style="width:100%; height:140px; object-fit:cover;">
-                <div style="padding:1.2rem;">
-                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.4rem;">
-                        <h4 style="font-family:var(--font-heading); color:#7A1C30; margin:0; font-size:1.1rem; font-weight:800;">${c.name}</h4>
-                        <span class="pill-badge" style="background:#FDF7E7; border-color:#D4AF37; color:#7A1C30;">${prodCount} Sarees</span>
+            <div style="background:#FFFFFF; border:1px solid #E2E8F0; border-radius:14px; overflow:hidden; box-shadow:0 4px 12px rgba(0,0,0,0.04); display:flex; flex-direction:column;">
+                <img src="${img}" alt="${c.name}" style="width:100%; height:160px; object-fit:cover;">
+                <div style="padding:1.2rem; flex:1; display:flex; flex-direction:column; justify-space-between;">
+                    <div>
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.4rem;">
+                            <h4 style="font-family:var(--font-heading); color:#7A1C30; margin:0; font-size:1.15rem; font-weight:800;">${c.name}</h4>
+                            <span class="pill-badge" style="background:#FDF7E7; border-color:#D4AF37; color:#7A1C30;">${prodCount} Sarees</span>
+                        </div>
+                        <p style="color:#475569; font-size:0.84rem; margin:0 0 1rem 0; line-height:1.4;">${c.description || 'Collection category'}</p>
                     </div>
-                    <p style="color:#475569; font-size:0.82rem; margin:0; line-height:1.4;">${c.description || 'Collection category'}</p>
+
+                    <button onclick="window.handleEditCategory('${c.id}')" class="btn-maroon" style="width:100%; justify-content:center; padding:0.5rem;">
+                        <span>📷</span> Edit & Upload Category Image
+                    </button>
                 </div>
             </div>
         `;
@@ -415,7 +426,16 @@ function setupEventListeners() {
         closeProductModal();
     });
 
-    // Image File Input Listener (Uploads to Supabase Storage Bucket)
+    // Category Modal Event Listeners
+    document.getElementById('closeCategoryModalBtn')?.addEventListener('click', () => {
+        closeCategoryModal();
+    });
+
+    document.getElementById('cancelCategoryModalBtn')?.addEventListener('click', () => {
+        closeCategoryModal();
+    });
+
+    // Image File Input Listener for Product Modal (Uploads to Supabase Storage Bucket & Previews)
     document.getElementById('modalProductImageFile')?.addEventListener('change', async (e) => {
         if (e.target.files && e.target.files[0]) {
             showGlobalLoader(true);
@@ -423,6 +443,14 @@ function setupEventListeners() {
                 const uploadedUrl = await uploadImageToStorage(e.target.files[0]);
                 if (uploadedUrl) {
                     document.getElementById('modalProductMainImage').value = uploadedUrl;
+                    
+                    const previewContainer = document.getElementById('productImagePreviewContainer');
+                    const previewImg = document.getElementById('productImagePreviewImg');
+                    if (previewContainer && previewImg) {
+                        previewImg.src = uploadedUrl;
+                        previewContainer.style.display = 'block';
+                    }
+
                     showToast("Image uploaded to Supabase Storage bucket!", "success");
                 }
             } catch (err) {
@@ -430,6 +458,32 @@ function setupEventListeners() {
             } finally {
                 showGlobalLoader(false);
             }
+        }
+    });
+
+    // Category Image File Upload Listener
+    document.getElementById('modalCategoryImageFile')?.addEventListener('change', async (e) => {
+        if (e.target.files && e.target.files[0]) {
+            showGlobalLoader(true);
+            try {
+                const uploadedUrl = await uploadImageToStorage(e.target.files[0]);
+                if (uploadedUrl) {
+                    document.getElementById('modalCategoryImage').value = uploadedUrl;
+                    showToast("Category image uploaded to Supabase Storage bucket!", "success");
+                }
+            } catch (err) {
+                showToast("Category image upload failed: " + err.message, "error");
+            } finally {
+                showGlobalLoader(false);
+            }
+        }
+    });
+
+    // Media CDN File Name Display
+    document.getElementById('mediaCdnFileInput')?.addEventListener('change', (e) => {
+        const nameSpan = document.getElementById('mediaCdnFileName');
+        if (nameSpan) {
+            nameSpan.textContent = e.target.files && e.target.files[0] ? e.target.files[0].name : 'No file chosen';
         }
     });
 
@@ -512,6 +566,37 @@ function setupEventListeners() {
             showGlobalLoader(false);
         }
     });
+
+    // Category Form Submit Handler
+    document.getElementById('categoryForm')?.addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const id = document.getElementById('modalCategoryId').value;
+        const name = document.getElementById('modalCategoryName').value.trim();
+        const description = document.getElementById('modalCategoryDescription').value.trim();
+        const imageUrl = document.getElementById('modalCategoryImage').value.trim();
+
+        showGlobalLoader(true);
+        try {
+            const categoryPayload = {
+                id: id ? Number(id) : undefined,
+                name: name,
+                slug: name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, ''),
+                description: description,
+                image_url: imageUrl
+            };
+
+            await saveCategory(categoryPayload);
+            showToast("Category updated in Supabase DB!", "success");
+            closeCategoryModal();
+            await loadDashboardData();
+        } catch (err) {
+            console.error("Save category error:", err);
+            showToast("Failed to save category: " + err.message, "error");
+        } finally {
+            showGlobalLoader(false);
+        }
+    });
 }
 
 // Global Window Function Bindings
@@ -550,6 +635,11 @@ window.handleDeleteProduct = async (id) => {
     }
 };
 
+window.handleEditCategory = (id) => {
+    const cat = allCategories.find(c => String(c.id) === String(id));
+    if (cat) openCategoryModal(cat);
+};
+
 window.handleUpdateOrderStatus = async (orderId, newStatus) => {
     try {
         await updateOrderStatus(orderId, newStatus);
@@ -565,6 +655,9 @@ function openProductModal(prod = null) {
     const title = document.getElementById('productModalTitle');
     if (!modal) return;
 
+    const previewContainer = document.getElementById('productImagePreviewContainer');
+    const previewImg = document.getElementById('productImagePreviewImg');
+
     if (prod) {
         if (title) title.textContent = "Edit Saree Product";
         document.getElementById('modalProductId').value = prod.id || '';
@@ -574,13 +667,20 @@ function openProductModal(prod = null) {
         document.getElementById('modalProductPrice').value = prod.price || '';
         document.getElementById('modalProductComparePrice').value = prod.compare_price || '';
         document.getElementById('modalProductStock').value = prod.stock || 10;
-        document.getElementById('modalProductFabric').value = prod.fabric || 'Cotton';
+        document.getElementById('modalProductFabric').value = prod.fabric || 'Pure Cotton';
         document.getElementById('modalProductColor').value = prod.color || 'Brown';
         document.getElementById('modalProductOccasion').value = prod.occasion || 'Office Wear';
         document.getElementById('modalProductMainImage').value = prod.main_image || '';
         document.getElementById('modalProductDescription').value = prod.description || '';
         document.getElementById('modalProductIsActive').checked = prod.is_active !== false;
         document.getElementById('modalProductIsFeatured').checked = !!prod.is_featured;
+
+        if (prod.main_image && previewContainer && previewImg) {
+            previewImg.src = prod.main_image;
+            previewContainer.style.display = 'block';
+        } else if (previewContainer) {
+            previewContainer.style.display = 'none';
+        }
     } else {
         if (title) title.textContent = "Add New Saree Product";
         document.getElementById('modalProductId').value = '';
@@ -590,13 +690,15 @@ function openProductModal(prod = null) {
         document.getElementById('modalProductPrice').value = '999';
         document.getElementById('modalProductComparePrice').value = '1499';
         document.getElementById('modalProductStock').value = '10';
-        document.getElementById('modalProductFabric').value = 'Cotton';
+        document.getElementById('modalProductFabric').value = 'Pure Cotton';
         document.getElementById('modalProductColor').value = 'Brown';
         document.getElementById('modalProductOccasion').value = 'Office Wear';
         document.getElementById('modalProductMainImage').value = '';
-        document.getElementById('modalProductDescription').value = 'This sophisticated cotton saree features a subtle pinstriped body in a warm...';
+        document.getElementById('modalProductDescription').value = 'This sophisticated pure cotton saree features a subtle pinstriped body in a warm...';
         document.getElementById('modalProductIsActive').checked = true;
         document.getElementById('modalProductIsFeatured').checked = false;
+
+        if (previewContainer) previewContainer.style.display = 'none';
     }
 
     modal.style.display = 'flex';
@@ -604,6 +706,25 @@ function openProductModal(prod = null) {
 
 function closeProductModal() {
     const modal = document.getElementById('productModal');
+    if (modal) modal.style.display = 'none';
+}
+
+function openCategoryModal(cat = null) {
+    const modal = document.getElementById('categoryEditModal');
+    if (!modal) return;
+
+    if (cat) {
+        document.getElementById('modalCategoryId').value = cat.id || '';
+        document.getElementById('modalCategoryName').value = cat.name || '';
+        document.getElementById('modalCategoryDescription').value = cat.description || '';
+        document.getElementById('modalCategoryImage').value = cat.image_url || '';
+    }
+
+    modal.style.display = 'flex';
+}
+
+function closeCategoryModal() {
+    const modal = document.getElementById('categoryEditModal');
     if (modal) modal.style.display = 'none';
 }
 
