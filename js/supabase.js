@@ -19,9 +19,9 @@ if (typeof window !== 'undefined' && window.supabase && isSupabaseConfigured()) 
 }
 
 const INITIAL_MOCK_CATEGORIES = [
-    { id: 1, name: 'Wedding Sarees', slug: 'wedding-sarees', description: 'Opulent bridal and festive heirloom cotton collections', image_url: '' },
-    { id: 2, name: 'Office Wear', slug: 'office-wear', description: 'Elegantly styled, comfortable handloom sarees engineered for professional wear', image_url: '' },
-    { id: 3, name: 'Daily Wear', slug: 'daily-wear', description: 'Lightweight, breathable, everyday pure cotton sarees', image_url: '' }
+    { id: 1, name: 'Wedding Sarees', slug: 'wedding-sarees', description: 'Opulent Kanchipuram & Banarasi bridal heirloom collections', image_url: 'https://kuajhwywwvjykxjaaxkg.supabase.co/storage/v1/object/public/product-images/sarees/2.jpeg' },
+    { id: 2, name: 'Office Wear', slug: 'office-wear', description: 'Elegantly styled, comfortable handloom sarees engineered for professional wear', image_url: 'https://kuajhwywwvjykxjaaxkg.supabase.co/storage/v1/object/public/product-images/sarees/4.jpeg' },
+    { id: 3, name: 'Daily Wear', slug: 'daily-wear', description: 'Lightweight, elegant, everyday pure cotton sarees', image_url: 'https://kuajhwywwvjykxjaaxkg.supabase.co/storage/v1/object/public/product-images/sarees/1.jpeg' }
 ];
 
 const INITIAL_MOCK_PRODUCTS = [];
@@ -44,48 +44,39 @@ function initMockStorage() {
 initMockStorage();
 
 // DATA ACCESS FUNCTIONS API
-export async function getProducts(includeInactive = false) {
-    let supabaseProducts = [];
+export async function getProducts(options = {}) {
     if (supabaseClient) {
         try {
             let query = supabaseClient.from('products').select('*, categories(name, slug)');
-            if (!includeInactive) query = query.eq('is_active', true);
+            
+            if (options.category) query = query.eq('category_id', options.category);
+            if (options.fabric) query = query.eq('fabric', options.fabric);
+            if (options.featured) query = query.eq('is_featured', true);
+            if (options.active !== undefined) query = query.eq('is_active', options.active);
+            
             const { data, error } = await query.order('created_at', { ascending: false });
-            if (!error && data) {
-                supabaseProducts = data;
-            } else if (error) {
-                console.warn("Supabase products fetch warning:", error.message);
-            }
+            if (!error && data) return data;
+            if (error) console.warn("Supabase products fetch warning:", error.message);
         } catch (err) {
-            console.warn("Supabase fetch failed:", err);
+            console.warn("Supabase fetch failed, falling back to local storage:", err);
         }
     }
     
-    let localProds = [];
+    // Fallback: LocalStorage / Mock products
+    let prods = [];
     if (typeof localStorage !== 'undefined') {
         try {
-            localProds = JSON.parse(localStorage.getItem('vw_mock_products') || '[]');
+            prods = JSON.parse(localStorage.getItem('vw_mock_products') || '[]');
         } catch(e) {}
     }
+    if (!prods || prods.length === 0) prods = INITIAL_MOCK_PRODUCTS;
 
-    // Merge Supabase products and Local backup products (deduplicated by ID or SKU)
-    const combinedMap = new Map();
+    if (options.category) prods = prods.filter(p => String(p.category_id) === String(options.category));
+    if (options.fabric) prods = prods.filter(p => p.fabric === options.fabric);
+    if (options.featured) prods = prods.filter(p => p.is_featured);
+    if (options.active !== undefined) prods = prods.filter(p => p.is_active === options.active);
 
-    // 1. Local backup products
-    localProds.forEach(p => {
-        if (p && (p.id || p.sku)) combinedMap.set(String(p.id || p.sku), p);
-    });
-
-    // 2. Supabase live DB products (Authoritative priority)
-    supabaseProducts.forEach(p => {
-        if (p && (p.id || p.sku)) combinedMap.set(String(p.id || p.sku), p);
-    });
-
-    let allMerged = Array.from(combinedMap.values());
-    if (!includeInactive) {
-        allMerged = allMerged.filter(p => p.is_active !== false);
-    }
-    return allMerged;
+    return prods;
 }
 
 export async function getProductById(id) {
@@ -98,17 +89,13 @@ export async function getProductById(id) {
                 .single();
             if (!error && data) return data;
         } catch (err) {
-            console.warn("Supabase single product fetch failed:", err);
+            console.warn("Supabase getProductById failed:", err);
         }
     }
-    
     let localProds = [];
-    if (typeof localStorage !== 'undefined') {
-        try {
-            localProds = JSON.parse(localStorage.getItem('vw_mock_products') || '[]');
-        } catch(e) {}
-    }
-    return localProds.find(p => String(p.id) === String(id) || String(p.sku) === String(id) || p.slug === id) || null;
+    try { localProds = JSON.parse(localStorage.getItem('vw_mock_products') || '[]'); } catch(e) {}
+    if (!localProds || localProds.length === 0) localProds = INITIAL_MOCK_PRODUCTS;
+    return localProds.find(p => String(p.id) === String(id) || p.slug === id) || null;
 }
 
 export async function getCategories() {
@@ -142,7 +129,6 @@ export async function saveProduct(productData) {
         try {
             const payload = { ...productData };
 
-            // Format category_id cleanly
             if (payload.category_id !== undefined && payload.category_id !== null && payload.category_id !== '') {
                 const numCat = Number(payload.category_id);
                 if (!isNaN(numCat)) {
@@ -152,7 +138,6 @@ export async function saveProduct(productData) {
                 delete payload.category_id;
             }
 
-            // Ensure Product ID / SKU
             if (!payload.id && payload.sku) {
                 payload.id = payload.sku;
             } else if (!payload.id) {
