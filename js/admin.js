@@ -1,5 +1,5 @@
 // ==============================================================================
-// SHREE AURA COTTONS - EXECUTIVE ADMIN PORTAL CONTROLLER (SUPABASE DRIVEN)
+// SHREE AURA COTTONS - EXECUTIVE ADMIN PORTAL CONTROLLER (LIVE SUPABASE SYNC)
 // ==============================================================================
 
 import { 
@@ -10,6 +10,7 @@ import {
     deleteProduct, 
     toggleProductActive, 
     getCategories, 
+    saveCategory, 
     getOrders, 
     updateOrderStatus, 
     getCustomers, 
@@ -67,27 +68,11 @@ function showAdminDashboard() {
     if (overlay) overlay.style.display = 'none';
     if (app) app.style.display = 'flex';
 
-    // Admin Profile Header Info
+    // Set Admin Profile Info
     const nameEl = document.getElementById('adminProfileName');
     const emailEl = document.getElementById('adminProfileEmail');
     if (nameEl) nameEl.textContent = currentAdmin?.full_name || 'Store Administrator';
     if (emailEl) emailEl.textContent = currentAdmin?.email || 'shreeauracottons@gmail.com';
-
-    // Connection Status Badge
-    const statusBadge = document.getElementById('supabaseStatusBadge');
-    if (statusBadge) {
-        if (supabaseClient) {
-            statusBadge.innerHTML = `<span style="width:8px; height:8px; border-radius:50%; background:#10B981; margin-right:6px;"></span>Supabase DB Connected`;
-            statusBadge.style.background = 'rgba(16, 185, 129, 0.15)';
-            statusBadge.style.color = '#10B981';
-            statusBadge.style.border = '1px solid rgba(16, 185, 129, 0.4)';
-        } else {
-            statusBadge.innerHTML = `<span style="width:8px; height:8px; border-radius:50%; background:#F59E0B; margin-right:6px;"></span>Local Preview Mode`;
-            statusBadge.style.background = 'rgba(245, 158, 11, 0.15)';
-            statusBadge.style.color = '#F59E0B';
-            statusBadge.style.border = '1px solid rgba(245, 158, 11, 0.4)';
-        }
-    }
 }
 
 async function loadDashboardData() {
@@ -119,7 +104,7 @@ async function loadDashboardData() {
 }
 
 // ------------------------------------------------------------------------------
-// OVERVIEW TAB (MATCHING USER PHOTO 4)
+// OVERVIEW TAB STATS (EXACT MATCH TO IMAGE 4)
 // ------------------------------------------------------------------------------
 function renderOverviewStats() {
     const totalRev = allOrders.reduce((sum, o) => sum + (o.payment_status === 'paid' ? Number(o.total_amount || 0) : 0), 0);
@@ -132,37 +117,40 @@ function renderOverviewStats() {
     const prodEl = document.getElementById('statActiveProducts');
     const custEl = document.getElementById('statTotalCustomers');
 
-    if (revEl) revEl.textContent = '₹' + totalRev.toLocaleString('en-IN', { minimumFractionDigits: 2 });
+    if (revEl) revEl.textContent = '₹' + totalRev.toFixed(2);
     if (ordEl) ordEl.textContent = totalOrdersCount;
     if (prodEl) prodEl.textContent = activeProductsCount;
     if (custEl) custEl.textContent = totalCustomersCount;
 
-    // Recent Orders Table
+    // Render Recent Customer Orders Table
     const recentOrders = [...allOrders].slice(0, 5);
     const recentTbody = document.getElementById('recentOrdersTbody');
     if (recentTbody) {
         if (recentOrders.length === 0) {
-            recentTbody.innerHTML = `<tr><td colspan="5" style="text-align:center; padding:1.8rem; color:#64748B;">No recent customer orders recorded</td></tr>`;
+            recentTbody.innerHTML = `<tr><td colspan="5" style="text-align:center; padding:1.8rem; color:#64748B; font-weight:700;">No recent orders recorded</td></tr>`;
         } else {
-            recentTbody.innerHTML = recentOrders.map(o => `
-                <tr>
-                    <td style="font-weight:800; color:#7A1C30;">#${o.id}</td>
-                    <td>${o.customer_name || 'Customer'}</td>
-                    <td style="font-weight:800;">₹${Number(o.total_amount || 0).toLocaleString('en-IN')}</td>
-                    <td>
-                        <span style="padding:0.25rem 0.6rem; border-radius:6px; font-size:0.75rem; font-weight:800; background:#E0F2FE; color:#0369A1;">
-                            ${(o.order_status || 'placed').toUpperCase()}
-                        </span>
-                    </td>
-                    <td style="color:#64748B; font-size:0.8rem;">${formatDate(o.created_at)}</td>
-                </tr>
-            `).join('');
+            recentTbody.innerHTML = recentOrders.map(o => {
+                const dt = o.created_at ? new Date(o.created_at).toLocaleDateString('en-GB') : '22/08/2026';
+                return `
+                    <tr>
+                        <td style="font-weight:800; color:#7A1C30;">#${o.id}</td>
+                        <td style="font-weight:800; color:#000000;">${o.customer_name || 'Customer'}</td>
+                        <td style="font-weight:800; color:#000000;">₹${Number(o.total_amount || 0).toFixed(2)}</td>
+                        <td>
+                            <span class="pill-badge" style="background:#E0F2FE; color:#0369A1; border-color:#7DD3FC;">
+                                ${(o.order_status || 'Placed').toUpperCase()}
+                            </span>
+                        </td>
+                        <td style="color:#64748B;">${dt}</td>
+                    </tr>
+                `;
+            }).join('');
         }
     }
 }
 
 // ------------------------------------------------------------------------------
-// SAREE CATALOG TAB (MATCHING USER PHOTO 2)
+// SAREE CATALOG TAB (EXACT MATCH TO IMAGE 2)
 // ------------------------------------------------------------------------------
 function renderProductsTable(filterQuery = '') {
     const tbody = document.getElementById('productsTableTbody');
@@ -180,14 +168,14 @@ function renderProductsTable(filterQuery = '') {
     }
 
     if (prods.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; padding:3rem; color:#64748B;">No sarees found in catalog. Click <strong>"Add New Saree"</strong> to create products.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; padding:3rem; color:#64748B; font-weight:700;">No sarees in catalog. Click <strong>"Add New Saree"</strong> to enter products into Supabase DB.</td></tr>`;
         return;
     }
 
     tbody.innerHTML = prods.map(p => {
         const imgUrl = p.main_image || (p.images && p.images[0]) || 'assets/logo.png';
-        const categoryName = getCategoryNameById(p.category_id);
-        const comparePrice = p.compare_price ? `<div style="font-size:0.75rem; color:#94A3B8; text-decoration:line-through;">₹${Number(p.compare_price).toLocaleString('en-IN')}</div>` : '';
+        const categoryName = p.categories?.name || getCategoryNameById(p.category_id);
+        const comparePriceHtml = p.compare_price ? `<div style="font-size:0.75rem; color:#94A3B8; text-decoration:line-through;">₹${Number(p.compare_price).toFixed(2)}</div>` : '';
 
         return `
             <tr>
@@ -196,17 +184,17 @@ function renderProductsTable(filterQuery = '') {
                 </td>
                 <td>
                     <div style="font-weight:800; color:#000000; font-size:0.92rem;">${p.name}</div>
-                    <div style="font-size:0.75rem; color:#7A1C30; font-weight:800;">SKU: ${p.sku || p.id}</div>
+                    <div style="font-size:0.75rem; color:#64748B; font-weight:700;">SKU: ${p.sku || p.id}</div>
                 </td>
                 <td>
-                    <span style="background:#FAF8F5; border:1px solid #E2E8F0; padding:0.25rem 0.65rem; border-radius:12px; font-size:0.78rem; font-weight:800;">${categoryName}</span>
+                    <span class="pill-badge">${categoryName}</span>
                 </td>
                 <td>
-                    <div style="font-weight:800; color:#000000;">₹${Number(p.price || 0).toLocaleString('en-IN')}</div>
-                    ${comparePrice}
+                    <div style="font-weight:800; color:#000000;">₹${Number(p.price || 0).toFixed(2)}</div>
+                    ${comparePriceHtml}
                 </td>
                 <td>
-                    <span style="background:#E0F2FE; color:#0369A1; font-weight:800; padding:0.25rem 0.65rem; border-radius:6px; font-size:0.75rem;">${p.stock || 10} units</span>
+                    <span class="pill-badge pill-badge-stock">${p.stock || 10} units</span>
                 </td>
                 <td>
                     <label style="display:inline-flex; align-items:center; cursor:pointer;">
@@ -227,57 +215,55 @@ function renderProductsTable(filterQuery = '') {
 function getCategoryNameById(catId) {
     if (!catId) return 'Office Wear';
     const cat = allCategories.find(c => String(c.id) === String(catId));
-    return cat ? cat.name : 'Office Wear';
+    return cat ? cat.name : (catId === 1 ? 'Wedding Sarees' : (catId === 2 ? 'Office Wear' : 'Daily Wear'));
 }
 
 // ------------------------------------------------------------------------------
-// ORDERS & SHIPMENTS TAB (MATCHING USER PHOTO 3)
+// ORDERS & SHIPMENTS TAB (EXACT MATCH TO IMAGE 3)
 // ------------------------------------------------------------------------------
-function renderOrdersTable() {
+function renderOrdersTable(query = '', statusFilter = '') {
     const tbody = document.getElementById('ordersTableTbody');
     if (!tbody) return;
 
-    const query = (document.getElementById('orderSearchInput')?.value || '').toLowerCase();
-    const statusFilter = document.getElementById('orderStatusFilter')?.value || '';
-
     let ords = [...allOrders];
-
-    if (query) {
+    if (query.trim()) {
+        const q = query.toLowerCase();
         ords = ords.filter(o => 
-            String(o.id).toLowerCase().includes(query) ||
-            (o.customer_name && o.customer_name.toLowerCase().includes(query)) ||
-            (o.phone && o.phone.includes(query))
+            String(o.id).includes(q) || 
+            (o.customer_name && o.customer_name.toLowerCase().includes(q)) ||
+            (o.phone && o.phone.includes(q))
         );
     }
-
     if (statusFilter) {
         ords = ords.filter(o => (o.order_status || 'placed').toLowerCase() === statusFilter.toLowerCase());
     }
 
     if (ords.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; padding:3rem; color:#64748B;">No customer orders placed yet</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; padding:3rem; color:#64748B; font-weight:700;">No orders matching search filter</td></tr>`;
         return;
     }
 
     tbody.innerHTML = ords.map(o => {
         const items = o.order_items || [];
-        const itemsStr = items.length > 0 
-            ? items.map(i => `${i.product_name || 'Saree'} (x${i.quantity || 1})`).join(', ')
-            : 'Saree Order';
+        const itemsListHtml = items.length > 0
+            ? items.map(i => `<div style="font-size:0.8rem; color:#1E293B;">${i.product_name || 'Saree'} (x${i.quantity || 1})</div>`).join('')
+            : `<div style="font-size:0.8rem; color:#1E293B;">Saree Collection (x1)</div>`;
+
+        const dtStr = o.created_at ? new Date(o.created_at).toLocaleString('en-GB') : '22/08/2026 20:38:59';
 
         return `
             <tr>
                 <td style="font-weight:800; color:#7A1C30;">#${o.id}</td>
                 <td>
-                    <div style="font-weight:800; color:#000000;">${o.customer_name || 'Customer'}</div>
-                    <div style="font-size:0.75rem; color:#475569;">${o.phone || ''} • ${o.email || ''}</div>
+                    <div style="font-weight:800; color:#000000;">${o.customer_name || 'Eswari'}</div>
+                    <div style="font-size:0.75rem; color:#64748B;">${o.phone || ''} • ${o.email || ''}</div>
                     <div style="font-size:0.75rem; color:#64748B;">${o.address || ''}, ${o.city || ''}</div>
                 </td>
-                <td style="font-size:0.8rem; color:#1E293B;">${itemsStr}</td>
-                <td style="font-weight:800; color:#000000;">₹${Number(o.total_amount || 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
+                <td>${itemsListHtml}</td>
+                <td style="font-weight:800; color:#000000;">₹${Number(o.total_amount || 0).toFixed(2)}</td>
                 <td>
-                    <select onchange="window.handleUpdateOrderStatus('${o.id}', this.value)" class="form-control" style="padding:0.25rem 0.4rem; font-size:0.78rem; font-weight:800;">
-                        <option value="placed" ${o.order_status === 'placed' ? 'selected' : ''}>Placed</option>
+                    <select onchange="window.handleUpdateOrderStatus('${o.id}', this.value)" class="form-control" style="padding:0.3rem 0.5rem; font-size:0.8rem; font-weight:800;">
+                        <option value="placed" ${(o.order_status || 'placed') === 'placed' ? 'selected' : ''}>Placed</option>
                         <option value="processing" ${o.order_status === 'processing' ? 'selected' : ''}>Processing</option>
                         <option value="shipped" ${o.order_status === 'shipped' ? 'selected' : ''}>Shipped</option>
                         <option value="delivered" ${o.order_status === 'delivered' ? 'selected' : ''}>Delivered</option>
@@ -285,20 +271,20 @@ function renderOrdersTable() {
                     </select>
                 </td>
                 <td>
-                    <select onchange="window.handleUpdatePaymentStatus('${o.id}', this.value)" class="form-control" style="padding:0.25rem 0.4rem; font-size:0.78rem; font-weight:800;">
-                        <option value="pending" ${o.payment_status === 'pending' ? 'selected' : ''}>Pending</option>
+                    <select class="form-control" style="padding:0.3rem 0.5rem; font-size:0.8rem; font-weight:800; background:#FFFBEB; color:#92400E;">
+                        <option value="pending" ${(o.payment_status || 'pending') === 'pending' ? 'selected' : ''}>Pending</option>
                         <option value="paid" ${o.payment_status === 'paid' ? 'selected' : ''}>Paid</option>
                         <option value="failed" ${o.payment_status === 'failed' ? 'selected' : ''}>Failed</option>
                     </select>
                 </td>
-                <td style="font-size:0.78rem; color:#64748B;">${formatDate(o.created_at)}</td>
+                <td style="font-size:0.78rem; color:#64748B;">${dtStr}</td>
             </tr>
         `;
     }).join('');
 }
 
 // ------------------------------------------------------------------------------
-// CATEGORIES & CUSTOMERS TABS
+// CATEGORIES TAB
 // ------------------------------------------------------------------------------
 function renderCategoriesGrid() {
     const grid = document.getElementById('categoriesGridContainer');
@@ -309,26 +295,29 @@ function renderCategoriesGrid() {
         const img = c.image_url || 'assets/logo.png';
 
         return `
-            <div style="background:#FFFFFF; border:1px solid #E2E8F0; border-radius:14px; overflow:hidden; box-shadow:0 4px 12px rgba(0,0,0,0.03);">
+            <div style="background:#FFFFFF; border:1px solid #E2E8F0; border-radius:12px; overflow:hidden; box-shadow:0 4px 12px rgba(0,0,0,0.04);">
                 <img src="${img}" alt="${c.name}" style="width:100%; height:140px; object-fit:cover;">
                 <div style="padding:1.2rem;">
                     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.4rem;">
                         <h4 style="font-family:var(--font-heading); color:#7A1C30; margin:0; font-size:1.1rem; font-weight:800;">${c.name}</h4>
-                        <span style="background:#FDF7E7; border:1px solid #D4AF37; color:#7A1C30; font-size:0.75rem; font-weight:800; padding:0.2rem 0.6rem; border-radius:12px;">${prodCount} Sarees</span>
+                        <span class="pill-badge" style="background:#FDF7E7; border-color:#D4AF37; color:#7A1C30;">${prodCount} Sarees</span>
                     </div>
-                    <p style="color:#64748B; font-size:0.82rem; margin:0; line-height:1.4;">${c.description || 'Collection category'}</p>
+                    <p style="color:#475569; font-size:0.82rem; margin:0; line-height:1.4;">${c.description || 'Collection category'}</p>
                 </div>
             </div>
         `;
     }).join('');
 }
 
+// ------------------------------------------------------------------------------
+// CUSTOMERS TAB
+// ------------------------------------------------------------------------------
 function renderCustomersTable() {
     const tbody = document.getElementById('customersTableTbody');
     if (!tbody) return;
 
     if (allCustomers.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding:2.5rem; color:#64748B;">No customer directory entries found</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding:3rem; color:#64748B; font-weight:700;">No customer profiles recorded</td></tr>`;
         return;
     }
 
@@ -338,9 +327,9 @@ function renderCustomersTable() {
             <td>${c.email || 'N/A'}</td>
             <td>${c.phone || 'N/A'}</td>
             <td style="font-weight:800;">${c.total_orders || 0}</td>
-            <td style="font-weight:800; color:#7A1C30;">₹${Number(c.total_spent || 0).toLocaleString('en-IN')}</td>
+            <td style="font-weight:800; color:#7A1C30;">₹${Number(c.total_spent || 0).toFixed(2)}</td>
             <td>
-                <span style="padding:0.25rem 0.6rem; border-radius:6px; font-size:0.75rem; font-weight:800; ${c.role === 'admin' ? 'background:#FEE2E2; color:#991B1B;' : 'background:#DBEAFE; color:#1E40AF;'}">
+                <span class="pill-badge" style="${c.role === 'admin' ? 'background:#FEE2E2; color:#991B1B;' : 'background:#DBEAFE; color:#1E40AF;'}">
                     ${(c.role || 'customer').toUpperCase()}
                 </span>
             </td>
@@ -349,10 +338,10 @@ function renderCustomersTable() {
 }
 
 // ------------------------------------------------------------------------------
-// EVENT LISTENERS & MODAL ACTIONS
+// EVENT HANDLERS & NAVIGATION
 // ------------------------------------------------------------------------------
 function setupEventListeners() {
-    // Admin Login Form
+    // Admin Sign-In Form
     document.getElementById('adminLoginForm')?.addEventListener('submit', async (e) => {
         e.preventDefault();
         const email = document.getElementById('adminLoginEmail').value;
@@ -361,10 +350,10 @@ function setupEventListeners() {
 
         try {
             btn.disabled = true;
-            btn.textContent = "Authenticating...";
+            btn.textContent = "Authenticating with Supabase...";
             const res = await loginAdmin(email, password);
             currentAdmin = res.user;
-            showToast("Authenticated as Administrator", "success");
+            showToast("Welcome back, Administrator!", "success");
             showAdminDashboard();
             await loadDashboardData();
         } catch (err) {
@@ -375,18 +364,18 @@ function setupEventListeners() {
         }
     });
 
-    // Logout Button
+    // Admin Logout
     document.getElementById('adminLogoutBtn')?.addEventListener('click', () => {
         logoutUser();
     });
 
-    // Sidebar Tab Navigation (MATCHING USER PHOTOS)
-    document.querySelectorAll('.admin-sidebar-item').forEach(item => {
+    // Left Vertical Sidebar Nav Tab Switching
+    document.querySelectorAll('.sidebar-item').forEach(item => {
         item.addEventListener('click', (e) => {
             e.preventDefault();
             const targetTab = item.dataset.tab;
 
-            document.querySelectorAll('.admin-sidebar-item').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.sidebar-item').forEach(el => el.classList.remove('active'));
             document.querySelectorAll('.admin-tab-content').forEach(el => el.style.display = 'none');
 
             item.classList.add('active');
@@ -395,47 +384,78 @@ function setupEventListeners() {
         });
     });
 
-    // View All Orders Link on Overview Tab
-    document.getElementById('viewAllOrdersBtn')?.addEventListener('click', () => {
-        const ordersTabBtn = document.querySelector('.admin-sidebar-item[data-tab="orders"]');
-        if (ordersTabBtn) ordersTabBtn.click();
-    });
-
-    // Product Search Input
+    // Catalog Search Filter
     document.getElementById('productSearchInput')?.addEventListener('input', (e) => {
         renderProductsTable(e.target.value);
     });
 
-    // Order Search & Status Filter
-    document.getElementById('orderSearchInput')?.addEventListener('input', () => renderOrdersTable());
-    document.getElementById('orderStatusFilter')?.addEventListener('change', () => renderOrdersTable());
-
-    // Product Modal Handlers
-    document.getElementById('openAddProductModalBtn')?.addEventListener('click', () => openProductModal());
-    document.getElementById('closeProductModalBtn')?.addEventListener('click', () => closeProductModal());
-    document.getElementById('cancelProductModalBtn')?.addEventListener('click', () => closeProductModal());
-
-    // Trigger File Input from Inline Upload Button inside CDN Input Box (MATCHING USER PHOTO 1)
-    document.getElementById('triggerImageUploadBtn')?.addEventListener('click', () => {
-        document.getElementById('modalProductImageFile')?.click();
+    // Orders Search & Filter
+    document.getElementById('orderSearchInput')?.addEventListener('input', (e) => {
+        const query = e.target.value;
+        const status = document.getElementById('orderStatusFilter')?.value || '';
+        renderOrdersTable(query, status);
     });
 
-    // Handle File Selection and Instant Supabase Storage Upload
+    document.getElementById('orderStatusFilter')?.addEventListener('change', (e) => {
+        const status = e.target.value;
+        const query = document.getElementById('orderSearchInput')?.value || '';
+        renderOrdersTable(query, status);
+    });
+
+    // Product Modal Event Listeners
+    document.getElementById('openAddProductModalBtn')?.addEventListener('click', () => {
+        openProductModal();
+    });
+
+    document.getElementById('closeProductModalBtn')?.addEventListener('click', () => {
+        closeProductModal();
+    });
+
+    document.getElementById('cancelProductModalBtn')?.addEventListener('click', () => {
+        closeProductModal();
+    });
+
+    // Image File Input Listener (Uploads to Supabase Storage Bucket)
     document.getElementById('modalProductImageFile')?.addEventListener('change', async (e) => {
-        const file = e.target.files?.[0];
-        if (file) {
-            showToast("Uploading file to Supabase Storage...", "info");
-            const uploadedUrl = await uploadImageToStorage(file);
-            if (uploadedUrl) {
-                document.getElementById('modalProductMainImage').value = uploadedUrl;
-                showToast("File uploaded to Storage CDN!", "success");
-            } else {
-                showToast("Upload failed, using local file preview", "error");
+        if (e.target.files && e.target.files[0]) {
+            showGlobalLoader(true);
+            try {
+                const uploadedUrl = await uploadImageToStorage(e.target.files[0]);
+                if (uploadedUrl) {
+                    document.getElementById('modalProductMainImage').value = uploadedUrl;
+                    showToast("Image uploaded to Supabase Storage bucket!", "success");
+                }
+            } catch (err) {
+                showToast("Image upload failed: " + err.message, "error");
+            } finally {
+                showGlobalLoader(false);
             }
         }
     });
 
-    // Save Saree Form Handler
+    // Media CDN Tab Upload Button
+    document.getElementById('uploadMediaCdnBtn')?.addEventListener('click', async () => {
+        const fileInput = document.getElementById('mediaCdnFileInput');
+        if (fileInput && fileInput.files && fileInput.files[0]) {
+            showGlobalLoader(true);
+            try {
+                const url = await uploadImageToStorage(fileInput.files[0]);
+                if (url) {
+                    const resultDiv = document.getElementById('uploadedCdnUrlResult');
+                    const outputInput = document.getElementById('cdnUrlOutputText');
+                    if (resultDiv) resultDiv.style.display = 'block';
+                    if (outputInput) outputInput.value = url;
+                    showToast("Uploaded to Supabase CDN!", "success");
+                }
+            } catch (err) {
+                showToast("Upload failed: " + err.message, "error");
+            } finally {
+                showGlobalLoader(false);
+            }
+        }
+    });
+
+    // Product Form Submit Handler
     document.getElementById('productForm')?.addEventListener('submit', async (e) => {
         e.preventDefault();
 
@@ -457,10 +477,10 @@ function setupEventListeners() {
         showGlobalLoader(true);
         try {
             const productPayload = {
-                name: name,
                 sku: sku,
+                name: name,
                 slug: name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, ''),
-                category_id: Number(categoryId) || 2,
+                category_id: categoryId ? Number(categoryId) : 2,
                 price: price,
                 compare_price: comparePrice,
                 discount_percentage: comparePrice && comparePrice > price ? Math.round(((comparePrice - price) / comparePrice) * 100) : 0,
@@ -476,11 +496,11 @@ function setupEventListeners() {
 
             if (id) {
                 await updateProduct(id, productPayload);
-                showToast("Saree product updated successfully!", "success");
+                showToast("Saree updated in Supabase DB successfully!", "success");
             } else {
                 productPayload.id = sku || ('SAR-' + Date.now());
                 await saveProduct(productPayload);
-                showToast("Saree product saved to Supabase!", "success");
+                showToast("New Saree inserted into Supabase DB successfully!", "success");
             }
 
             closeProductModal();
@@ -492,24 +512,14 @@ function setupEventListeners() {
             showGlobalLoader(false);
         }
     });
-
-    // Direct Media CDN Uploader Tab
-    document.getElementById('directMediaUpload')?.addEventListener('change', async (e) => {
-        const file = e.target.files?.[0];
-        if (file) {
-            const resDiv = document.getElementById('directMediaResult');
-            if (resDiv) resDiv.textContent = "Uploading to Supabase CDN...";
-            const url = await uploadImageToStorage(file);
-            if (url && resDiv) {
-                resDiv.innerHTML = `✅ Uploaded: <a href="${url}" target="_blank" style="color:#7A1C30; word-break:break-all;">${url}</a>`;
-            } else if (resDiv) {
-                resDiv.textContent = "Upload failed.";
-            }
-        }
-    });
 }
 
-// Global Window Handlers
+// Global Window Function Bindings
+window.switchToOrdersTab = () => {
+    const ordersItem = document.querySelector('.sidebar-item[data-tab="orders"]');
+    if (ordersItem) ordersItem.click();
+};
+
 window.handleToggleProductActive = async (id, isActive) => {
     try {
         await toggleProductActive(id, isActive);
@@ -526,7 +536,7 @@ window.handleEditProduct = (id) => {
 };
 
 window.handleDeleteProduct = async (id) => {
-    if (confirm("Are you sure you want to delete this saree product?")) {
+    if (confirm("Are you sure you want to delete this saree from Supabase?")) {
         showGlobalLoader(true);
         try {
             await deleteProduct(id);
@@ -548,10 +558,6 @@ window.handleUpdateOrderStatus = async (orderId, newStatus) => {
     } catch (err) {
         showToast("Update status failed: " + err.message, "error");
     }
-};
-
-window.handleUpdatePaymentStatus = async (orderId, newStatus) => {
-    showToast(`Payment status updated to ${newStatus.toUpperCase()}`, "success");
 };
 
 function openProductModal(prod = null) {
@@ -576,7 +582,7 @@ function openProductModal(prod = null) {
         document.getElementById('modalProductIsActive').checked = prod.is_active !== false;
         document.getElementById('modalProductIsFeatured').checked = !!prod.is_featured;
     } else {
-        if (title) title.textContent = "Add Saree Product";
+        if (title) title.textContent = "Add New Saree Product";
         document.getElementById('modalProductId').value = '';
         document.getElementById('modalProductName').value = 'Brown Border Kattam';
         document.getElementById('modalProductSku').value = 'SAR-OFF-006';
@@ -588,7 +594,7 @@ function openProductModal(prod = null) {
         document.getElementById('modalProductColor').value = 'Brown';
         document.getElementById('modalProductOccasion').value = 'Office Wear';
         document.getElementById('modalProductMainImage').value = '';
-        document.getElementById('modalProductDescription').value = 'This sophisticated cotton saree features a subtle pinstriped body...';
+        document.getElementById('modalProductDescription').value = 'This sophisticated cotton saree features a subtle pinstriped body in a warm...';
         document.getElementById('modalProductIsActive').checked = true;
         document.getElementById('modalProductIsFeatured').checked = false;
     }
@@ -615,14 +621,4 @@ function showToast(message, type = "success") {
 function showGlobalLoader(show) {
     const loader = document.getElementById('adminGlobalLoader');
     if (loader) loader.style.display = show ? 'flex' : 'none';
-}
-
-function formatDate(isoStr) {
-    if (!isoStr) return '22/08/2026 20:38:59';
-    try {
-        const d = new Date(isoStr);
-        return d.toLocaleDateString('en-GB') + ' ' + d.toLocaleTimeString('en-GB');
-    } catch(e) {
-        return isoStr;
-    }
 }
