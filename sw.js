@@ -2,7 +2,7 @@
 // SHREE AURA COTTONS - SERVICE WORKER & APP OFFLINE ENGINE
 // ==============================================================================
 
-const CACHE_NAME = 'shree-aura-v1';
+const CACHE_NAME = 'shree-aura-v2';
 const ASSETS_TO_CACHE = [
     './',
     './index.html',

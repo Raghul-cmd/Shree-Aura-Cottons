@@ -509,25 +509,6 @@ export async function getCustomers() {
     return Array.from(customerMap.values());
 }
 
-export async function deleteProduct(id) {
-    if (supabaseClient) {
-        try {
-            const { error } = await supabaseClient.from('products').delete().eq('id', id);
-            if (error) {
-                console.error("Supabase delete product error:", error.message || error);
-                throw new Error("Supabase error: " + (error.message || JSON.stringify(error)));
-            }
-        } catch (e) {
-            console.warn("Supabase delete product exception:", e.message);
-        }
-    }
-    
-    let prods = [];
-    try { prods = JSON.parse(localStorage.getItem('vw_mock_products') || '[]'); } catch(e) {}
-    prods = prods.filter(p => p.id !== id);
-    localStorage.setItem('vw_mock_products', JSON.stringify(prods));
-    return true;
-}
 
 export async function saveCategory(categoryData) {
     if (supabaseClient) {
