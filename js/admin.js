@@ -272,7 +272,7 @@ function renderOrdersTable(query = '', statusFilter = '') {
                     </select>
                 </td>
                 <td>
-                    <select class="form-control" style="padding:0.3rem 0.5rem; font-size:0.8rem; font-weight:800; background:#FFFBEB; color:#92400E;">
+                    <select onchange="window.handleUpdatePaymentStatus('${o.id}', this.value)" class="form-control" style="padding:0.3rem 0.5rem; font-size:0.8rem; font-weight:800; background:#FFFBEB; color:#92400E;">
                         <option value="pending" ${(o.payment_status || 'pending') === 'pending' ? 'selected' : ''}>Pending</option>
                         <option value="paid" ${o.payment_status === 'paid' ? 'selected' : ''}>Paid</option>
                         <option value="failed" ${o.payment_status === 'failed' ? 'selected' : ''}>Failed</option>
@@ -666,11 +666,21 @@ window.handleEditCategory = (id) => {
 
 window.handleUpdateOrderStatus = async (orderId, newStatus) => {
     try {
-        await updateOrderStatus(orderId, newStatus);
+        await updateOrderStatus(orderId, newStatus, null);
         showToast(`Order #${orderId} status updated to ${newStatus.toUpperCase()}`, "success");
         await loadDashboardData();
     } catch (err) {
         showToast("Update status failed: " + err.message, "error");
+    }
+};
+
+window.handleUpdatePaymentStatus = async (orderId, newPaymentStatus) => {
+    try {
+        await updateOrderStatus(orderId, null, newPaymentStatus);
+        showToast(`Order #${orderId} payment status updated to ${newPaymentStatus.toUpperCase()}`, "success");
+        await loadDashboardData();
+    } catch (err) {
+        showToast("Update payment status failed: " + err.message, "error");
     }
 };
 
