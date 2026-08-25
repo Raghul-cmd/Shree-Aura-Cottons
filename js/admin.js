@@ -381,6 +381,22 @@ function setupEventListeners() {
         logoutUser();
     });
 
+    // Mobile Navigation Drawer Toggle & Backdrop Overlay
+    const mobileNavToggle = document.getElementById('adminMobileNavToggle');
+    const adminSidebar = document.getElementById('adminSidebar');
+    const adminOverlay = document.getElementById('adminNavOverlay');
+
+    const toggleMobileSidebar = (show) => {
+        if (adminSidebar && adminOverlay) {
+            if (show === undefined) show = !adminSidebar.classList.contains('active');
+            adminSidebar.classList.toggle('active', show);
+            adminOverlay.classList.toggle('active', show);
+        }
+    };
+
+    mobileNavToggle?.addEventListener('click', () => toggleMobileSidebar());
+    adminOverlay?.addEventListener('click', () => toggleMobileSidebar(false));
+
     // Left Vertical Sidebar Nav Tab Switching
     document.querySelectorAll('.sidebar-item').forEach(item => {
         item.addEventListener('click', (e) => {
@@ -393,6 +409,9 @@ function setupEventListeners() {
             item.classList.add('active');
             const targetEl = document.getElementById(`tab_${targetTab}`);
             if (targetEl) targetEl.style.display = 'block';
+
+            // Auto-close mobile sidebar drawer on selection
+            toggleMobileSidebar(false);
         });
     });
 

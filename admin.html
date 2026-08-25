@@ -657,17 +657,18 @@
         <!-- TOP HEADER BAR -->
         <header class="admin-top-header">
             <div class="admin-brand-header">
+                <button id="adminMobileNavToggle" class="admin-mobile-nav-toggle" aria-label="Toggle navigation menu">☰</button>
                 <img src="assets/logo.png" alt="Logo">
                 <div class="admin-brand-title">
-                    SHREE AURA <span style="font-size:0.75rem; color:#D4AF37; font-weight:700;">| EXECUTIVE ADMIN</span>
+                    SHREE AURA <span class="brand-sub-badge" style="font-size:0.75rem; color:#D4AF37; font-weight:700;">| EXECUTIVE ADMIN</span>
                 </div>
-                <div class="status-pill-green" style="margin-left:0.8rem;">
+                <div class="status-pill-green">
                     <span style="width:7px; height:7px; border-radius:50%; background:#10B981;"></span> Supabase DB Connected
                 </div>
             </div>
 
             <div class="header-actions-right">
-                <div style="text-align:right; font-size:0.82rem;">
+                <div class="admin-profile-info" style="text-align:right; font-size:0.82rem;">
                     <div id="adminProfileName" style="font-weight:800;">Store Administrator</div>
                     <div id="adminProfileEmail" style="color:#D4AF37; font-size:0.72rem;">shreeauracottons@gmail.com</div>
                 </div>
@@ -684,8 +685,11 @@
 
         <!-- MAIN WRAPPER: SIDEBAR + CONTENT -->
         <div class="admin-main-wrapper">
+            <!-- MOBILE BACKDROP OVERLAY -->
+            <div id="adminNavOverlay" class="admin-nav-overlay"></div>
+
             <!-- LEFT VERTICAL SIDEBAR -->
-            <aside class="admin-sidebar">
+            <aside class="admin-sidebar" id="adminSidebar">
                 <div class="sidebar-item active" data-tab="overview">
                     <span style="font-size:1.1rem;">📊</span> Executive Overview
                 </div>
@@ -743,20 +747,22 @@
                                 View All Orders ➔
                             </button>
                         </div>
-                        <table class="content-table">
-                            <thead>
-                                <tr>
-                                    <th>ORDER ID</th>
-                                    <th>CUSTOMER</th>
-                                    <th>AMOUNT</th>
-                                    <th>STATUS</th>
-                                    <th>DATE</th>
-                                </tr>
-                            </thead>
-                            <tbody id="recentOrdersTbody">
-                                <tr><td colspan="5" style="text-align:center; padding:2rem; color:#64748B;">Loading orders...</td></tr>
-                            </tbody>
-                        </table>
+                        <div class="table-responsive">
+                            <table class="content-table">
+                                <thead>
+                                    <tr>
+                                        <th>ORDER ID</th>
+                                        <th>CUSTOMER</th>
+                                        <th>AMOUNT</th>
+                                        <th>STATUS</th>
+                                        <th>DATE</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="recentOrdersTbody">
+                                    <tr><td colspan="5" style="text-align:center; padding:2rem; color:#64748B;">Loading orders...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
 
@@ -775,22 +781,24 @@
                             </button>
                         </div>
 
-                        <table class="content-table">
-                            <thead>
-                                <tr>
-                                    <th>IMAGE</th>
-                                    <th>PRODUCT & SKU</th>
-                                    <th>CATEGORY</th>
-                                    <th>PRICE</th>
-                                    <th>STOCK</th>
-                                    <th>ACTIVE</th>
-                                    <th>ACTIONS</th>
-                                </tr>
-                            </thead>
-                            <tbody id="productsTableTbody">
-                                <tr><td colspan="7" style="text-align:center; padding:2.5rem; color:#64748B;">Loading sarees from Supabase...</td></tr>
-                            </tbody>
-                        </table>
+                        <div class="table-responsive">
+                            <table class="content-table">
+                                <thead>
+                                    <tr>
+                                        <th>IMAGE</th>
+                                        <th>PRODUCT & SKU</th>
+                                        <th>CATEGORY</th>
+                                        <th>PRICE</th>
+                                        <th>STOCK</th>
+                                        <th>ACTIVE</th>
+                                        <th>ACTIONS</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="productsTableTbody">
+                                    <tr><td colspan="7" style="text-align:center; padding:2.5rem; color:#64748B;">Loading sarees from Supabase...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
 
@@ -814,22 +822,24 @@
                             </div>
                         </div>
 
-                        <table class="content-table">
-                            <thead>
-                                <tr>
-                                    <th>ORDER ID</th>
-                                    <th>CUSTOMER & ADDRESS</th>
-                                    <th>SAREE ITEMS</th>
-                                    <th>TOTAL AMOUNT</th>
-                                    <th>ORDER STATUS</th>
-                                    <th>PAYMENT STATUS</th>
-                                    <th>PLACED DATE</th>
-                                </tr>
-                            </thead>
-                            <tbody id="ordersTableTbody">
-                                <tr><td colspan="7" style="text-align:center; padding:2.5rem; color:#64748B;">Loading orders from Supabase...</td></tr>
-                            </tbody>
-                        </table>
+                        <div class="table-responsive">
+                            <table class="content-table">
+                                <thead>
+                                    <tr>
+                                        <th>ORDER ID</th>
+                                        <th>CUSTOMER & ADDRESS</th>
+                                        <th>SAREE ITEMS</th>
+                                        <th>TOTAL AMOUNT</th>
+                                        <th>ORDER STATUS</th>
+                                        <th>PAYMENT STATUS</th>
+                                        <th>PLACED DATE</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="ordersTableTbody">
+                                    <tr><td colspan="7" style="text-align:center; padding:2.5rem; color:#64748B;">Loading orders from Supabase...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
 
@@ -856,21 +866,23 @@
                     <p class="page-header-subtitle">Customer profiles and spending statistics</p>
 
                     <div class="content-card">
-                        <table class="content-table">
-                            <thead>
-                                <tr>
-                                    <th>CUSTOMER NAME</th>
-                                    <th>EMAIL</th>
-                                    <th>PHONE</th>
-                                    <th>ORDERS PLACED</th>
-                                    <th>TOTAL SPENT</th>
-                                    <th>ROLE</th>
-                                </tr>
-                            </thead>
-                            <tbody id="customersTableTbody">
-                                <tr><td colspan="6" style="text-align:center; padding:2.5rem; color:#64748B;">Loading customers...</td></tr>
-                            </tbody>
-                        </table>
+                        <div class="table-responsive">
+                            <table class="content-table">
+                                <thead>
+                                    <tr>
+                                        <th>CUSTOMER NAME</th>
+                                        <th>EMAIL</th>
+                                        <th>PHONE</th>
+                                        <th>ORDERS PLACED</th>
+                                        <th>TOTAL SPENT</th>
+                                        <th>ROLE</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="customersTableTbody">
+                                    <tr><td colspan="6" style="text-align:center; padding:2.5rem; color:#64748B;">Loading customers...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
 
@@ -918,7 +930,7 @@
             <form id="productForm">
                 <input type="hidden" id="modalProductId">
 
-                <div style="display:grid; grid-template-columns:1fr 1fr; gap:1.2rem;">
+                <div class="form-grid-2">
                     <div class="form-group">
                         <label>Product Name *</label>
                         <input type="text" id="modalProductName" class="form-control" required placeholder="Brown Border Kattam">
@@ -929,7 +941,7 @@
                     </div>
                 </div>
 
-                <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:1.2rem;">
+                <div class="form-grid-3">
                     <div class="form-group">
                         <label>Category *</label>
                         <select id="modalProductCategory" class="form-control" required>
@@ -949,7 +961,7 @@
                     </div>
                 </div>
 
-                <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:1.2rem;">
+                <div class="form-grid-3">
                     <div class="form-group">
                         <label>Stock Quantity *</label>
                         <input type="number" id="modalProductStock" class="form-control" required placeholder="10" value="10">

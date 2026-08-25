@@ -606,3 +606,212 @@
         padding-bottom: 65px;
     }
 }
+
+/* ==============================================================================
+   EXECUTIVE ADMIN PORTAL RESPONSIVE STYLES
+   ============================================================================== */
+
+/* Base Utilities for Desktop & Mobile */
+.admin-mobile-nav-toggle {
+    display: none;
+    background: transparent;
+    border: none;
+    color: #FFFFFF;
+    font-size: 1.5rem;
+    cursor: pointer;
+    padding: 0.2rem 0.5rem;
+    border-radius: 6px;
+}
+
+.admin-mobile-nav-toggle:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.admin-nav-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.6);
+    backdrop-filter: blur(4px);
+    z-index: 199;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.admin-nav-overlay.active {
+    display: block;
+    opacity: 1;
+}
+
+.table-responsive {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+.form-grid-2 {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.2rem;
+}
+
+.form-grid-3 {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.2rem;
+}
+
+/* Tablet & Mobile Admin Styles (max-width: 992px) */
+@media (max-width: 992px) {
+    .form-grid-3 {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+/* Mobile Devices (max-width: 768px) */
+@media (max-width: 768px) {
+    .admin-mobile-nav-toggle {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .admin-top-header {
+        padding: 0.6rem 0.9rem !important;
+        gap: 0.5rem;
+    }
+
+    .admin-brand-title {
+        font-size: 0.95rem !important;
+    }
+
+    .brand-sub-badge {
+        display: none !important;
+    }
+
+    .status-pill-green {
+        display: none !important;
+    }
+
+    .header-actions-right {
+        gap: 0.5rem !important;
+    }
+
+    .admin-profile-info {
+        display: none !important;
+    }
+
+    .btn-view-shop {
+        padding: 0.35rem 0.6rem !important;
+        font-size: 0.75rem !important;
+    }
+
+    .btn-signout {
+        padding: 0.35rem 0.6rem !important;
+        font-size: 0.75rem !important;
+    }
+
+    /* SLIDE-OVER SIDEBAR MENU DRAWER ON MOBILE */
+    .admin-sidebar {
+        position: fixed !important;
+        top: 0 !important;
+        left: -280px !important;
+        width: 260px !important;
+        height: 100vh !important;
+        z-index: 200 !important;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.25) !important;
+        transition: transform 0.3s ease !important;
+        border-right: 2px solid var(--gold-accent) !important;
+        flex-direction: column !important;
+        overflow-y: auto !important;
+        background: #FAF8F5 !important;
+        padding: 1.5rem 1rem !important;
+    }
+
+    .admin-sidebar.active {
+        transform: translateX(280px) !important;
+    }
+
+    /* PAGE CONTENT PADDING */
+    .admin-page-content {
+        padding: 1rem 0.75rem !important;
+    }
+
+    .page-header-title {
+        font-size: 1.3rem !important;
+    }
+
+    .page-header-subtitle {
+        font-size: 0.8rem !important;
+        margin-bottom: 1.2rem !important;
+    }
+
+    /* STAT CARDS ON MOBILE */
+    .dashboard-stats-row {
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 0.75rem !important;
+        margin-bottom: 1.2rem !important;
+    }
+
+    .dashboard-stat-card {
+        padding: 1rem 0.8rem !important;
+        border-radius: 10px !important;
+    }
+
+    .dash-stat-label {
+        font-size: 0.68rem !important;
+    }
+
+    .dash-stat-value {
+        font-size: 1.35rem !important;
+    }
+
+    /* TOOLBAR & SEARCH HEADERS ON MOBILE */
+    .content-card-header {
+        flex-direction: column !important;
+        align-items: stretch !important;
+        padding: 1rem !important;
+        gap: 0.75rem !important;
+    }
+
+    .content-card-header div[style*="display:flex"] {
+        flex-direction: column !important;
+        width: 100% !important;
+        max-width: 100% !important;
+    }
+
+    .content-card-header .form-control {
+        max-width: 100% !important;
+        width: 100% !important;
+    }
+
+    .content-card-header .btn-maroon {
+        width: 100% !important;
+        justify-content: center !important;
+    }
+
+    /* MODAL RESPONSIVE FIXES FOR MOBILE */
+    .modal-card {
+        padding: 1.2rem 1rem !important;
+        max-width: 95% !important;
+        border-radius: 12px !important;
+        max-height: 92vh !important;
+    }
+
+    .form-grid-2, .form-grid-3 {
+        grid-template-columns: 1fr !important;
+        gap: 0.8rem !important;
+    }
+
+    /* LOGIN CARD ON MOBILE */
+    .admin-login-card {
+        padding: 1.8rem 1.2rem !important;
+        border-radius: 14px !important;
+        max-width: 100% !important;
+    }
+
+    .admin-login-card h2 {
+        font-size: 1.4rem !important;
+    }
+}
+
