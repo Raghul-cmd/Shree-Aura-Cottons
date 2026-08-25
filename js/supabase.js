@@ -511,23 +511,45 @@ export async function getCustomers() {
 
 
 export async function saveCategory(categoryData) {
+    let savedRecord = null;
     if (supabaseClient) {
         try {
-            if (categoryData.id) {
+            const payload = { ...categoryData };
+            if (payload.id) {
+                payload.id = Number(payload.id);
                 const { data, error } = await supabaseClient
                     .from('categories')
-                    .update(categoryData)
-                    .eq('id', categoryData.id)
+                    .update(payload)
+                    .eq('id', payload.id)
                     .select();
-                if (error) throw new Error("Supabase error: " + error.message);
-                if (data && data[0]) return data[0];
+                if (!error && data && data[0]) savedRecord = data[0];
             } else {
+                let nextId = 1;
+                const existing = await getCategories();
+                if (existing && existing.length > 0) {
+                    const numericIds = existing.map(c => Number(c.id)).filter(n => !isNaN(n));
+                    if (numericIds.length > 0) {
+                        nextId = Math.max(...numericIds) + 1;
+                    }
+                }
+                payload.id = nextId;
+
                 const { data, error } = await supabaseClient
                     .from('categories')
-                    .insert([categoryData])
+                    .insert([payload])
                     .select();
-                if (error) throw new Error("Supabase error: " + error.message);
-                if (data && data[0]) return data[0];
+
+                if (error) {
+                    console.warn("Retrying category insert without ID payload:", error.message);
+                    delete payload.id;
+                    const retry = await supabaseClient.from('categories').insert([payload]).select();
+                    if (!retry.error && retry.data) {
+                        data = retry.data;
+                        error = null;
+                    }
+                }
+
+                if (!error && data && data[0]) savedRecord = data[0];
             }
         } catch (e) {
             console.warn("Supabase save category exception:", e.message);
@@ -536,15 +558,19 @@ export async function saveCategory(categoryData) {
     
     let cats = [];
     try { cats = JSON.parse(localStorage.getItem('vw_mock_categories') || '[]'); } catch(e) {}
+    const finalCat = savedRecord || {
+        ...categoryData,
+        id: categoryData.id ? Number(categoryData.id) : Date.now()
+    };
+
     if (categoryData.id) {
         const idx = cats.findIndex(c => String(c.id) === String(categoryData.id));
-        if (idx !== -1) cats[idx] = { ...cats[idx], ...categoryData };
+        if (idx !== -1) cats[idx] = finalCat;
     } else {
-        const newCat = { ...categoryData, id: Date.now() };
-        cats.push(newCat);
+        cats.push(finalCat);
     }
     localStorage.setItem('vw_mock_categories', JSON.stringify(cats));
-    return categoryData;
+    return finalCat;
 }
 
 export { supabaseClient };

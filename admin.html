@@ -342,7 +342,54 @@
             background-color: #FDFBF7;
         }
 
-        /* BUTTONS WITH EXPLICIT WHITE TEXT FOR UPLOAD BUTTON */
+        /* SLEEK TOGGLE SWITCH SLIDER (MATCHING USER PHOTO) */
+        .switch-toggle {
+            position: relative;
+            display: inline-block;
+            width: 44px;
+            height: 24px;
+        }
+
+        .switch-toggle input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .slider-round {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #CBD5E1;
+            transition: .3s;
+            border-radius: 24px;
+        }
+
+        .slider-round:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: .3s;
+            border-radius: 50%;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        input:checked + .slider-round {
+            background-color: #7A1C30;
+        }
+
+        input:checked + .slider-round:before {
+            transform: translateX(20px);
+        }
+
+        /* BUTTONS WITH EXPLICIT WHITE TEXT */
         .btn-maroon {
             background: #7A1C30 !important;
             color: #FFFFFF !important;
@@ -436,32 +483,6 @@
             background: #E0F2FE;
             color: #0369A1;
             border: 1px solid #7DD3FC;
-        }
-
-        .badge-active-green {
-            background: #D1FAE5;
-            color: #065F46;
-            border: 1px solid #6EE7B7;
-            padding: 0.25rem 0.65rem;
-            border-radius: 6px;
-            font-size: 0.78rem;
-            font-weight: 800;
-            display: inline-flex;
-            align-items: center;
-            gap: 0.3rem;
-        }
-
-        .badge-hidden-red {
-            background: #FEE2E2;
-            color: #991B1B;
-            border: 1px solid #FCA5A5;
-            padding: 0.25rem 0.65rem;
-            border-radius: 6px;
-            font-size: 0.78rem;
-            font-weight: 800;
-            display: inline-flex;
-            align-items: center;
-            gap: 0.3rem;
         }
 
         /* FORM CONTROLS */
@@ -812,13 +833,20 @@
                     </div>
                 </div>
 
-                <!-- TAB 4: CATEGORIES (WITH EDIT & IMAGE UPLOAD BUTTONS) -->
+                <!-- TAB 4: CATEGORIES (WITH ADD NEW CATEGORY BUTTON) -->
                 <div id="tab_categories" class="admin-tab-content" style="display:none;">
-                    <h2 class="page-header-title">Categories Management</h2>
-                    <p class="page-header-subtitle">Manage category showcases, edit titles, and upload new saree category images</p>
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.4rem; flex-wrap:wrap; gap:1rem;">
+                        <div>
+                            <h2 class="page-header-title" style="margin:0;">Categories Management</h2>
+                            <p class="page-header-subtitle" style="margin:0.2rem 0 0 0;">Manage category showcases, edit titles, and upload new saree category images</p>
+                        </div>
+                        <button id="openAddCategoryModalBtn" class="btn-maroon">
+                            <span>➕</span> Add New Category
+                        </button>
+                    </div>
 
                     <div id="categoriesGridContainer" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:1.4rem;">
-                        <!-- Category Cards with Edit & Upload buttons -->
+                        <!-- Category Cards -->
                     </div>
                 </div>
 
@@ -927,14 +955,8 @@
                         <input type="number" id="modalProductStock" class="form-control" required placeholder="10" value="10">
                     </div>
                     <div class="form-group">
-                        <label>Fabric *</label>
-                        <select id="modalProductFabric" class="form-control">
-                            <option value="Pure Cotton" selected>Pure Cotton</option>
-                            <option value="Mulmul Cotton">Mulmul Cotton</option>
-                            <option value="Handloom Cotton">Handloom Cotton</option>
-                            <option value="Soft Silk">Soft Silk</option>
-                            <option value="Banarasi">Banarasi</option>
-                        </select>
+                        <label>Fabric</label>
+                        <input type="text" id="modalProductFabric" class="form-control" value="Pure Cotton" readonly style="background:#F1F5F9; color:#334155; font-weight:800; cursor:not-allowed;">
                     </div>
                     <div class="form-group">
                         <label>Color</label>
@@ -986,7 +1008,7 @@
         </div>
     </div>
 
-    <!-- 4. EDIT CATEGORY MODAL -->
+    <!-- 4. EDIT / ADD CATEGORY MODAL -->
     <div id="categoryEditModal" class="modal-overlay">
         <div class="modal-card">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; border-bottom:2px solid var(--gold-accent); padding-bottom:0.8rem;">

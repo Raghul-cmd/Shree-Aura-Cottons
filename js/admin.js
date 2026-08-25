@@ -150,7 +150,7 @@ function renderOverviewStats() {
 }
 
 // ------------------------------------------------------------------------------
-// SAREE CATALOG TAB (ENHANCED ACTIVE VIEW & PURE COTTON FABRIC)
+// SAREE CATALOG TAB (WITH EXACT TOGGLE SWITCH SLIDER FROM PHOTO)
 // ------------------------------------------------------------------------------
 function renderProductsTable(filterQuery = '') {
     const tbody = document.getElementById('productsTableTbody');
@@ -177,10 +177,6 @@ function renderProductsTable(filterQuery = '') {
         const categoryName = p.categories?.name || getCategoryNameById(p.category_id);
         const comparePriceHtml = p.compare_price ? `<div style="font-size:0.75rem; color:#94A3B8; text-decoration:line-through;">₹${Number(p.compare_price).toFixed(2)}</div>` : '';
 
-        const activeStatusBadge = p.is_active !== false 
-            ? `<span class="badge-active-green">● Active</span>`
-            : `<span class="badge-hidden-red">○ Hidden</span>`;
-
         return `
             <tr>
                 <td>
@@ -201,10 +197,10 @@ function renderProductsTable(filterQuery = '') {
                     <span class="pill-badge pill-badge-stock">${p.stock || 10} units</span>
                 </td>
                 <td>
-                    <div style="display:flex; align-items:center; gap:0.5rem;">
-                        ${activeStatusBadge}
-                        <input type="checkbox" ${p.is_active !== false ? 'checked' : ''} onchange="window.handleToggleProductActive('${p.id}', this.checked)" style="width:18px; height:18px; cursor:pointer;">
-                    </div>
+                    <label class="switch-toggle" title="${p.is_active !== false ? 'Active' : 'Hidden'}">
+                        <input type="checkbox" ${p.is_active !== false ? 'checked' : ''} onchange="window.handleToggleProductActive('${p.id}', this.checked)">
+                        <span class="slider-round"></span>
+                    </label>
                 </td>
                 <td>
                     <div style="display:flex; gap:0.4rem;">
@@ -289,11 +285,16 @@ function renderOrdersTable(query = '', statusFilter = '') {
 }
 
 // ------------------------------------------------------------------------------
-// CATEGORIES TAB (WITH EDIT & IMAGE UPLOAD BUTTON)
+// CATEGORIES TAB (WITH EDIT & ADD CATEGORY)
 // ------------------------------------------------------------------------------
 function renderCategoriesGrid() {
     const grid = document.getElementById('categoriesGridContainer');
     if (!grid) return;
+
+    if (allCategories.length === 0) {
+        grid.innerHTML = `<div style="grid-column:1/-1; text-align:center; padding:3rem; color:#64748B; font-weight:700;">No categories available. Click <strong>"Add New Category"</strong> above to create one.</div>`;
+        return;
+    }
 
     grid.innerHTML = allCategories.map(c => {
         const prodCount = allProducts.filter(p => String(p.category_id) === String(c.id)).length;
@@ -302,7 +303,7 @@ function renderCategoriesGrid() {
         return `
             <div style="background:#FFFFFF; border:1px solid #E2E8F0; border-radius:14px; overflow:hidden; box-shadow:0 4px 12px rgba(0,0,0,0.04); display:flex; flex-direction:column;">
                 <img src="${img}" alt="${c.name}" style="width:100%; height:160px; object-fit:cover;">
-                <div style="padding:1.2rem; flex:1; display:flex; flex-direction:column; justify-space-between;">
+                <div style="padding:1.2rem; flex:1; display:flex; flex-direction:column; justify-content:space-between;">
                     <div>
                         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.4rem;">
                             <h4 style="font-family:var(--font-heading); color:#7A1C30; margin:0; font-size:1.15rem; font-weight:800;">${c.name}</h4>
@@ -427,6 +428,10 @@ function setupEventListeners() {
     });
 
     // Category Modal Event Listeners
+    document.getElementById('openAddCategoryModalBtn')?.addEventListener('click', () => {
+        openCategoryModal();
+    });
+
     document.getElementById('closeCategoryModalBtn')?.addEventListener('click', () => {
         closeCategoryModal();
     });
@@ -435,7 +440,7 @@ function setupEventListeners() {
         closeCategoryModal();
     });
 
-    // Image File Input Listener for Product Modal (Uploads to Supabase Storage Bucket & Previews)
+    // Image File Input Listener for Product Modal
     document.getElementById('modalProductImageFile')?.addEventListener('change', async (e) => {
         if (e.target.files && e.target.files[0]) {
             showGlobalLoader(true);
@@ -509,7 +514,7 @@ function setupEventListeners() {
         }
     });
 
-    // Product Form Submit Handler
+    // Product Form Submit Handler (Fabric is Always Hardcoded to Pure Cotton)
     document.getElementById('productForm')?.addEventListener('submit', async (e) => {
         e.preventDefault();
 
@@ -520,7 +525,7 @@ function setupEventListeners() {
         const price = Number(document.getElementById('modalProductPrice').value);
         const comparePrice = Number(document.getElementById('modalProductComparePrice').value) || null;
         const stock = Number(document.getElementById('modalProductStock').value) || 10;
-        const fabric = document.getElementById('modalProductFabric').value;
+        const fabric = "Pure Cotton"; // ALWAYS PURE COTTON
         const color = document.getElementById('modalProductColor').value.trim() || 'Brown';
         const occasion = document.getElementById('modalProductOccasion').value.trim() || 'Office Wear';
         const mainImage = document.getElementById('modalProductMainImage').value.trim() || 'https://kuajhwywwvjykxjaaxkg.supabase.co/storage/v1/object/public/product-images/sarees/1.jpeg';
@@ -574,7 +579,7 @@ function setupEventListeners() {
         const id = document.getElementById('modalCategoryId').value;
         const name = document.getElementById('modalCategoryName').value.trim();
         const description = document.getElementById('modalCategoryDescription').value.trim();
-        const imageUrl = document.getElementById('modalCategoryImage').value.trim();
+        const imageUrl = document.getElementById('modalCategoryImage').value.trim() || 'https://kuajhwywwvjykxjaaxkg.supabase.co/storage/v1/object/public/product-images/sarees/1.jpeg';
 
         showGlobalLoader(true);
         try {
@@ -587,7 +592,7 @@ function setupEventListeners() {
             };
 
             await saveCategory(categoryPayload);
-            showToast("Category updated in Supabase DB!", "success");
+            showToast(id ? "Category updated in Supabase DB!" : "New Category created in Supabase DB!", "success");
             closeCategoryModal();
             await loadDashboardData();
         } catch (err) {
@@ -667,7 +672,7 @@ function openProductModal(prod = null) {
         document.getElementById('modalProductPrice').value = prod.price || '';
         document.getElementById('modalProductComparePrice').value = prod.compare_price || '';
         document.getElementById('modalProductStock').value = prod.stock || 10;
-        document.getElementById('modalProductFabric').value = prod.fabric || 'Pure Cotton';
+        document.getElementById('modalProductFabric').value = "Pure Cotton";
         document.getElementById('modalProductColor').value = prod.color || 'Brown';
         document.getElementById('modalProductOccasion').value = prod.occasion || 'Office Wear';
         document.getElementById('modalProductMainImage').value = prod.main_image || '';
@@ -711,13 +716,21 @@ function closeProductModal() {
 
 function openCategoryModal(cat = null) {
     const modal = document.getElementById('categoryEditModal');
+    const title = document.getElementById('categoryModalTitle');
     if (!modal) return;
 
     if (cat) {
+        if (title) title.textContent = "Edit Category Showcase";
         document.getElementById('modalCategoryId').value = cat.id || '';
         document.getElementById('modalCategoryName').value = cat.name || '';
         document.getElementById('modalCategoryDescription').value = cat.description || '';
         document.getElementById('modalCategoryImage').value = cat.image_url || '';
+    } else {
+        if (title) title.textContent = "Add New Category";
+        document.getElementById('modalCategoryId').value = '';
+        document.getElementById('modalCategoryName').value = '';
+        document.getElementById('modalCategoryDescription').value = '';
+        document.getElementById('modalCategoryImage').value = '';
     }
 
     modal.style.display = 'flex';
