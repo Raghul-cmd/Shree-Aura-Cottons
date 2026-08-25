@@ -1,0 +1,809 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Executive Admin Portal - Shree Aura Cottons</title>
+    <meta name="theme-color" content="#7A1C30">
+    <link rel="icon" type="image/png" href="assets/logo.png">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/responsive.css">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700;800;900&family=Playfair+Display:ital,wght@0,600;0,700;0,800;1,600&family=Montserrat:wght@400;500;600;700;800&display=swap');
+
+        :root {
+            --primary-maroon: #7A1C30;
+            --primary-maroon-hover: #5E1423;
+            --gold-accent: #D4AF37;
+            --gold-dark: #A17D16;
+            --gold-light: #FDF7E7;
+            
+            --admin-bg: #FAF8F5;
+            --admin-surface: #FFFFFF;
+            --admin-surface-hover: #FDFBF7;
+            --admin-border: #CBD5E1;
+            --admin-border-gold: #D4AF37;
+            --admin-text-main: #000000;
+            --admin-text-muted: #1E293B;
+            --admin-primary: #7A1C30;
+            --admin-gold: #D4AF37;
+            --admin-green: #065F46;
+
+            --font-heading: 'Playfair Display', 'Cinzel', Georgia, serif;
+            --font-body: 'Montserrat', sans-serif;
+        }
+
+        body {
+            background-color: var(--admin-bg);
+            color: #000000;
+            font-family: var(--font-body);
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            font-weight: 600;
+        }
+
+        /* ADMIN LOGIN OVERLAY */
+        #adminLoginOverlay {
+            position: fixed;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(122, 28, 48, 0.95) 0%, rgba(94, 20, 35, 0.98) 100%),
+                        url('assets/logo.png') center/cover no-repeat;
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1.5rem;
+        }
+
+        .admin-login-card {
+            background: #FFFFFF;
+            border: 2px solid var(--gold-accent);
+            border-radius: 20px;
+            padding: 2.8rem;
+            width: 100%;
+            max-width: 440px;
+            box-shadow: 0 25px 60px rgba(122, 28, 48, 0.35);
+            color: #000000;
+        }
+
+        /* LAYOUT */
+        #adminAppContainer {
+            display: none;
+            flex: 1;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        .admin-header {
+            background: linear-gradient(135deg, #7A1C30 0%, #5E1423 100%);
+            border-bottom: 2px solid var(--gold-accent);
+            padding: 0.9rem 1.8rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            box-shadow: 0 4px 15px rgba(122, 28, 48, 0.25);
+        }
+
+        .admin-brand {
+            display: flex;
+            align-items: center;
+            gap: 0.9rem;
+            text-decoration: none;
+        }
+
+        .admin-brand img {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            border: 2px solid var(--gold-accent);
+            background: white;
+            padding: 2px;
+        }
+
+        .admin-title-group h1 {
+            font-family: var(--font-heading);
+            color: #FFFFFF;
+            font-size: 1.25rem;
+            font-weight: 800;
+            margin: 0;
+            letter-spacing: 0.5px;
+        }
+
+        .admin-title-group p {
+            color: var(--gold-accent);
+            font-size: 0.72rem;
+            margin: 0;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        .admin-nav-bar {
+            background: #FFFFFF;
+            border-bottom: 1px solid var(--admin-border);
+            padding: 0 1.8rem;
+            display: flex;
+            gap: 0.5rem;
+            overflow-x: auto;
+            scrollbar-width: thin;
+        }
+
+        .admin-nav-item {
+            padding: 1rem 1.4rem;
+            color: #000000;
+            font-weight: 800;
+            font-size: 0.88rem;
+            text-decoration: none;
+            border-bottom: 3px solid transparent;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.2s ease;
+            cursor: pointer;
+            white-space: nowrap;
+        }
+
+        .admin-nav-item:hover {
+            color: var(--primary-maroon);
+            background: var(--admin-surface-hover);
+        }
+
+        .admin-nav-item.active {
+            color: var(--primary-maroon);
+            border-bottom-color: var(--gold-accent);
+            background: var(--gold-light);
+        }
+
+        .admin-content-area {
+            flex: 1;
+            padding: 2rem 1.8rem;
+            max-width: 1440px;
+            margin: 0 auto;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        /* STAT CARDS */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 1.25rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: #FFFFFF;
+            border: 1px solid var(--admin-border);
+            border-left: 5px solid var(--primary-maroon);
+            border-radius: 12px;
+            padding: 1.4rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .stat-card.gold-border {
+            border-left-color: var(--gold-accent);
+        }
+
+        .stat-value {
+            font-size: 1.9rem;
+            font-weight: 900;
+            color: #000000;
+            font-family: var(--font-heading);
+            line-height: 1.2;
+        }
+
+        .stat-label {
+            color: #000000;
+            font-size: 0.82rem;
+            font-weight: 800;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-top: 0.2rem;
+        }
+
+        /* TABLES */
+        .table-card {
+            background: #FFFFFF;
+            border: 1px solid var(--admin-border);
+            border-radius: 14px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.04);
+            overflow: hidden;
+            margin-bottom: 2rem;
+        }
+
+        .table-card-header {
+            padding: 1.2rem 1.6rem;
+            background: #FFFFFF;
+            border-bottom: 1px solid var(--admin-border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .table-card-title {
+            font-family: var(--font-heading);
+            font-size: 1.25rem;
+            font-weight: 800;
+            color: #000000;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+        }
+
+        .admin-table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+            font-size: 0.9rem;
+        }
+
+        .admin-table th {
+            background: #FAF8F5;
+            color: #000000;
+            font-weight: 800;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            padding: 1rem 1.2rem;
+            border-bottom: 2px solid var(--admin-border);
+        }
+
+        .admin-table td {
+            padding: 1rem 1.2rem;
+            border-bottom: 1px solid #E2E8F0;
+            vertical-align: middle;
+            color: #000000;
+            font-weight: 700;
+        }
+
+        .admin-table tr:hover {
+            background-color: var(--admin-surface-hover);
+        }
+
+        /* BUTTONS */
+        .btn-admin {
+            background: linear-gradient(135deg, #7A1C30 0%, #5E1423 100%);
+            color: #FFFFFF;
+            border: 1px solid var(--gold-accent);
+            padding: 0.6rem 1.2rem;
+            border-radius: 8px;
+            font-weight: 800;
+            font-size: 0.85rem;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 10px rgba(122, 28, 48, 0.2);
+            text-decoration: none;
+        }
+
+        .btn-admin:hover {
+            background: #5E1423;
+            border-color: #FFFFFF;
+            transform: translateY(-1px);
+        }
+
+        .btn-admin-secondary {
+            background: #FFFFFF;
+            color: #000000;
+            border: 1.5px solid var(--admin-border);
+            padding: 0.55rem 1.1rem;
+            border-radius: 8px;
+            font-weight: 800;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-admin-secondary:hover {
+            background: #FAF8F5;
+            border-color: var(--primary-maroon);
+            color: var(--primary-maroon);
+        }
+
+        .btn-danger-sm {
+            background: #FEE2E2;
+            color: #991B1B;
+            border: 1px solid #FCA5A5;
+            padding: 0.4rem 0.8rem;
+            border-radius: 6px;
+            font-size: 0.78rem;
+            font-weight: 800;
+            cursor: pointer;
+        }
+
+        .btn-danger-sm:hover {
+            background: #DC2626;
+            color: #FFFFFF;
+        }
+
+        /* FORM CONTROLS */
+        .form-group {
+            margin-bottom: 1.2rem;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: 800;
+            color: #000000;
+            margin-bottom: 0.4rem;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 0.75rem 0.9rem;
+            border: 1.5px solid var(--admin-border);
+            border-radius: 8px;
+            font-family: inherit;
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: #000000;
+            box-sizing: border-box;
+            background: #FFFFFF;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary-maroon);
+            box-shadow: 0 0 0 3px rgba(122, 28, 48, 0.15);
+        }
+
+        /* MODAL */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.75);
+            backdrop-filter: blur(4px);
+            z-index: 1000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 1.5rem;
+        }
+
+        .modal-content {
+            background: #FFFFFF;
+            border: 2px solid var(--gold-accent);
+            border-radius: 16px;
+            width: 100%;
+            max-width: 680px;
+            max-height: 90vh;
+            overflow-y: auto;
+            padding: 2rem;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
+            color: #000000;
+        }
+
+        /* GLOBAL LOADER */
+        #adminGlobalLoader {
+            position: fixed;
+            inset: 0;
+            background: rgba(255, 255, 255, 0.92);
+            z-index: 99999;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+        }
+
+        .spinner {
+            width: 48px;
+            height: 48px;
+            border: 5px solid #FDF7E7;
+            border-top-color: #7A1C30;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* TOAST NOTIFICATION */
+        .toast-notification {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background: #000000;
+            color: #FFFFFF;
+            padding: 1rem 1.6rem;
+            border-radius: 10px;
+            border-left: 5px solid var(--gold-accent);
+            font-weight: 700;
+            font-size: 0.9rem;
+            z-index: 99999;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+            display: none;
+        }
+
+        /* MOBILE RESPONSIVENESS */
+        @media (max-width: 768px) {
+            .admin-header {
+                padding: 0.8rem 1rem;
+            }
+
+            .admin-content-area {
+                padding: 1rem;
+            }
+
+            .table-card {
+                overflow-x: auto;
+            }
+
+            .modal-content {
+                width: 95vw;
+                padding: 1.2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- GLOBAL LOADER -->
+    <div id="adminGlobalLoader">
+        <div class="spinner"></div>
+        <div style="color:#7A1C30; font-weight:800; font-size:1.05rem; font-family:'Playfair Display', serif;">Syncing with Supabase Database...</div>
+    </div>
+
+    <!-- 1. ADMIN LOGIN OVERLAY -->
+    <div id="adminLoginOverlay">
+        <div class="admin-login-card">
+            <div style="text-align:center; margin-bottom:2rem;">
+                <img src="assets/logo.png" alt="Shree Aura Logo" style="width:68px; height:68px; border-radius:50%; margin-bottom:0.9rem; border:2px solid #D4AF37; box-shadow:0 6px 18px rgba(122,28,48,0.25); background: white; padding: 2px;">
+                <h2 style="font-family:'Playfair Display', serif; color:#7A1C30; margin:0 0 0.4rem 0; font-size:1.9rem; font-weight:800;">EXECUTIVE ADMIN PORTAL</h2>
+                <p style="color:#64748B; margin:0; font-size:0.85rem; font-weight:600;">Authenticate with Supabase Admin Account</p>
+            </div>
+
+            <form id="adminLoginForm">
+                <div class="form-group">
+                    <label style="color:#1E293B; font-weight:700;">Admin Email or Username</label>
+                    <input type="text" id="adminLoginEmail" class="form-control" required placeholder="shreeauracottons@gmail.com" value="shreeauracottons@gmail.com">
+                </div>
+                <div class="form-group">
+                    <label style="color:#1E293B; font-weight:700;">Admin Password</label>
+                    <input type="password" id="adminLoginPassword" class="form-control" required placeholder="admin123" value="admin123">
+                </div>
+                <button type="submit" class="btn-admin" style="width:100%; margin-top:0.9rem; padding:0.9rem; font-size:0.95rem; justify-content:center;">
+                    SIGN IN TO ADMIN PORTAL
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- 2. MAIN ADMIN APP CONTAINER -->
+    <div id="adminAppContainer">
+        <!-- HEADER -->
+        <header class="admin-header">
+            <a href="index.html" class="admin-brand">
+                <img src="assets/logo.png" alt="Logo">
+                <div class="admin-title-group">
+                    <h1>SHREE AURA COTTONS</h1>
+                    <p>Executive Management Portal</p>
+                </div>
+            </a>
+
+            <div style="display:flex; align-items:center; gap:1.2rem;">
+                <div id="supabaseStatusBadge" style="padding:0.4rem 0.9rem; border-radius:20px; font-size:0.75rem; font-weight:800; display:flex; align-items:center; background:rgba(16,185,129,0.12); color:#10B981; border:1px solid rgba(16,185,129,0.3);">
+                    <span style="width:8px; height:8px; border-radius:50%; background:#10B981; margin-right:6px;"></span>Live DB Connected
+                </div>
+
+                <div style="display:flex; align-items:center; gap:0.8rem; color:#FFFFFF; padding-left:1rem; border-left:1px solid rgba(255,255,255,0.2);">
+                    <div style="text-align:right;">
+                        <div id="adminProfileName" style="font-size:0.85rem; font-weight:800;">Store Administrator</div>
+                        <div id="adminProfileEmail" style="font-size:0.72rem; color:var(--gold-accent);">shreeauracottons@gmail.com</div>
+                    </div>
+                    <button id="adminLogoutBtn" class="btn-admin-secondary" style="padding:0.4rem 0.8rem; font-size:0.78rem; background:rgba(255,255,255,0.15); color:white; border-color:rgba(255,255,255,0.3);">
+                        Sign Out
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <!-- NAVIGATION TABS -->
+        <nav class="admin-nav-bar">
+            <div class="admin-nav-item active" data-tab="overview">
+                <span>📊</span> Overview
+            </div>
+            <div class="admin-nav-item" data-tab="products">
+                <span>🥻</span> Product Catalog
+            </div>
+            <div class="admin-nav-item" data-tab="categories">
+                <span>🏷️</span> Categories
+            </div>
+            <div class="admin-nav-item" data-tab="orders">
+                <span>🛍️</span> Customer Orders
+            </div>
+            <div class="admin-nav-item" data-tab="customers">
+                <span>👥</span> Customer Directory
+            </div>
+        </nav>
+
+        <!-- CONTENT AREA -->
+        <main class="admin-content-area">
+
+            <!-- TAB 1: OVERVIEW -->
+            <div id="tab_overview" class="admin-tab-content">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div>
+                            <div class="stat-value" id="statTotalRevenue">₹0.00</div>
+                            <div class="stat-label">Total Paid Revenue</div>
+                        </div>
+                        <span style="font-size:2rem;">💰</span>
+                    </div>
+
+                    <div class="stat-card gold-border">
+                        <div>
+                            <div class="stat-value" id="statTotalOrders">0</div>
+                            <div class="stat-label">Total Store Orders</div>
+                        </div>
+                        <span style="font-size:2rem;">📦</span>
+                    </div>
+
+                    <div class="stat-card">
+                        <div>
+                            <div class="stat-value" id="statActiveProducts">0</div>
+                            <div class="stat-label">Active Store Products</div>
+                        </div>
+                        <span style="font-size:2rem;">🥻</span>
+                    </div>
+
+                    <div class="stat-card gold-border">
+                        <div>
+                            <div class="stat-value" id="statTotalCustomers">0</div>
+                            <div class="stat-label">Registered Customers</div>
+                        </div>
+                        <span style="font-size:2rem;">👥</span>
+                    </div>
+                </div>
+
+                <div class="table-card">
+                    <div class="table-card-header">
+                        <h3 class="table-card-title">🕒 Recent Orders</h3>
+                    </div>
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>Order ID</th>
+                                <th>Customer</th>
+                                <th>Amount</th>
+                                <th>Payment</th>
+                                <th>Order Status</th>
+                            </tr>
+                        </thead>
+                        <tbody id="recentOrdersTbody">
+                            <tr>
+                                <td colspan="5" style="text-align:center; padding:2rem; color:#475569;">No recent orders found</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- TAB 2: PRODUCTS CATALOG -->
+            <div id="tab_products" class="admin-tab-content" style="display:none;">
+                <div class="table-card">
+                    <div class="table-card-header">
+                        <div>
+                            <h3 class="table-card-title">🥻 Product Catalog Management</h3>
+                            <p style="margin:0.2rem 0 0 0; color:#475569; font-size:0.8rem; font-weight:700;">Add, Edit, and Control Saree Inventory live in Supabase</p>
+                        </div>
+                        <div style="display:flex; gap:0.8rem; align-items:center;">
+                            <input type="text" id="productSearchInput" class="form-control" placeholder="Search by name, SKU, color..." style="width:240px;">
+                            <button id="openAddProductModalBtn" class="btn-admin">
+                                <span>➕</span> Add New Saree
+                            </button>
+                        </div>
+                    </div>
+
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>Saree Photo</th>
+                                <th>Product Code / SKU</th>
+                                <th>Saree Name</th>
+                                <th>Category</th>
+                                <th>Price</th>
+                                <th>Fabric</th>
+                                <th>Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="productsTableTbody">
+                            <tr>
+                                <td colspan="8" style="text-align:center; padding:2.5rem; color:#475569;">Loading sarees from Supabase...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- TAB 3: CATEGORIES -->
+            <div id="tab_categories" class="admin-tab-content" style="display:none;">
+                <div class="table-card">
+                    <div class="table-card-header">
+                        <h3 class="table-card-title">🏷️ Category Showcase Management</h3>
+                    </div>
+                    <div id="categoriesGridContainer" style="padding:1.6rem; display:grid; grid-template-columns:repeat(auto-fit, minmax(280px, 1fr)); gap:1.4rem;">
+                        <!-- Category Cards Rendered via JS -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB 4: ORDERS -->
+            <div id="tab_orders" class="admin-tab-content" style="display:none;">
+                <div class="table-card">
+                    <div class="table-card-header">
+                        <h3 class="table-card-title">🛍️ Customer Orders Management</h3>
+                    </div>
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>Order #</th>
+                                <th>Customer Name</th>
+                                <th>Contact & City</th>
+                                <th>Total Amount</th>
+                                <th>Payment Method</th>
+                                <th>Order Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="ordersTableTbody">
+                            <tr>
+                                <td colspan="7" style="text-align:center; padding:2.5rem; color:#475569;">Loading orders from Supabase...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- TAB 5: CUSTOMERS -->
+            <div id="tab_customers" class="admin-tab-content" style="display:none;">
+                <div class="table-card">
+                    <div class="table-card-header">
+                        <h3 class="table-card-title">👥 Customer Directory</h3>
+                    </div>
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>Customer Name</th>
+                                <th>Email</th>
+                                <th>Phone</th>
+                                <th>Orders Placed</th>
+                                <th>Total Spent</th>
+                                <th>Role</th>
+                            </tr>
+                        </thead>
+                        <tbody id="customersTableTbody">
+                            <tr>
+                                <td colspan="6" style="text-align:center; padding:2.5rem; color:#475569;">Loading customers directory...</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- 3. ADD / EDIT PRODUCT MODAL -->
+    <div id="productModal" class="modal-overlay">
+        <div class="modal-content">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.5rem; border-bottom:2px solid var(--gold-accent); padding-bottom:0.8rem;">
+                <h3 id="productModalTitle" style="font-family:var(--font-heading); color:#7A1C30; margin:0; font-size:1.4rem; font-weight:800;">Add New Saree</h3>
+                <button id="closeProductModalBtn" style="background:none; border:none; font-size:1.5rem; cursor:pointer; color:#475569;">✕</button>
+            </div>
+
+            <form id="productForm">
+                <input type="hidden" id="modalProductId">
+
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+                    <div class="form-group">
+                        <label>Product Code / SKU *</label>
+                        <input type="text" id="modalProductSku" class="form-control" required placeholder="SAR-COT-001">
+                    </div>
+                    <div class="form-group">
+                        <label>Category *</label>
+                        <select id="modalProductCategory" class="form-control" required>
+                            <option value="">Select Category...</option>
+                            <option value="1">Wedding Sarees</option>
+                            <option value="2">Office Wear</option>
+                            <option value="3">Daily Wear</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Saree Title / Name *</label>
+                    <input type="text" id="modalProductName" class="form-control" required placeholder="Fancy Maroon Pure Cotton Saree">
+                </div>
+
+                <div class="form-group">
+                    <label>Product Description</label>
+                    <textarea id="modalProductDescription" class="form-control" rows="3" placeholder="Handcrafted pure cotton saree featuring zari border and floral motifs..."></textarea>
+                </div>
+
+                <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:1rem;">
+                    <div class="form-group">
+                        <label>Sale Price (₹) *</label>
+                        <input type="number" id="modalProductPrice" class="form-control" step="0.01" required placeholder="1499.00">
+                    </div>
+                    <div class="form-group">
+                        <label>Original Price (₹)</label>
+                        <input type="number" id="modalProductComparePrice" class="form-control" step="0.01" placeholder="1999.00">
+                    </div>
+                    <div class="form-group">
+                        <label>Stock Quantity</label>
+                        <input type="number" id="modalProductStock" class="form-control" value="15">
+                    </div>
+                </div>
+
+                <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:1rem;">
+                    <div class="form-group">
+                        <label>Fabric</label>
+                        <select id="modalProductFabric" class="form-control">
+                            <option value="Cotton">Pure Cotton</option>
+                            <option value="Silk">Soft Silk</option>
+                            <option value="Banarasi">Banarasi</option>
+                            <option value="Linen">Linen</option>
+                            <option value="Georgette">Georgette</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Color</label>
+                        <input type="text" id="modalProductColor" class="form-control" placeholder="Maroon / Blue / Red">
+                    </div>
+                    <div class="form-group">
+                        <label>Occasion</label>
+                        <input type="text" id="modalProductOccasion" class="form-control" placeholder="Daily Wear / Wedding">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Main Saree Image (File Uploader or CDN URL) *</label>
+                    <input type="file" id="modalProductImageFile" class="form-control" accept="image/*" style="margin-bottom:0.5rem;">
+                    <input type="url" id="modalProductMainImage" class="form-control" placeholder="https://kuajhwywwvjykxjaaxkg.supabase.co/storage/v1/object/public/product-images/sarees/1.jpeg">
+                </div>
+
+                <div style="display:flex; gap:1.5rem; margin-top:1rem; padding:0.8rem; background:#FAF8F5; border-radius:8.px;">
+                    <label style="display:flex; align-items:center; gap:0.5rem; cursor:pointer; color:#000000; font-weight:800;">
+                        <input type="checkbox" id="modalProductIsActive" checked style="width:18px; height:18px;">
+                        Active in Storefront
+                    </label>
+                    <label style="display:flex; align-items:center; gap:0.5rem; cursor:pointer; color:#000000; font-weight:800;">
+                        <input type="checkbox" id="modalProductIsFeatured" style="width:18px; height:18px;">
+                        Featured Saree
+                    </label>
+                </div>
+
+                <div style="display:flex; justify-content:flex-end; gap:0.9rem; margin-top:1.5rem;">
+                    <button type="button" id="cancelProductModalBtn" class="btn-admin-secondary">Cancel</button>
+                    <button type="submit" class="btn-admin">Save Saree to Supabase</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- TOAST NOTIFICATION -->
+    <div id="adminToastNotification" class="toast-notification">Notification Message</div>
+
+    <!-- JAVASCRIPT APP CONTROLLER -->
+    <script type="module" src="js/admin.js"></script>
+</body>
+</html>
