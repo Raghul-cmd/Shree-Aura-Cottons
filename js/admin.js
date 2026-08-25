@@ -37,14 +37,20 @@ async function initAdminPortal() {
 }
 
 async function checkAdminAuth() {
-    const user = await getCurrentUser();
+    try {
+        const user = await getCurrentUser();
 
-    if (user && user.role === 'admin') {
-        currentAdmin = user;
-        showAdminDashboard();
-        await loadDashboardData();
-    } else {
+        if (user && user.role === 'admin') {
+            currentAdmin = user;
+            showAdminDashboard();
+            await loadDashboardData();
+        } else {
+            showLoginOverlay();
+        }
+    } catch (err) {
         showLoginOverlay();
+    } finally {
+        showGlobalLoader(false);
     }
 }
 
@@ -53,6 +59,7 @@ function showLoginOverlay() {
     const app = document.getElementById('adminAppContainer');
     if (overlay) overlay.style.display = 'flex';
     if (app) app.style.display = 'none';
+    showGlobalLoader(false);
 }
 
 function showAdminDashboard() {

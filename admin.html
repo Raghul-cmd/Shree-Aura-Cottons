@@ -50,7 +50,7 @@
         #adminLoginOverlay {
             position: fixed;
             inset: 0;
-            background: linear-gradient(135deg, rgba(122, 28, 48, 0.95) 0%, rgba(94, 20, 35, 0.98) 100%),
+            background: linear-gradient(135deg, rgba(122, 28, 48, 0.96) 0%, rgba(94, 20, 35, 0.98) 100%),
                         url('assets/logo.png') center/cover no-repeat;
             z-index: 9999;
             display: flex;
@@ -60,22 +60,74 @@
         }
 
         .admin-login-card {
-            background: #FFFFFF;
-            border: 2px solid var(--gold-accent);
+            background: #FFFFFF !important;
+            border: 2px solid var(--gold-accent) !important;
             border-radius: 20px;
             padding: 2.8rem;
             width: 100%;
             max-width: 440px;
-            box-shadow: 0 25px 60px rgba(122, 28, 48, 0.35);
-            color: #000000;
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.45);
+            color: #000000 !important;
         }
 
-        /* LAYOUT */
+        .admin-login-card h2,
+        .admin-login-card h3 {
+            color: #7A1C30 !important;
+            text-shadow: none !important;
+        }
+
+        .admin-login-card p,
+        .admin-login-card label,
+        .admin-login-card span {
+            color: #1E293B !important;
+            font-weight: 800 !important;
+            text-shadow: none !important;
+        }
+
+        .admin-login-card .form-control {
+            background: #FAF8F5 !important;
+            color: #000000 !important;
+            border: 2px solid #CBD5E1 !important;
+            font-weight: 700 !important;
+        }
+
+        .admin-login-card .form-control::placeholder {
+            color: #94A3B8 !important;
+        }
+
+        .admin-login-card .btn-admin {
+            background: linear-gradient(135deg, #7A1C30 0%, #5E1423 100%) !important;
+            color: #FFFFFF !important;
+            font-weight: 800 !important;
+            border: 1px solid #D4AF37 !important;
+        }
+
+        /* LAYOUT OVERRIDES */
         #adminAppContainer {
             display: none;
             flex: 1;
             flex-direction: column;
             min-height: 100vh;
+            color: #000000 !important;
+        }
+
+        #adminAppContainer label,
+        #adminAppContainer td,
+        #adminAppContainer th {
+            color: #000000 !important;
+        }
+
+        /* GLOBAL LOADER */
+        #adminGlobalLoader {
+            position: fixed;
+            inset: 0;
+            background: rgba(255, 255, 255, 0.95);
+            z-index: 999999;
+            display: none; /* Hidden by default */
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
         }
 
         .admin-header {
