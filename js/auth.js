@@ -182,20 +182,19 @@ export async function signUpUser(email, password, fullName, phone = '', role = '
                 }
             });
 
-            if (error) throw new Error(error.message);
-
-            if (data && data.user) {
+            if (!error && data && data.user) {
                 const session = {
                     id: data.user.id,
                     email: data.user.email,
                     full_name: fullName,
+                    phone: phone,
                     role: role
                 };
                 localStorage.setItem('vw_session', JSON.stringify(session));
                 return { user: data.user, session };
             }
         } catch (err) {
-            throw new Error(err.message);
+            console.warn("Supabase Auth notice (falling back to local user session):", err.message);
         }
     }
 

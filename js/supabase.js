@@ -387,7 +387,14 @@ export async function getOrders() {
                 console.error("Supabase getOrders error:", error);
             }
             if (!error && data && data.length > 0) {
-                return data;
+                let localCache = [];
+                try { localCache = JSON.parse(localStorage.getItem('vw_mock_orders') || '[]'); } catch(e) {}
+
+                return data.map(ord => {
+                    const localMatch = localCache.find(l => String(l.id) === String(ord.id));
+                    const items = (ord.order_items && ord.order_items.length > 0) ? ord.order_items : (localMatch?.order_items || localMatch?.items || []);
+                    return { ...ord, order_items: items };
+                });
             }
         } catch (e) {
             console.warn("Supabase orders fetch failed:", e);
