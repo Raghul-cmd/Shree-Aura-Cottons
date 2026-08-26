@@ -14,11 +14,11 @@
     position: fixed;
     inset: 0;
     background: rgba(0, 0, 0, 0.6);
-    backdrop-filter: blur(3px);
-    z-index: 299;
+    backdrop-filter: blur(4px);
+    z-index: 9998;
     opacity: 0;
     visibility: hidden;
-    transition: var(--transition);
+    transition: opacity 0.3s ease, visibility 0.3s ease;
 }
 
 .mobile-nav-overlay.active {
@@ -29,19 +29,20 @@
 .mobile-drawer {
     position: fixed;
     top: 0;
-    left: -300px;
-    width: 280px;
+    left: 0;
+    width: 285px;
     height: 100vh;
     background: var(--bg-white);
-    z-index: 300;
+    z-index: 9999;
     box-shadow: var(--shadow-lg);
-    transition: transform 0.35s ease;
+    transform: translateX(-100%);
+    transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
     overflow-y: auto;
     padding: 1.5rem;
 }
 
 .mobile-drawer.active {
-    transform: translateX(300px);
+    transform: translateX(0);
 }
 
 .mobile-drawer-header {

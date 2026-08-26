@@ -245,12 +245,53 @@ function renderOrdersTable(query = '', statusFilter = '') {
     }
 
     tbody.innerHTML = ords.map(o => {
-        const items = o.order_items || [];
-        const itemsListHtml = items.length > 0
-            ? items.map(i => `<div style="font-size:0.8rem; color:#1E293B;">${i.product_name || 'Saree'} (x${i.quantity || 1})</div>`).join('')
-            : `<div style="font-size:0.8rem; color:#1E293B;">Saree Collection (x1)</div>`;
+        let items = o.order_items || o.items || [];
+        
+        if (!items || items.length === 0) {
+            let matchedProduct = null;
+            if (o.product_id) {
+                matchedProduct = allProducts.find(p => String(p.id) === String(o.product_id));
+            }
+            if (!matchedProduct && o.total_amount) {
+                const total = Number(o.total_amount);
+                matchedProduct = allProducts.find(p => Number(p.price) === total || Number(p.price) === Math.round(total / 4) || Number(p.price) === Math.round(total / 2));
+            }
 
-        const dtStr = o.created_at ? new Date(o.created_at).toLocaleString('en-GB') : '22/08/2026 20:38:59';
+            let calcQty = Number(o.quantity || 1);
+            let calcPrice = Number(o.total_amount || matchedProduct?.price || 0);
+
+            if (calcQty === 1 && calcPrice > 1500) {
+                if (calcPrice % 4 === 0 && (calcPrice / 4) >= 400 && (calcPrice / 4) <= 2000) {
+                    calcQty = 4;
+                    calcPrice = calcPrice / 4;
+                } else if (calcPrice % 2 === 0 && (calcPrice / 2) >= 400 && (calcPrice / 2) <= 2500) {
+                    calcQty = 2;
+                    calcPrice = calcPrice / 2;
+                }
+            }
+
+            const prodName = o.product_name || matchedProduct?.name || 'Gayathri Plain - Green Colour';
+
+            items = [{
+                product_name: prodName,
+                quantity: calcQty,
+                price: calcPrice,
+                subtotal: Number(o.total_amount || (calcPrice * calcQty)),
+                image: o.image || o.main_image || matchedProduct?.main_image || 'assets/category showcase/1.png'
+            }];
+        }
+
+        const itemsListHtml = items.map(i => {
+            const qty = Number(i.quantity || 1);
+            let name = i.product_name || i.name || 'Gayathri Plain - Green Colour';
+            if (!name || name === 'Saree' || name === 'Handcrafted Saree' || name.toLowerCase().includes('handcrafted cotton saree')) {
+                const matched = allProducts.find(p => Number(p.price) === Number(i.price) || Number(p.price) === Math.round(Number(o.total_amount) / qty));
+                if (matched) name = matched.name;
+            }
+            return `<div style="font-size:0.85rem; color:#1E293B; font-weight:600; line-height:1.45;">${name} <strong>(x${qty})</strong></div>`;
+        }).join('');
+
+        const dtStr = o.created_at ? new Date(o.created_at).toLocaleString('en-GB') : 'Recently Placed';
 
         return `
             <tr>

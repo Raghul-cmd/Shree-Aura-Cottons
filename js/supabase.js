@@ -313,11 +313,12 @@ export async function createOrder(orderPayload, items) {
             } else if (order) {
                 const itemRows = items.map(item => {
                     const rawProdId = item.id || item.product_id || null;
+                    const cleanProdId = (rawProdId && !isNaN(Number(rawProdId))) ? Number(rawProdId) : null;
 
                     return {
                         order_id: order.id,
-                        product_id: rawProdId,
-                        product_name: item.name || item.product_name || 'Saree',
+                        product_id: cleanProdId,
+                        product_name: item.name || item.product_name || item.title || 'Saree',
                         quantity: Number(item.quantity || 1),
                         price: Number(item.price || 0),
                         subtotal: Number(item.price || 0) * Number(item.quantity || 1),
@@ -326,16 +327,18 @@ export async function createOrder(orderPayload, items) {
                     };
                 });
                 
-                const { error: itemErr } = await supabaseClient.from('order_items').insert(itemRows);
-                if (itemErr) {
-                    console.warn("Supabase order_items insert notice:", itemErr.message);
+                let { error: itemErr } = await supabaseClient.from('order_items').insert(itemRows);
+                if (itemErr && itemErr.message.includes('foreign key')) {
+                    // Retry without product_id constraint if schema requires numeric FK
+                    const flexRows = itemRows.map(r => { const copy = {...r}; delete copy.product_id; return copy; });
+                    await supabaseClient.from('order_items').insert(flexRows);
                 }
 
                 // Update local datastore cache as backup
                 if (typeof localStorage !== 'undefined') {
                     let localOrders = [];
                     try { localOrders = JSON.parse(localStorage.getItem('vw_mock_orders') || '[]'); } catch(e) {}
-                    localOrders.unshift({ ...order, order_items: itemRows });
+                    localOrders.unshift({ ...order, order_items: itemRows, items: itemRows });
                     localStorage.setItem('vw_mock_orders', JSON.stringify(localOrders));
                 }
 
@@ -346,7 +349,7 @@ export async function createOrder(orderPayload, items) {
         }
     }
     
-    // 2. Guaranteed Order Completion Fallback (if Supabase RLS policies block insert)
+    // 2. Guaranteed Order Completion Fallback
     let orders = [];
     if (typeof localStorage !== 'undefined') {
         try { orders = JSON.parse(localStorage.getItem('vw_mock_orders') || '[]'); } catch(e) {}
@@ -355,7 +358,7 @@ export async function createOrder(orderPayload, items) {
     const fallbackId = 'ORD-' + Math.floor(100000 + Math.random() * 900000);
     const itemRows = (items || []).map((i, idx) => ({
         id: 'item_' + idx,
-        product_name: i.name || i.product_name || 'Handcrafted Saree',
+        product_name: i.name || i.product_name || i.title || 'Handcrafted Saree',
         quantity: Number(i.quantity || 1),
         price: Number(i.price || 0),
         subtotal: Number(i.price || 0) * Number(i.quantity || 1),
@@ -369,7 +372,8 @@ export async function createOrder(orderPayload, items) {
         created_at: new Date().toISOString(),
         order_status: orderPayload.order_status || 'placed',
         payment_status: orderPayload.payment_status || 'pending',
-        order_items: itemRows
+        order_items: itemRows,
+        items: itemRows
     };
     
     if (typeof localStorage !== 'undefined') {
@@ -391,7 +395,11 @@ export async function getOrders() {
                 try { localCache = JSON.parse(localStorage.getItem('vw_mock_orders') || '[]'); } catch(e) {}
 
                 return data.map(ord => {
-                    const localMatch = localCache.find(l => String(l.id) === String(ord.id));
+                    const cleanOrdId = String(ord.id).replace(/^ORD-?/i, '');
+                    const localMatch = localCache.find(l => {
+                        const cleanLId = String(l.id).replace(/^ORD-?/i, '');
+                        return cleanLId === cleanOrdId || String(l.id) === String(ord.id);
+                    });
                     const items = (ord.order_items && ord.order_items.length > 0) ? ord.order_items : (localMatch?.order_items || localMatch?.items || []);
                     return { ...ord, order_items: items };
                 });

@@ -156,25 +156,25 @@ export function updateMobileBadges() {
 }
 
 function initMobileNavDrawer() {
-    const toggle = document.getElementById('mobileNavToggle');
-    const close = document.getElementById('mobileNavClose');
-    const overlay = document.getElementById('mobileNavOverlay');
-    const drawer = document.getElementById('mobileDrawer');
+    document.addEventListener('click', (e) => {
+        const toggleBtn = e.target.closest('#mobileNavToggle') || e.target.closest('.mobile-nav-toggle');
+        const closeBtn = e.target.closest('#mobileNavClose') || e.target.closest('.mobile-filter-close');
+        const overlay = e.target.closest('#mobileNavOverlay');
 
-    if (toggle && drawer && overlay) {
-        toggle.addEventListener('click', () => {
-            drawer.classList.add('active');
-            overlay.classList.add('active');
-        });
+        const drawer = document.getElementById('mobileDrawer');
+        const navOverlay = document.getElementById('mobileNavOverlay');
 
-        const closeDrawer = () => {
-            drawer.classList.remove('active');
-            overlay.classList.remove('active');
-        };
-
-        close?.addEventListener('click', closeDrawer);
-        overlay.addEventListener('click', closeDrawer);
-    }
+        if (toggleBtn) {
+            e.preventDefault();
+            drawer?.classList.add('active');
+            navOverlay?.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        } else if (closeBtn || overlay) {
+            drawer?.classList.remove('active');
+            navOverlay?.classList.remove('active');
+            document.body.style.overflow = '';
+        }
+    });
 }
 
 function initWelcomeAccountModal() {
