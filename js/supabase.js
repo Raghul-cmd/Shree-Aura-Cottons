@@ -306,10 +306,34 @@ export async function createOrder(orderPayload, items) {
                 }
             }
 
-            const { data: order, error: orderErr } = await supabaseClient.from('orders').insert([orderPayload]).select().single();
+            let { data: order, error: orderErr } = await supabaseClient.from('orders').insert([orderPayload]).select().single();
+            
+            // If full payload fails (e.g. unknown column), retry with core schema
+            if (orderErr) {
+                console.warn("Supabase order insert notice, retrying with core fields:", orderErr.message);
+                const corePayload = {
+                    customer_name: orderPayload.customer_name,
+                    phone: orderPayload.phone,
+                    email: orderPayload.email,
+                    address: orderPayload.address,
+                    city: orderPayload.city,
+                    state: orderPayload.state,
+                    pincode: orderPayload.pincode,
+                    total_amount: orderPayload.total_amount,
+                    payment_status: orderPayload.payment_status,
+                    order_status: orderPayload.order_status,
+                    product_name: orderPayload.product_name,
+                    quantity: orderPayload.quantity
+                };
+                if (orderPayload.user_id) corePayload.user_id = orderPayload.user_id;
+
+                const retryRes = await supabaseClient.from('orders').insert([corePayload]).select().single();
+                order = retryRes.data;
+                orderErr = retryRes.error;
+            }
             
             if (orderErr) {
-                console.warn("Supabase order insert notice (falling back to guaranteed order completion):", orderErr.message);
+                console.warn("Supabase order insert error (falling back to local order completion):", orderErr.message);
             } else if (order) {
                 const itemRows = items.map(item => {
                     const rawProdId = item.id || item.product_id || null;
@@ -328,9 +352,18 @@ export async function createOrder(orderPayload, items) {
                 });
                 
                 let { error: itemErr } = await supabaseClient.from('order_items').insert(itemRows);
-                if (itemErr && itemErr.message.includes('foreign key')) {
-                    // Retry without product_id constraint if schema requires numeric FK
-                    const flexRows = itemRows.map(r => { const copy = {...r}; delete copy.product_id; return copy; });
+                if (itemErr && (itemErr.message.includes('foreign key') || itemErr.message.includes('column'))) {
+                    // Retry without product_id constraint if schema requires numeric FK or has field mismatch
+                    const flexRows = itemRows.map(r => { 
+                        return {
+                            order_id: order.id,
+                            product_name: r.product_name,
+                            quantity: r.quantity,
+                            price: r.price,
+                            subtotal: r.subtotal,
+                            image: r.image
+                        }; 
+                    });
                     await supabaseClient.from('order_items').insert(flexRows);
                 }
 
@@ -340,9 +373,11 @@ export async function createOrder(orderPayload, items) {
                     try { localOrders = JSON.parse(localStorage.getItem('vw_mock_orders') || '[]'); } catch(e) {}
                     localOrders.unshift({ ...order, order_items: itemRows, items: itemRows });
                     localStorage.setItem('vw_mock_orders', JSON.stringify(localOrders));
+                    localStorage.setItem('vw_order_items_' + order.id, JSON.stringify(itemRows));
+                    localStorage.setItem('vw_order_items_' + String(order.id).replace(/^ORD-?/i, ''), JSON.stringify(itemRows));
                 }
 
-                return { ...order, order_items: itemRows };
+                return { ...order, order_items: itemRows, items: itemRows };
             }
         } catch (e) {
             console.warn("Supabase order creation exception, fallback to local store:", e);
@@ -379,6 +414,8 @@ export async function createOrder(orderPayload, items) {
     if (typeof localStorage !== 'undefined') {
         orders.unshift(newOrder);
         localStorage.setItem('vw_mock_orders', JSON.stringify(orders));
+        localStorage.setItem('vw_order_items_' + fallbackId, JSON.stringify(itemRows));
+        localStorage.setItem('vw_order_items_' + String(fallbackId).replace(/^ORD-?/i, ''), JSON.stringify(itemRows));
     }
     return newOrder;
 }
@@ -386,26 +423,87 @@ export async function createOrder(orderPayload, items) {
 export async function getOrders() {
     if (supabaseClient) {
         try {
-            const { data, error } = await supabaseClient.from('orders').select('*, order_items(*)').order('created_at', { ascending: false });
-            if (error) {
-                console.error("Supabase getOrders error:", error);
+            // 1. Fetch orders cleanly from Supabase
+            const { data: ordersData, error: ordersErr } = await supabaseClient
+                .from('orders')
+                .select('*')
+                .order('created_at', { ascending: false });
+
+            if (ordersErr) {
+                console.error("Supabase orders query error:", ordersErr);
             }
-            if (!error && data && data.length > 0) {
+
+            if (!ordersErr && ordersData && ordersData.length > 0) {
+                // 2. Fetch order items cleanly from Supabase
+                let itemsData = [];
+                try {
+                    const { data: rawItems } = await supabaseClient.from('order_items').select('*');
+                    itemsData = rawItems || [];
+                } catch(e) {}
+
                 let localCache = [];
                 try { localCache = JSON.parse(localStorage.getItem('vw_mock_orders') || '[]'); } catch(e) {}
 
-                return data.map(ord => {
+                return ordersData.map(ord => {
                     const cleanOrdId = String(ord.id).replace(/^ORD-?/i, '');
+
+                    // Match items from live DB order_items
+                    const dbItems = itemsData.filter(i => {
+                        const cleanItemOrdId = String(i.order_id).replace(/^ORD-?/i, '');
+                        return cleanItemOrdId === cleanOrdId || String(i.order_id) === String(ord.id);
+                    });
+
+                    // Match from local cache
                     const localMatch = localCache.find(l => {
                         const cleanLId = String(l.id).replace(/^ORD-?/i, '');
                         return cleanLId === cleanOrdId || String(l.id) === String(ord.id);
                     });
-                    const items = (ord.order_items && ord.order_items.length > 0) ? ord.order_items : (localMatch?.order_items || localMatch?.items || []);
-                    return { ...ord, order_items: items };
+
+                    let storedItemsStr = null;
+                    try {
+                        storedItemsStr = localStorage.getItem('vw_order_items_' + ord.id) || localStorage.getItem('vw_order_items_' + cleanOrdId);
+                    } catch(e) {}
+
+                    let storedItems = null;
+                    if (storedItemsStr) {
+                        try { storedItems = JSON.parse(storedItemsStr); } catch(e) {}
+                    }
+
+                    let items = (dbItems && dbItems.length > 0)
+                        ? dbItems
+                        : (storedItems || localMatch?.order_items || localMatch?.items || []);
+
+                    // Reconstruct from product_name, items_summary, or notes if items array is empty
+                    if (!items || items.length === 0) {
+                        const rawName = ord.product_name || ord.saree_name || ord.item_name || ord.items_summary || ord.notes || '';
+                        
+                        if (rawName && rawName.includes('(') && rawName.includes(')')) {
+                            items = rawName.split(',').map((s, idx) => {
+                                const trimS = s.trim();
+                                const qMatch = trimS.match(/\(x(\d+)\)/i);
+                                const q = qMatch ? Number(qMatch[1]) : 1;
+                                const title = trimS.replace(/\(x\d+\)/i, '').trim();
+                                return {
+                                    id: 'sum_' + idx,
+                                    product_name: title || 'Handcrafted Cotton Saree',
+                                    quantity: q,
+                                    price: Number(ord.total_amount || 0) / q
+                                };
+                            });
+                        } else if (rawName) {
+                            items = [{
+                                product_name: rawName,
+                                quantity: Number(ord.quantity || ord.qty || 1),
+                                price: Number(ord.total_amount || 0)
+                            }];
+                        }
+                    }
+
+                    return { ...ord, order_items: items, items: items };
                 });
             }
         } catch (e) {
-            console.warn("Supabase orders fetch failed:", e);
+            console.warn("Supabase orders fetch exception:", e);
         }
     }
     let orders = [];

@@ -289,10 +289,7 @@
                                         unitPrice = itemSubtotal / qty;
                                     }
 
-                                    let title = item.product_name || item.name || 'Gayathri Plain - Green Colour';
-                                    if (!title || title === 'Saree' || title.toLowerCase().includes('handcrafted cotton saree')) {
-                                        title = 'Gayathri Plain - Green Colour';
-                                    }
+                                    let title = item.product_name || item.name || item.title || order.product_name || 'Handcrafted Cotton Saree';
 
                                     return `
                                         <div style="display:flex; align-items:center; justify-content:space-between; gap:1rem; padding-bottom:1rem; border-bottom:1px solid #F1F5F9;">

@@ -91,6 +91,14 @@ async function executeOrderPlacement(formData) {
     }
 
     try {
+        const cartItems = getCart();
+        const mainProductName = cartItems.length === 1 
+            ? (cartItems[0].name || cartItems[0].product_name || 'Handcrafted Cotton Saree')
+            : cartItems.map(i => `${i.name || i.product_name || 'Saree'} (x${i.quantity || 1})`).join(', ');
+
+        const mainImage = cartItems[0]?.image || cartItems[0]?.main_image || 'assets/category showcase/1.png';
+        const totalQuantity = cartItems.reduce((sum, i) => sum + (Number(i.quantity) || 1), 0);
+
         const orderPayload = {
             customer_name: formData.get('fullName'),
             phone: formData.get('phone'),
@@ -101,10 +109,12 @@ async function executeOrderPlacement(formData) {
             pincode: formData.get('pincode'),
             total_amount: getCartTotals().grandTotal,
             payment_status: formData.get('paymentMethod') === 'cod' ? 'pending' : 'paid',
-            order_status: 'placed'
+            order_status: 'placed',
+            product_name: mainProductName,
+            quantity: totalQuantity,
+            image: mainImage
         };
 
-        const cartItems = getCart();
         const createdOrder = await createOrder(orderPayload, cartItems);
 
         // Clear cart on success
