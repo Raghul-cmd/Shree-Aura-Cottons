@@ -308,26 +308,24 @@ export async function createOrder(orderPayload, items) {
 
             let { data: order, error: orderErr } = await supabaseClient.from('orders').insert([orderPayload]).select().single();
             
-            // If full payload fails (e.g. unknown column), retry with core schema
+            // Step 2: If full payload fails (e.g. unknown column product_name/image), retry with standard SQL columns
             if (orderErr) {
-                console.warn("Supabase order insert notice, retrying with core fields:", orderErr.message);
-                const corePayload = {
-                    customer_name: orderPayload.customer_name,
-                    phone: orderPayload.phone,
-                    email: orderPayload.email,
-                    address: orderPayload.address,
-                    city: orderPayload.city,
-                    state: orderPayload.state,
-                    pincode: orderPayload.pincode,
-                    total_amount: orderPayload.total_amount,
-                    payment_status: orderPayload.payment_status,
-                    order_status: orderPayload.order_status,
-                    product_name: orderPayload.product_name,
-                    quantity: orderPayload.quantity
+                console.warn("Supabase order insert notice, retrying with standard SQL columns:", orderErr.message);
+                const basePayload = {
+                    customer_name: orderPayload.customer_name || 'Customer',
+                    phone: orderPayload.phone || '',
+                    email: orderPayload.email || '',
+                    address: orderPayload.address || '',
+                    city: orderPayload.city || '',
+                    state: orderPayload.state || '',
+                    pincode: orderPayload.pincode || '',
+                    total_amount: Number(orderPayload.total_amount || 0),
+                    payment_status: orderPayload.payment_status || 'pending',
+                    order_status: orderPayload.order_status || 'placed'
                 };
-                if (orderPayload.user_id) corePayload.user_id = orderPayload.user_id;
+                if (orderPayload.user_id) basePayload.user_id = orderPayload.user_id;
 
-                const retryRes = await supabaseClient.from('orders').insert([corePayload]).select().single();
+                const retryRes = await supabaseClient.from('orders').insert([basePayload]).select().single();
                 order = retryRes.data;
                 orderErr = retryRes.error;
             }
