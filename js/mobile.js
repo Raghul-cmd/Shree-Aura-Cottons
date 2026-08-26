@@ -16,6 +16,7 @@ function setupMobile() {
     initMobileBottomNav();
     updateMobileBadges();
     initMobileNavDrawer();
+    initWelcomeAccountModal();
 }
 
 if (document.readyState === 'loading') {
@@ -37,10 +38,11 @@ function ensureMobileElements() {
                 <ul class="mobile-menu-links">
                     <li><a href="index.html">🏠 Home</a></li>
                     <li><a href="shop.html">👗 Shop All Sarees</a></li>
+                    <li><a href="wishlist.html?tab=orders">📦 My Orders Catalog</a></li>
+                    <li><a href="wishlist.html?tab=wishlist">💖 My Saved Wishlist</a></li>
                     <li><a href="shop.html?category=wedding-sarees">💍 Wedding Sarees</a></li>
                     <li><a href="shop.html?category=office-wear">💼 Office Wear</a></li>
                     <li><a href="shop.html?category=daily-wear">🌸 Daily Wear Collection</a></li>
-                    <li><a href="wishlist.html">💖 My Saved Wishlist</a></li>
                     <li><a href="cart.html">🛒 Shopping Cart</a></li>
                     <li><a href="login.html">👤 Customer Account</a></li>
                     <li><a href="#" id="installAppBtn" style="color:var(--primary-maroon); font-weight:800; display:none;">📲 Install Mobile App</a></li>
@@ -115,8 +117,9 @@ function initMobileBottomNav() {
 
 export function updateMobileBadges() {
     try {
-        const cart = getCart();
-        const cartCount = cart ? cart.reduce((sum, item) => sum + item.quantity, 0) : 0;
+        const cartStr = localStorage.getItem('vw_cart');
+        const cart = cartStr ? JSON.parse(cartStr) : [];
+        const cartCount = cart ? cart.reduce((sum, item) => sum + (item.quantity || 1), 0) : 0;
         const cartBadges = [document.getElementById('cartCountBadge'), document.getElementById('mobileNavCartBadge')];
         cartBadges.forEach(badge => {
             if (badge) {
@@ -131,7 +134,8 @@ export function updateMobileBadges() {
     } catch(e) {}
 
     try {
-        const wishlist = getWishlist();
+        const wishStr = localStorage.getItem('vw_wishlist');
+        const wishlist = wishStr ? JSON.parse(wishStr) : [];
         const wishCount = wishlist ? wishlist.length : 0;
         const wishBadges = [document.getElementById('wishlistCountBadge'), document.getElementById('mobileNavWishlistBadge')];
         wishBadges.forEach(badge => {
@@ -166,6 +170,49 @@ function initMobileNavDrawer() {
 
         close?.addEventListener('click', closeDrawer);
         overlay.addEventListener('click', closeDrawer);
+    }
+}
+
+function initWelcomeAccountModal() {
+    const hasSession = localStorage.getItem('vw_session');
+    const dismissed = sessionStorage.getItem('sa_welcome_dismissed');
+
+    // Only show pop-up modal for new visitors without an account on homepage or main shop pages
+    const path = window.location.pathname.toLowerCase();
+    const isMainPage = path.endsWith('index.html') || path.endsWith('/') || path.endsWith('shop.html');
+
+    if (!hasSession && !dismissed && isMainPage) {
+        setTimeout(() => {
+            if (document.getElementById('welcomePopupModal')) return;
+
+            const modalHTML = `
+                <div id="welcomePopupModal" style="position:fixed; inset:0; background:rgba(0,0,0,0.7); backdrop-filter:blur(4px); z-index:1900; display:flex; align-items:center; justify-content:center; padding:1rem; animation:fadeIn 0.3s ease;">
+                    <div style="background:var(--bg-white); border-radius:var(--radius-lg); padding:2rem; max-width:440px; width:100%; text-align:center; box-shadow:var(--shadow-lg); border:2px solid var(--gold-accent); position:relative;">
+                        <button id="closeWelcomePopup" style="position:absolute; top:12px; right:16px; background:none; border:none; font-size:1.4rem; cursor:pointer; color:var(--text-muted);">✕</button>
+                        
+                        <div style="font-size:2.8rem; margin-bottom:0.5rem;">🌸</div>
+                        <h3 style="font-family:var(--font-heading); font-size:1.6rem; color:var(--primary-maroon); margin:0 0 0.5rem; font-weight:800;">Welcome to Shree Aura!</h3>
+                        <p style="color:var(--text-muted); font-size:0.88rem; margin:0 0 1.5rem; font-weight:500; line-height:1.5;">
+                            Create a free account or sign in to track your saree order catalog, delivery updates & saved wishlist!
+                        </p>
+
+                        <div style="display:flex; flex-direction:column; gap:0.75rem;">
+                            <a href="login.html" class="btn btn-primary" style="padding:0.75rem; font-weight:800; font-size:0.9rem;">CREATE ACCOUNT / SIGN IN</a>
+                            <button id="skipWelcomePopup" class="btn btn-outline" style="padding:0.6rem; font-size:0.85rem;">Continue Browsing</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            document.body.insertAdjacentHTML('beforeend', modalHTML);
+
+            const closeModal = () => {
+                sessionStorage.setItem('sa_welcome_dismissed', '1');
+                document.getElementById('welcomePopupModal')?.remove();
+            };
+
+            document.getElementById('closeWelcomePopup')?.addEventListener('click', closeModal);
+            document.getElementById('skipWelcomePopup')?.addEventListener('click', closeModal);
+        }, 1500);
     }
 }
 

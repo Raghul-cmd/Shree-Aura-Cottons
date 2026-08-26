@@ -320,7 +320,9 @@ export async function createOrder(orderPayload, items) {
                         product_name: item.name || item.product_name || 'Saree',
                         quantity: Number(item.quantity || 1),
                         price: Number(item.price || 0),
-                        subtotal: Number(item.price || 0) * Number(item.quantity || 1)
+                        subtotal: Number(item.price || 0) * Number(item.quantity || 1),
+                        image: item.image || item.main_image || item.main_image_url || 'assets/logo.png',
+                        sku: item.sku || 'SAR-001'
                     };
                 });
                 
@@ -356,7 +358,9 @@ export async function createOrder(orderPayload, items) {
         product_name: i.name || i.product_name || 'Handcrafted Saree',
         quantity: Number(i.quantity || 1),
         price: Number(i.price || 0),
-        subtotal: Number(i.price || 0) * Number(i.quantity || 1)
+        subtotal: Number(i.price || 0) * Number(i.quantity || 1),
+        image: i.image || i.main_image || i.main_image_url || 'assets/logo.png',
+        sku: i.sku || 'SAR-001'
     }));
 
     const newOrder = {

@@ -144,7 +144,7 @@
 
             try {
                 await loginUser(email, password);
-                window.location.href = 'shop.html';
+                window.location.href = 'wishlist.html?tab=orders';
             } catch (err) {
                 alert("Login failed: " + err.message);
             }
@@ -160,8 +160,8 @@
 
             try {
                 await signUpUser(email, password, fullName, phone, 'customer');
-                alert("Account created successfully in Supabase! Welcome to Shree Aura Cottons.");
-                window.location.href = 'shop.html';
+                alert("Account created successfully! Welcome to Shree Aura Cottons.");
+                window.location.href = 'wishlist.html?tab=orders';
             } catch (err) {
                 alert("Registration failed: " + err.message);
             }
