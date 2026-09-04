@@ -107,8 +107,8 @@ async function loadDashboardData() {
 // OVERVIEW TAB STATS
 // ------------------------------------------------------------------------------
 function renderOverviewStats() {
-    const userWishlist = JSON.parse(localStorage.getItem('vw_user_wishlist') || '[]');
-    const totalWishlistCount = userWishlist.length > 0 ? userWishlist.length : (allProducts.length > 0 ? Math.min(allProducts.length, 3) : 0);
+    const totalRev = allOrders.reduce((sum, o) => sum + (o.payment_status === 'paid' ? Number(o.total_amount || 0) : 0), 0);
+    const totalOrdersCount = allOrders.length;
     const activeProductsCount = allProducts.filter(p => p.is_active).length;
     const totalCustomersCount = allCustomers.length;
 
@@ -117,44 +117,31 @@ function renderOverviewStats() {
     const prodEl = document.getElementById('statActiveProducts');
     const custEl = document.getElementById('statTotalCustomers');
 
-    if (revEl) revEl.textContent = '₹0.00';
-    if (ordEl) ordEl.textContent = totalWishlistCount;
+    if (revEl) revEl.textContent = '₹' + totalRev.toFixed(2);
+    if (ordEl) ordEl.textContent = totalOrdersCount;
     if (prodEl) prodEl.textContent = activeProductsCount;
     if (custEl) custEl.textContent = totalCustomersCount;
 
-    // Render Saved Customer Wishlists Table
-    let displayWishlist = userWishlist;
-    if (displayWishlist.length === 0 && allProducts.length > 0) {
-        displayWishlist = allProducts.slice(0, 5).map(p => ({
-            id: p.id,
-            name: p.name,
-            sku: p.sku || `SAR-00${p.id}`,
-            price: p.price,
-            main_image: p.main_image || p.image_url
-        }));
-    }
-
-    const recentOrders = displayWishlist.slice(0, 5);
+    // Render Recent Customer Orders Table
+    const recentOrders = [...allOrders].slice(0, 5);
     const recentTbody = document.getElementById('recentOrdersTbody');
     if (recentTbody) {
         if (recentOrders.length === 0) {
-            recentTbody.innerHTML = `<tr><td colspan="5" style="text-align:center; padding:1.8rem; color:#64748B; font-weight:700;">No saved wishlists recorded</td></tr>`;
+            recentTbody.innerHTML = `<tr><td colspan="5" style="text-align:center; padding:1.8rem; color:#64748B; font-weight:700;">No recent customer orders recorded</td></tr>`;
         } else {
-            recentTbody.innerHTML = recentOrders.map(w => {
-                const img = w.main_image || 'assets/logo.png';
+            recentTbody.innerHTML = recentOrders.map(o => {
+                const dt = o.created_at ? new Date(o.created_at).toLocaleDateString('en-GB') : 'Today';
                 return `
                     <tr>
+                        <td style="font-weight:800; color:#7A1C30;">#${o.id}</td>
+                        <td style="font-weight:800; color:#000000;">${o.customer_name || 'Customer'}</td>
+                        <td style="font-weight:800; color:#000000;">₹${Number(o.total_amount || 0).toFixed(2)}</td>
                         <td>
-                            <img src="${img}" alt="${w.name}" style="width:40px; height:50px; object-fit:cover; border-radius:4px; border:1px solid #CBD5E1;">
-                        </td>
-                        <td style="font-weight:800; color:#000000;">${w.name}</td>
-                        <td style="font-weight:700; color:#475569;">${w.sku || 'SAR-001'}</td>
-                        <td style="font-weight:800; color:#7A1C30;">₹${Number(w.price || 0).toLocaleString('en-IN')}</td>
-                        <td>
-                            <span class="pill-badge" style="background:#ECFDF5; color:#047857; border-color:#A7F3D0;">
-                                SAVED ♡
+                            <span class="pill-badge" style="background:#E0F2FE; color:#0369A1; border-color:#7DD3FC;">
+                                ${(o.order_status || 'Placed').toUpperCase()}
                             </span>
                         </td>
+                        <td style="color:#64748B;">${dt}</td>
                     </tr>
                 `;
             }).join('');
@@ -260,8 +247,22 @@ function renderOrdersTable(query = '', statusFilter = '') {
     tbody.innerHTML = ords.map(o => {
         const items = o.order_items || [];
         const itemsListHtml = items.length > 0
-            ? items.map(i => `<div style="font-size:0.85rem; color:#1E293B; font-weight:700;">${i.product_name || 'Saree'} <span style="color:#7A1C30;">(x${i.quantity || 1})</span></div>`).join('')
-            : `<div style="font-size:0.85rem; color:#1E293B; font-weight:700;">Saree Collection (x1)</div>`;
+            ? items.map(i => {
+                const code = i.product_id || i.sku || i.product_code || i.code || '';
+                const name = i.product_name || i.name || '';
+                let label = '';
+                if (code && name && name !== 'Saree' && name !== 'Saree Collection' && name !== 'Handcrafted Saree') {
+                    label = name.includes(code) ? name : `${name} (${code})`;
+                } else if (code) {
+                    label = code;
+                } else if (name) {
+                    label = name;
+                } else {
+                    label = 'SAR-OFF-005';
+                }
+                return `<div style="font-size:0.85rem; color:#1E293B; font-weight:700;">${label} <span style="color:#7A1C30;">(x${i.quantity || 1})</span></div>`;
+            }).join('')
+            : `<div style="font-size:0.85rem; color:#1E293B; font-weight:700;">SAR-OFF-005 <span style="color:#7A1C30;">(x1)</span></div>`;
 
         const dtStr = o.created_at ? new Date(o.created_at).toLocaleString('en-GB') : 'Today';
 

@@ -353,6 +353,8 @@ export async function createOrder(orderPayload, items) {
     const fallbackId = 'ORD-' + Math.floor(100000 + Math.random() * 900000);
     const itemRows = (items || []).map((i, idx) => ({
         id: 'item_' + idx,
+        product_id: i.id || i.product_id || i.sku || null,
+        sku: i.sku || i.id || i.product_id || null,
         product_name: i.name || i.product_name || 'Handcrafted Saree',
         quantity: Number(i.quantity || 1),
         price: Number(i.price || 0),
