@@ -1,27 +1,15 @@
-// ==============================================================================
-// SHREE AURA COTTONS - SERVICE WORKER & APP OFFLINE ENGINE
-// ==============================================================================
-
-const CACHE_NAME = 'shree-aura-v10-clean-wishlist';
-
+// Service Worker Cache Invalidation - Force Clear All Old App Caches
 self.addEventListener('install', () => {
     self.skipWaiting();
 });
 
 self.addEventListener('activate', (e) => {
     e.waitUntil(
-        caches.keys().then((keys) => {
-            return Promise.all(
-                keys.map((key) => caches.delete(key))
-            );
-        })
-    );
-    self.clients.claim();
-});
-
-self.addEventListener('fetch', (e) => {
-    // Network first for all requests
-    e.respondWith(
-        fetch(e.request).catch(() => caches.match(e.request))
+        caches.keys().then((keys) => Promise.all(keys.map(k => caches.delete(k))))
+            .then(() => self.registration.unregister())
+            .then(() => self.clients.matchAll({ type: 'window' }))
+            .then((clients) => {
+                clients.forEach(client => client.navigate(client.url));
+            })
     );
 });

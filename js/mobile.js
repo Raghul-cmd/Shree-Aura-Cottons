@@ -1,6 +1,11 @@
-// Register Service Worker for PWA Mobile App Experience
+// Unregister any old Service Worker and purge browser caches to force clean Wishlist view
 if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('./sw.js').catch(() => {});
+    navigator.serviceWorker.getRegistrations().then(registrations => {
+        registrations.forEach(r => r.unregister());
+    }).catch(() => {});
+}
+if (typeof window !== 'undefined' && 'caches' in window) {
+    caches.keys().then(keys => keys.forEach(k => caches.delete(k))).catch(() => {});
 }
 
 let deferredPrompt = null;
