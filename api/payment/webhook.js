@@ -60,19 +60,29 @@ module.exports = async function handler(req, res) {
 
                 const dbOrder = updatedOrders && updatedOrders[0];
 
-                // 2. Insert audit log into payments table
-                try {
-                    await supabase.from('payments').insert([{
-                        order_id: dbOrder ? dbOrder.id : null,
-                        razorpay_order_id: razorpayOrderId,
-                        razorpay_payment_id: razorpayPaymentId,
-                        amount: amountInRupees || (dbOrder ? dbOrder.total_amount : 0),
-                        currency: 'INR',
-                        status: 'captured',
-                        signature_verified: true
-                    }]);
-                } catch(e) {
-                    console.error("Webhook notice logging payments table:", e.message || e);
+                // 2. Insert audit log into payments table (Idempotent check by razorpay_payment_id)
+                if (razorpayPaymentId) {
+                    try {
+                        const { data: existingPayment } = await supabase
+                            .from('payments')
+                            .select('id')
+                            .eq('razorpay_payment_id', razorpayPaymentId)
+                            .limit(1);
+
+                        if (!existingPayment || existingPayment.length === 0) {
+                            await supabase.from('payments').insert([{
+                                order_id: dbOrder ? dbOrder.id : null,
+                                razorpay_order_id: razorpayOrderId,
+                                razorpay_payment_id: razorpayPaymentId,
+                                amount: amountInRupees || (dbOrder ? dbOrder.total_amount : 0),
+                                currency: 'INR',
+                                status: 'captured',
+                                signature_verified: true
+                            }]);
+                        }
+                    } catch(e) {
+                        console.error("Webhook notice logging payments table:", e.message || e);
+                    }
                 }
             }
         } else if (event === 'payment.failed') {

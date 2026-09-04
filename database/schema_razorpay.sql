@@ -8,12 +8,12 @@ ALTER TABLE public.orders
 ADD COLUMN IF NOT EXISTS razorpay_order_id VARCHAR(100),
 ADD COLUMN IF NOT EXISTS razorpay_payment_id VARCHAR(100);
 
--- 2. CREATE PAYMENTS AUDIT TABLE
+-- 2. CREATE PAYMENTS AUDIT TABLE (WITH UNIQUE CONSTRAINT ON razorpay_payment_id)
 CREATE TABLE IF NOT EXISTS public.payments (
     id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     order_id BIGINT REFERENCES public.orders(id) ON DELETE CASCADE,
     razorpay_order_id VARCHAR(100),
-    razorpay_payment_id VARCHAR(100),
+    razorpay_payment_id VARCHAR(100) UNIQUE,
     amount DECIMAL(10,2) NOT NULL,
     currency VARCHAR(10) DEFAULT 'INR',
     status VARCHAR(50) DEFAULT 'captured',

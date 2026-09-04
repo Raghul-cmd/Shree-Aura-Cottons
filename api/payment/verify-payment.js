@@ -80,17 +80,27 @@ module.exports = async function handler(req, res) {
         const orderAmount = updatedOrder ? Number(updatedOrder.total_amount || 0) : 0;
         const actualOrderId = updatedOrder ? updatedOrder.id : (targetId || null);
 
-        // 3. Log Audit Record in payments table (with mandatory amount field)
+        // 3. Log Audit Record in payments table (Idempotent check by razorpay_payment_id)
         try {
-            await supabase.from('payments').insert([{
-                order_id: actualOrderId,
-                razorpay_order_id: razorpay_order_id,
-                razorpay_payment_id: razorpay_payment_id,
-                amount: orderAmount,
-                currency: 'INR',
-                status: 'captured',
-                signature_verified: true
-            }]);
+            if (razorpay_payment_id) {
+                const { data: existingPayment } = await supabase
+                    .from('payments')
+                    .select('id')
+                    .eq('razorpay_payment_id', razorpay_payment_id)
+                    .limit(1);
+
+                if (!existingPayment || existingPayment.length === 0) {
+                    await supabase.from('payments').insert([{
+                        order_id: actualOrderId,
+                        razorpay_order_id: razorpay_order_id,
+                        razorpay_payment_id: razorpay_payment_id,
+                        amount: orderAmount,
+                        currency: 'INR',
+                        status: 'captured',
+                        signature_verified: true
+                    }]);
+                }
+            }
         } catch(e) {
             console.error("Notice logging into payments table:", e.message || e);
         }
