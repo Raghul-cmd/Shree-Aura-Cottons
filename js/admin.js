@@ -224,7 +224,9 @@ function renderProductsTable(filterQuery = '') {
             </tr>
         `;
     }).join('');
-function getCategoryName(catId) {
+}
+
+function getCategoryNameById(catId) {
     if (!catId) return 'Office Wear';
     const cat = allCategories.find(c => String(c.id) === String(catId));
     return cat ? cat.name : (catId === 1 ? 'Wedding Sarees' : (catId === 2 ? 'Office Wear' : 'Daily Wear'));
