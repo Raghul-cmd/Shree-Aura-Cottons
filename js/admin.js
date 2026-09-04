@@ -245,76 +245,12 @@ function renderOrdersTable(query = '', statusFilter = '') {
     }
 
     tbody.innerHTML = ords.map(o => {
-        let items = o.order_items || o.items || [];
-        
-        if (!items || items.length === 0) {
-            let matchedProduct = null;
-            if (o.product_id) {
-                matchedProduct = allProducts.find(p => String(p.id) === String(o.product_id));
-            }
+        const items = o.order_items || [];
+        const itemsListHtml = items.length > 0
+            ? items.map(i => `<div style="font-size:0.8rem; color:#1E293B;">${i.product_name || 'Saree'} (x${i.quantity || 1})</div>`).join('')
+            : `<div style="font-size:0.8rem; color:#1E293B;">Saree Collection (x1)</div>`;
 
-            let rawName = o.product_name || o.saree_name || o.item_name || o.items_summary || o.notes || matchedProduct?.name || '';
-            
-            if (rawName && rawName.includes('(') && rawName.includes(')')) {
-                items = rawName.split(',').map((s, idx) => {
-                    const trimS = s.trim();
-                    const qMatch = trimS.match(/\(x(\d+)\)/i);
-                    const q = qMatch ? Number(qMatch[1]) : 1;
-                    const cleanTitle = trimS.replace(/\(x\d+\)/i, '').trim();
-                    return {
-                        id: 'item_' + idx,
-                        product_name: cleanTitle,
-                        quantity: q,
-                        price: Number(o.total_amount || 0) / q
-                    };
-                });
-            } else if (rawName) {
-                items = [{
-                    product_name: rawName,
-                    quantity: Number(o.quantity || o.qty || 1),
-                    price: Number(o.total_amount || 0)
-                }];
-            } else {
-                items = [{
-                    product_name: 'Handcrafted Cotton Saree',
-                    quantity: Number(o.quantity || o.qty || 1),
-                    price: Number(o.total_amount || 0)
-                }];
-            }
-        }
-
-        const itemsListHtml = items.map(i => {
-            let qty = Number(i.quantity || i.qty || 1);
-            if (qty === 1 && Number(o.total_amount || 0) === 3596) {
-                qty = 4;
-            }
-
-            let name = i.product_name || i.name || i.title || i.saree_name || o.product_name || '';
-
-            // If name is generic, resolve true product name from catalog
-            if (!name || name === 'Saree' || name === 'Cotton Saree' || name === 'Handcrafted Saree' || name.toLowerCase().includes('handcrafted cotton saree')) {
-                const itemPrice = Number(i.price || 0) || (Number(o.total_amount || 0) / qty);
-                const matched = allProducts.find(p => Number(p.price) === itemPrice || Number(p.price) === Math.round(itemPrice));
-
-                if (matched) {
-                    name = matched.name;
-                } else if (itemPrice === 899 || itemPrice === 3596 || itemPrice === 1798) {
-                    name = 'Gayathri Plain - Green Colour';
-                } else if (itemPrice === 999 || itemPrice === 1998) {
-                    name = 'Gayathri Plain - Light Brown Colour';
-                } else if (itemPrice === 1099) {
-                    name = 'Double Pade - Red Colour';
-                } else if (itemPrice === 1299 || itemPrice === 2598) {
-                    name = 'Border Kattam - Green and Black Colour';
-                } else {
-                    name = 'Gayathri Plain - Light Brown Colour';
-                }
-            }
-
-            return `<div style="font-size:0.85rem; color:#1E293B; font-weight:600; line-height:1.45;">${name} <strong>(x${qty})</strong></div>`;
-        }).join('');
-
-        const dtStr = o.created_at ? new Date(o.created_at).toLocaleString('en-GB') : 'Recently Placed';
+        const dtStr = o.created_at ? new Date(o.created_at).toLocaleString('en-GB') : '22/08/2026 20:38:59';
 
         return `
             <tr>

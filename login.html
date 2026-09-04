@@ -74,42 +74,46 @@
             <!-- FORM 1: LOGIN -->
             <form id="customerLoginForm" style="display:flex; flex-direction:column; gap:1.1rem;">
                 <h2 style="font-family:var(--font-heading); font-size:1.8rem; color:var(--primary-maroon); text-align:center; margin:0; font-weight:800;">Welcome Back</h2>
-                <p style="text-align:center; color:var(--text-muted); font-size:0.85rem; font-weight:500; margin:0 0 0.5rem 0;">Log in with your account</p>
+                <p style="text-align:center; color:var(--text-muted); font-size:0.85rem; font-weight:500; margin:0 0 0.5rem 0;">Log in with your Supabase account</p>
 
                 <div>
                     <label style="font-size:0.85rem; font-weight:700; display:block; margin-bottom:0.3rem;">Email Address</label>
-                    <input type="email" id="loginEmail" required style="width:100%; padding:0.7rem; border:2px solid var(--border-color); border-radius:6px; font-size:0.9rem; font-weight:500;">
+                    <input type="email" id="loginEmail" required style="width:100%; padding:0.7rem; border:2px solid var(--border-color); border-radius:6px; font-size:0.9rem; font-weight:500;" placeholder="name@example.com">
                 </div>
                 <div>
                     <label style="font-size:0.85rem; font-weight:700; display:block; margin-bottom:0.3rem;">Password</label>
-                    <input type="password" id="loginPassword" required style="width:100%; padding:0.7rem; border:2px solid var(--border-color); border-radius:6px; font-size:0.9rem; font-weight:500;">
+                    <input type="password" id="loginPassword" required style="width:100%; padding:0.7rem; border:2px solid var(--border-color); border-radius:6px; font-size:0.9rem; font-weight:500;" placeholder="••••••••">
                 </div>
-                <button type="submit" class="btn btn-primary" style="margin-top:0.5rem; padding:0.85rem;">SIGN IN</button>
+                <button type="submit" class="btn btn-primary" style="margin-top:0.5rem; padding:0.85rem;">SIGN IN TO SUPABASE</button>
             </form>
 
             <!-- FORM 2: REGISTER (CREATE ACCOUNT) -->
             <form id="customerRegisterForm" style="display:none; flex-direction:column; gap:1.1rem;">
                 <h2 style="font-family:var(--font-heading); font-size:1.8rem; color:var(--primary-maroon); text-align:center; margin:0; font-weight:800;">Create Account</h2>
-                <p style="text-align:center; color:var(--text-muted); font-size:0.85rem; font-weight:500; margin:0 0 0.5rem 0;">Create Account For View Orders</p>
+                <p style="text-align:center; color:var(--text-muted); font-size:0.85rem; font-weight:500; margin:0 0 0.5rem 0;">Register directly in Supabase Authentication</p>
 
                 <div>
                     <label style="font-size:0.85rem; font-weight:700; display:block; margin-bottom:0.3rem;">Full Name *</label>
-                    <input type="text" id="regFullName" required style="width:100%; padding:0.7rem; border:2px solid var(--border-color); border-radius:6px; font-size:0.9rem; font-weight:500;">
+                    <input type="text" id="regFullName" required style="width:100%; padding:0.7rem; border:2px solid var(--border-color); border-radius:6px; font-size:0.9rem; font-weight:500;" placeholder="e.g. Priya Sundaram">
                 </div>
                 <div>
                     <label style="font-size:0.85rem; font-weight:700; display:block; margin-bottom:0.3rem;">Phone Number</label>
-                    <input type="tel" id="regPhone" style="width:100%; padding:0.7rem; border:2px solid var(--border-color); border-radius:6px; font-size:0.9rem; font-weight:500;">
+                    <input type="tel" id="regPhone" style="width:100%; padding:0.7rem; border:2px solid var(--border-color); border-radius:6px; font-size:0.9rem; font-weight:500;" placeholder="+91 98765 43210">
                 </div>
                 <div>
                     <label style="font-size:0.85rem; font-weight:700; display:block; margin-bottom:0.3rem;">Email Address *</label>
-                    <input type="email" id="regEmail" required style="width:100%; padding:0.7rem; border:2px solid var(--border-color); border-radius:6px; font-size:0.9rem; font-weight:500;">
+                    <input type="email" id="regEmail" required style="width:100%; padding:0.7rem; border:2px solid var(--border-color); border-radius:6px; font-size:0.9rem; font-weight:500;" placeholder="name@example.com">
                 </div>
                 <div>
                     <label style="font-size:0.85rem; font-weight:700; display:block; margin-bottom:0.3rem;">Password *</label>
-                    <input type="password" id="regPassword" required minlength="6" style="width:100%; padding:0.7rem; border:2px solid var(--border-color); border-radius:6px; font-size:0.9rem; font-weight:500;">
+                    <input type="password" id="regPassword" required minlength="6" style="width:100%; padding:0.7rem; border:2px solid var(--border-color); border-radius:6px; font-size:0.9rem; font-weight:500;" placeholder="At least 6 characters">
                 </div>
-                <button type="submit" class="btn btn-primary" style="margin-top:0.5rem; padding:0.85rem;">CREATE ACCOUNT</button>
             </form>
+            <div style="margin-top:1.5rem; padding-top:1rem; border-top:1px solid var(--border-color); text-align:center;">
+                <a href="admin.html" style="font-size:0.88rem; color:var(--primary-maroon); font-weight:700; text-decoration:underline; cursor:pointer;">
+                    Store Owner or Administrator? Click here to access Admin Portal 🔐
+                </a>
+            </div>
         </div>
     </main>
 
@@ -144,7 +148,7 @@
 
             try {
                 await loginUser(email, password);
-                window.location.href = 'wishlist.html?tab=orders';
+                window.location.href = 'shop.html';
             } catch (err) {
                 alert("Login failed: " + err.message);
             }
@@ -160,8 +164,8 @@
 
             try {
                 await signUpUser(email, password, fullName, phone, 'customer');
-                alert("Account created successfully! Welcome to Shree Aura Cottons.");
-                window.location.href = 'wishlist.html?tab=orders';
+                alert("Account created successfully in Supabase! Welcome to Shree Aura Cottons.");
+                window.location.href = 'shop.html';
             } catch (err) {
                 alert("Registration failed: " + err.message);
             }

@@ -16,7 +16,6 @@ function setupMobile() {
     initMobileBottomNav();
     updateMobileBadges();
     initMobileNavDrawer();
-    initWelcomeAccountModal();
 }
 
 if (document.readyState === 'loading') {
@@ -38,11 +37,10 @@ function ensureMobileElements() {
                 <ul class="mobile-menu-links">
                     <li><a href="index.html">🏠 Home</a></li>
                     <li><a href="shop.html">👗 Shop All Sarees</a></li>
-                    <li><a href="wishlist.html?tab=orders">📦 My Orders Catalog</a></li>
-                    <li><a href="wishlist.html?tab=wishlist">💖 My Saved Wishlist</a></li>
                     <li><a href="shop.html?category=wedding-sarees">💍 Wedding Sarees</a></li>
                     <li><a href="shop.html?category=office-wear">💼 Office Wear</a></li>
                     <li><a href="shop.html?category=daily-wear">🌸 Daily Wear Collection</a></li>
+                    <li><a href="wishlist.html">💖 My Saved Wishlist</a></li>
                     <li><a href="cart.html">🛒 Shopping Cart</a></li>
                     <li><a href="login.html">👤 Customer Account</a></li>
                     <li><a href="#" id="installAppBtn" style="color:var(--primary-maroon); font-weight:800; display:none;">📲 Install Mobile App</a></li>
@@ -95,13 +93,9 @@ function initMobileBottomNav() {
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></svg>
                 <span>Shop</span>
             </a>
-            <a href="wishlist.html?tab=orders" class="${isWishlist ? 'active' : ''}">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
-                    <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
-                    <line x1="12" y1="22.08" x2="12" y2="12"></line>
-                </svg>
-                <span>Orders</span>
+            <a href="wishlist.html" class="${isWishlist ? 'active' : ''}">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path></svg>
+                <span>Wishlist</span>
                 <span class="badge" id="mobileNavWishlistBadge" style="display:none;">0</span>
             </a>
             <a href="cart.html" class="${isCart ? 'active' : ''}">
@@ -121,9 +115,8 @@ function initMobileBottomNav() {
 
 export function updateMobileBadges() {
     try {
-        const cartStr = localStorage.getItem('vw_cart');
-        const cart = cartStr ? JSON.parse(cartStr) : [];
-        const cartCount = cart ? cart.reduce((sum, item) => sum + (item.quantity || 1), 0) : 0;
+        const cart = getCart();
+        const cartCount = cart ? cart.reduce((sum, item) => sum + item.quantity, 0) : 0;
         const cartBadges = [document.getElementById('cartCountBadge'), document.getElementById('mobileNavCartBadge')];
         cartBadges.forEach(badge => {
             if (badge) {
@@ -138,8 +131,7 @@ export function updateMobileBadges() {
     } catch(e) {}
 
     try {
-        const wishStr = localStorage.getItem('vw_wishlist');
-        const wishlist = wishStr ? JSON.parse(wishStr) : [];
+        const wishlist = getWishlist();
         const wishCount = wishlist ? wishlist.length : 0;
         const wishBadges = [document.getElementById('wishlistCountBadge'), document.getElementById('mobileNavWishlistBadge')];
         wishBadges.forEach(badge => {
@@ -156,67 +148,24 @@ export function updateMobileBadges() {
 }
 
 function initMobileNavDrawer() {
-    document.addEventListener('click', (e) => {
-        const toggleBtn = e.target.closest('#mobileNavToggle') || e.target.closest('.mobile-nav-toggle');
-        const closeBtn = e.target.closest('#mobileNavClose') || e.target.closest('.mobile-filter-close');
-        const overlay = e.target.closest('#mobileNavOverlay');
+    const toggle = document.getElementById('mobileNavToggle');
+    const close = document.getElementById('mobileNavClose');
+    const overlay = document.getElementById('mobileNavOverlay');
+    const drawer = document.getElementById('mobileDrawer');
 
-        const drawer = document.getElementById('mobileDrawer');
-        const navOverlay = document.getElementById('mobileNavOverlay');
+    if (toggle && drawer && overlay) {
+        toggle.addEventListener('click', () => {
+            drawer.classList.add('active');
+            overlay.classList.add('active');
+        });
 
-        if (toggleBtn) {
-            e.preventDefault();
-            drawer?.classList.add('active');
-            navOverlay?.classList.add('active');
-            document.body.style.overflow = 'hidden';
-        } else if (closeBtn || overlay) {
-            drawer?.classList.remove('active');
-            navOverlay?.classList.remove('active');
-            document.body.style.overflow = '';
-        }
-    });
-}
+        const closeDrawer = () => {
+            drawer.classList.remove('active');
+            overlay.classList.remove('active');
+        };
 
-function initWelcomeAccountModal() {
-    const hasSession = localStorage.getItem('vw_session');
-    const dismissed = sessionStorage.getItem('sa_welcome_dismissed');
-
-    // Only show pop-up modal for new visitors without an account on homepage or main shop pages
-    const path = window.location.pathname.toLowerCase();
-    const isMainPage = path.endsWith('index.html') || path.endsWith('/') || path.endsWith('shop.html');
-
-    if (!hasSession && !dismissed && isMainPage) {
-        setTimeout(() => {
-            if (document.getElementById('welcomePopupModal')) return;
-
-            const modalHTML = `
-                <div id="welcomePopupModal" style="position:fixed; inset:0; background:rgba(0,0,0,0.7); backdrop-filter:blur(4px); z-index:1900; display:flex; align-items:center; justify-content:center; padding:1rem; animation:fadeIn 0.3s ease;">
-                    <div style="background:var(--bg-white); border-radius:var(--radius-lg); padding:2rem; max-width:440px; width:100%; text-align:center; box-shadow:var(--shadow-lg); border:2px solid var(--gold-accent); position:relative;">
-                        <button id="closeWelcomePopup" style="position:absolute; top:12px; right:16px; background:none; border:none; font-size:1.4rem; cursor:pointer; color:var(--text-muted);">✕</button>
-                        
-                        <div style="font-size:2.8rem; margin-bottom:0.5rem;">🌸</div>
-                        <h3 style="font-family:var(--font-heading); font-size:1.6rem; color:var(--primary-maroon); margin:0 0 0.5rem; font-weight:800;">Welcome to Shree Aura!</h3>
-                        <p style="color:var(--text-muted); font-size:0.88rem; margin:0 0 1.5rem; font-weight:500; line-height:1.5;">
-                            Create a free account or sign in to track your saree order catalog, delivery updates & saved wishlist!
-                        </p>
-
-                        <div style="display:flex; flex-direction:column; gap:0.75rem;">
-                            <a href="login.html" class="btn btn-primary" style="padding:0.75rem; font-weight:800; font-size:0.9rem;">CREATE ACCOUNT / SIGN IN</a>
-                            <button id="skipWelcomePopup" class="btn btn-outline" style="padding:0.6rem; font-size:0.85rem;">Continue Browsing</button>
-                        </div>
-                    </div>
-                </div>
-            `;
-            document.body.insertAdjacentHTML('beforeend', modalHTML);
-
-            const closeModal = () => {
-                sessionStorage.setItem('sa_welcome_dismissed', '1');
-                document.getElementById('welcomePopupModal')?.remove();
-            };
-
-            document.getElementById('closeWelcomePopup')?.addEventListener('click', closeModal);
-            document.getElementById('skipWelcomePopup')?.addEventListener('click', closeModal);
-        }, 1500);
+        close?.addEventListener('click', closeDrawer);
+        overlay.addEventListener('click', closeDrawer);
     }
 }
 
