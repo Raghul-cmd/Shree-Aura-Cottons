@@ -74,7 +74,6 @@
             <!-- FORM 1: LOGIN -->
             <form id="customerLoginForm" style="display:flex; flex-direction:column; gap:1.1rem;">
                 <h2 style="font-family:var(--font-heading); font-size:1.8rem; color:var(--primary-maroon); text-align:center; margin:0; font-weight:800;">Welcome Back</h2>
-                <p style="text-align:center; color:var(--text-muted); font-size:0.85rem; font-weight:500; margin:0 0 0.5rem 0;">Log in with your Supabase account</p>
 
                 <div>
                     <label style="font-size:0.85rem; font-weight:700; display:block; margin-bottom:0.3rem;">Email Address</label>
@@ -84,13 +83,12 @@
                     <label style="font-size:0.85rem; font-weight:700; display:block; margin-bottom:0.3rem;">Password</label>
                     <input type="password" id="loginPassword" required style="width:100%; padding:0.7rem; border:2px solid var(--border-color); border-radius:6px; font-size:0.9rem; font-weight:500;" placeholder="••••••••">
                 </div>
-                <button type="submit" class="btn btn-primary" style="margin-top:0.5rem; padding:0.85rem;">SIGN IN TO SUPABASE</button>
+                <button type="submit" class="btn btn-primary" style="margin-top:0.5rem; padding:0.85rem;">SIGN IN</button>
             </form>
 
             <!-- FORM 2: REGISTER (CREATE ACCOUNT) -->
             <form id="customerRegisterForm" style="display:none; flex-direction:column; gap:1.1rem;">
                 <h2 style="font-family:var(--font-heading); font-size:1.8rem; color:var(--primary-maroon); text-align:center; margin:0; font-weight:800;">Create Account</h2>
-                <p style="text-align:center; color:var(--text-muted); font-size:0.85rem; font-weight:500; margin:0 0 0.5rem 0;">Register directly in Supabase Authentication</p>
 
                 <div>
                     <label style="font-size:0.85rem; font-weight:700; display:block; margin-bottom:0.3rem;">Full Name *</label>
@@ -108,12 +106,8 @@
                     <label style="font-size:0.85rem; font-weight:700; display:block; margin-bottom:0.3rem;">Password *</label>
                     <input type="password" id="regPassword" required minlength="6" style="width:100%; padding:0.7rem; border:2px solid var(--border-color); border-radius:6px; font-size:0.9rem; font-weight:500;" placeholder="At least 6 characters">
                 </div>
+                <button type="submit" class="btn btn-primary" style="margin-top:0.5rem; padding:0.85rem;">CREATE ACCOUNT</button>
             </form>
-            <div style="margin-top:1.5rem; padding-top:1rem; border-top:1px solid var(--border-color); text-align:center;">
-                <a href="admin.html" style="font-size:0.88rem; color:var(--primary-maroon); font-weight:700; text-decoration:underline; cursor:pointer;">
-                    Store Owner or Administrator? Click here to access Admin Portal 🔐
-                </a>
-            </div>
         </div>
     </main>
 
