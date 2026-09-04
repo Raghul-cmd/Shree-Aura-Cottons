@@ -273,6 +273,7 @@ function renderOrdersTable(query = '', statusFilter = '') {
                     <div style="font-weight:800; color:#000000;">${o.customer_name || 'Customer'}</div>
                     <div style="font-size:0.75rem; color:#64748B;">${o.phone || ''} • ${o.email || ''}</div>
                     <div style="font-size:0.75rem; color:#64748B;">${o.address || ''}, ${o.city || ''}</div>
+                    ${o.razorpay_payment_id ? `<div style="font-size:0.72rem; color:#0284C7; font-weight:700; margin-top:0.2rem;">Razorpay: ${o.razorpay_payment_id}</div>` : ''}
                 </td>
                 <td>${itemsListHtml}</td>
                 <td style="font-weight:800; color:#000000;">₹${Number(o.total_amount || 0).toFixed(2)}</td>

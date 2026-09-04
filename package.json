@@ -1,0 +1,15 @@
+{
+  "name": "shree-aura-cottons",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Shree Aura Cottons E-Commerce Store with Razorpay Payment Integration",
+  "main": "api/payment/create-order.js",
+  "scripts": {
+    "start": "echo 'Deploy to Vercel to run serverless functions'"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.45.0",
+    "dotenv": "^16.4.5",
+    "razorpay": "^2.9.4"
+  }
+}

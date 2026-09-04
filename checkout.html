@@ -15,6 +15,7 @@
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/responsive.css">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 </head>
 <body>
     <header class="main-header">
@@ -86,8 +87,8 @@
                         <span><strong>Cash on Delivery (COD)</strong> - Pay in cash upon delivery</span>
                     </label>
                     <label class="checkbox-label" style="padding:0.9rem; border:2px solid var(--border-color); border-radius:8px; cursor:pointer;">
-                        <input type="radio" name="paymentMethod" value="upi">
-                        <span><strong>UPI / GPay / PhonePe / QR Code</strong> - Fast digital pay</span>
+                        <input type="radio" name="paymentMethod" value="online">
+                        <span><strong>Online Payment (UPI, Cards, NetBanking, QR Code)</strong> - Fast digital pay via Razorpay 💳</span>
                     </label>
                 </div>
             </div>

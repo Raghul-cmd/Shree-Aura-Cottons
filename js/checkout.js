@@ -1,9 +1,6 @@
-// ==============================================================================
-// VANAMALA WEAVES - CHECKOUT & ORDER PLACEMENT CONTROLLER
-// ==============================================================================
-
 import { getCart, getCartTotals, clearCart } from './cart.js';
 import { createOrder } from './supabase.js';
+import { initiateRazorpayPayment } from './razorpay-payment.js';
 
 document.addEventListener('DOMContentLoaded', () => {
     const cart = getCart();
@@ -50,37 +47,64 @@ async function handleCheckoutSubmit(e) {
     
     const submitBtn = document.getElementById('placeOrderBtn');
     submitBtn.disabled = true;
-    submitBtn.innerHTML = `Placing Order...`;
+    submitBtn.innerHTML = `Processing Order...`;
 
     try {
         const formData = new FormData(e.target);
-        const orderPayload = {
-            customer_name: formData.get('fullName'),
+        const selectedPaymentMethod = formData.get('paymentMethod');
+        const cartItems = getCart();
+
+        const shippingData = {
+            fullName: formData.get('fullName'),
             phone: formData.get('phone'),
             email: formData.get('email'),
             address: formData.get('address'),
             city: formData.get('city'),
             state: formData.get('state'),
-            pincode: formData.get('pincode'),
-            total_amount: getCartTotals().grandTotal,
-            payment_status: formData.get('paymentMethod') === 'cod' ? 'pending' : 'paid',
-            order_status: 'placed'
+            pincode: formData.get('pincode')
         };
 
-        const cartItems = getCart();
-        const createdOrder = await createOrder(orderPayload, cartItems);
+        if (selectedPaymentMethod === 'cod') {
+            // Standard Cash on Delivery Path
+            const orderPayload = {
+                customer_name: shippingData.fullName,
+                phone: shippingData.phone,
+                email: shippingData.email,
+                address: shippingData.address,
+                city: shippingData.city,
+                state: shippingData.state,
+                pincode: shippingData.pincode,
+                total_amount: getCartTotals().grandTotal,
+                payment_method: 'cod',
+                payment_status: 'pending',
+                order_status: 'placed'
+            };
 
-        // Clear cart on success
-        clearCart();
-
-        // Show Success Modal
-        showSuccessModal(createdOrder);
+            const createdOrder = await createOrder(orderPayload, cartItems);
+            clearCart();
+            showSuccessModal(createdOrder);
+        } else {
+            // Online Payment via Razorpay
+            await initiateRazorpayPayment(
+                shippingData,
+                cartItems,
+                async function onSuccess(createdOrder) {
+                    clearCart();
+                    showSuccessModal(createdOrder);
+                },
+                function onError(errMsg) {
+                    alert(errMsg || "Payment was not completed. You can retry payment anytime.");
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = `PLACE ORDER NOW`;
+                }
+            );
+        }
 
     } catch (err) {
         console.error("Failed to place order:", err);
         alert("Failed to place order. Please try again.");
         submitBtn.disabled = false;
-        submitBtn.innerHTML = `PLACE ORDER`;
+        submitBtn.innerHTML = `PLACE ORDER NOW`;
     }
 }
 
