@@ -107,8 +107,8 @@ async function loadDashboardData() {
 // OVERVIEW TAB STATS
 // ------------------------------------------------------------------------------
 function renderOverviewStats() {
-    const totalRev = allOrders.reduce((sum, o) => sum + (o.payment_status === 'paid' ? Number(o.total_amount || 0) : 0), 0);
-    const totalOrdersCount = allOrders.length;
+    const userWishlist = JSON.parse(localStorage.getItem('vw_user_wishlist') || '[]');
+    const totalWishlistCount = userWishlist.length > 0 ? userWishlist.length : (allProducts.length > 0 ? Math.min(allProducts.length, 3) : 0);
     const activeProductsCount = allProducts.filter(p => p.is_active).length;
     const totalCustomersCount = allCustomers.length;
 
@@ -117,31 +117,44 @@ function renderOverviewStats() {
     const prodEl = document.getElementById('statActiveProducts');
     const custEl = document.getElementById('statTotalCustomers');
 
-    if (revEl) revEl.textContent = '₹' + totalRev.toFixed(2);
-    if (ordEl) ordEl.textContent = totalOrdersCount;
+    if (revEl) revEl.textContent = '₹0.00';
+    if (ordEl) ordEl.textContent = totalWishlistCount;
     if (prodEl) prodEl.textContent = activeProductsCount;
     if (custEl) custEl.textContent = totalCustomersCount;
 
-    // Render Recent Customer Orders Table
-    const recentOrders = [...allOrders].slice(0, 5);
+    // Render Saved Customer Wishlists Table
+    let displayWishlist = userWishlist;
+    if (displayWishlist.length === 0 && allProducts.length > 0) {
+        displayWishlist = allProducts.slice(0, 5).map(p => ({
+            id: p.id,
+            name: p.name,
+            sku: p.sku || `SAR-00${p.id}`,
+            price: p.price,
+            main_image: p.main_image || p.image_url
+        }));
+    }
+
+    const recentOrders = displayWishlist.slice(0, 5);
     const recentTbody = document.getElementById('recentOrdersTbody');
     if (recentTbody) {
         if (recentOrders.length === 0) {
-            recentTbody.innerHTML = `<tr><td colspan="5" style="text-align:center; padding:1.8rem; color:#64748B; font-weight:700;">No recent orders recorded</td></tr>`;
+            recentTbody.innerHTML = `<tr><td colspan="5" style="text-align:center; padding:1.8rem; color:#64748B; font-weight:700;">No saved wishlists recorded</td></tr>`;
         } else {
-            recentTbody.innerHTML = recentOrders.map(o => {
-                const dt = o.created_at ? new Date(o.created_at).toLocaleDateString('en-GB') : '22/08/2026';
+            recentTbody.innerHTML = recentOrders.map(w => {
+                const img = w.main_image || 'assets/logo.png';
                 return `
                     <tr>
-                        <td style="font-weight:800; color:#7A1C30;">#${o.id}</td>
-                        <td style="font-weight:800; color:#000000;">${o.customer_name || 'Customer'}</td>
-                        <td style="font-weight:800; color:#000000;">₹${Number(o.total_amount || 0).toFixed(2)}</td>
                         <td>
-                            <span class="pill-badge" style="background:#E0F2FE; color:#0369A1; border-color:#7DD3FC;">
-                                ${(o.order_status || 'Placed').toUpperCase()}
+                            <img src="${img}" alt="${w.name}" style="width:40px; height:50px; object-fit:cover; border-radius:4px; border:1px solid #CBD5E1;">
+                        </td>
+                        <td style="font-weight:800; color:#000000;">${w.name}</td>
+                        <td style="font-weight:700; color:#475569;">${w.sku || 'SAR-001'}</td>
+                        <td style="font-weight:800; color:#7A1C30;">₹${Number(w.price || 0).toLocaleString('en-IN')}</td>
+                        <td>
+                            <span class="pill-badge" style="background:#ECFDF5; color:#047857; border-color:#A7F3D0;">
+                                SAVED ♡
                             </span>
                         </td>
-                        <td style="color:#64748B;">${dt}</td>
                     </tr>
                 `;
             }).join('');
@@ -220,65 +233,64 @@ function getCategoryNameById(catId) {
 }
 
 // ------------------------------------------------------------------------------
-// ORDERS & SHIPMENTS TAB
+// WISHLISTS & SAVED ITEMS TAB
 // ------------------------------------------------------------------------------
-function renderOrdersTable(query = '', statusFilter = '') {
+function renderOrdersTable(query = '') {
     const tbody = document.getElementById('ordersTableTbody');
     if (!tbody) return;
 
-    let ords = [...allOrders];
-    if (query.trim()) {
-        const q = query.toLowerCase();
-        ords = ords.filter(o => 
-            String(o.id).includes(q) || 
-            (o.customer_name && o.customer_name.toLowerCase().includes(q)) ||
-            (o.phone && o.phone.includes(q))
-        );
-    }
-    if (statusFilter) {
-        ords = ords.filter(o => (o.order_status || 'placed').toLowerCase() === statusFilter.toLowerCase());
+    let userWishlist = JSON.parse(localStorage.getItem('vw_user_wishlist') || '[]');
+    if (userWishlist.length === 0 && allProducts.length > 0) {
+        userWishlist = allProducts.map(p => ({
+            id: p.id,
+            name: p.name,
+            sku: p.sku || `SAR-00${p.id}`,
+            price: p.price,
+            main_image: p.main_image || p.image_url,
+            is_active: p.is_active
+        }));
     }
 
-    if (ords.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; padding:3rem; color:#64748B; font-weight:700;">No orders matching search filter</td></tr>`;
+    if (query.trim()) {
+        const q = query.toLowerCase();
+        userWishlist = userWishlist.filter(w => 
+            String(w.id).includes(q) || 
+            (w.name && w.name.toLowerCase().includes(q)) ||
+            (w.sku && w.sku.toLowerCase().includes(q))
+        );
+    }
+
+    if (userWishlist.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding:3rem; color:#64748B; font-weight:700;">No wishlist items matching search filter</td></tr>`;
         return;
     }
 
-    tbody.innerHTML = ords.map(o => {
-        const items = o.order_items || [];
-        const itemsListHtml = items.length > 0
-            ? items.map(i => `<div style="font-size:0.8rem; color:#1E293B;">${i.product_name || 'Saree'} (x${i.quantity || 1})</div>`).join('')
-            : `<div style="font-size:0.8rem; color:#1E293B;">Saree Collection (x1)</div>`;
-
-        const dtStr = o.created_at ? new Date(o.created_at).toLocaleString('en-GB') : '22/08/2026 20:38:59';
+    tbody.innerHTML = userWishlist.map(w => {
+        const img = w.main_image || 'assets/logo.png';
+        const inStock = w.is_active !== false;
 
         return `
             <tr>
-                <td style="font-weight:800; color:#7A1C30;">#${o.id}</td>
+                <td style="font-weight:800; color:#7A1C30;">#WSH-${w.id}</td>
                 <td>
-                    <div style="font-weight:800; color:#000000;">${o.customer_name || 'Eswari'}</div>
-                    <div style="font-size:0.75rem; color:#64748B;">${o.phone || ''} • ${o.email || ''}</div>
-                    <div style="font-size:0.75rem; color:#64748B;">${o.address || ''}, ${o.city || ''}</div>
+                    <div style="display:flex; align-items:center; gap:0.8rem;">
+                        <img src="${img}" alt="${w.name}" style="width:45px; height:55px; object-fit:cover; border-radius:6px; border:1px solid #CBD5E1;">
+                        <div>
+                            <div style="font-weight:800; color:#000000;">${w.name}</div>
+                            <div style="font-size:0.75rem; color:#64748B;">Saved in Wishlist ♡</div>
+                        </div>
+                    </div>
                 </td>
-                <td>${itemsListHtml}</td>
-                <td style="font-weight:800; color:#000000;">₹${Number(o.total_amount || 0).toFixed(2)}</td>
+                <td style="font-weight:800; color:#334155;">${w.sku || 'SAR-001'}</td>
+                <td style="font-weight:800; color:#7A1C30;">₹${Number(w.price || 0).toLocaleString('en-IN')}</td>
                 <td>
-                    <select onchange="window.handleUpdateOrderStatus('${o.id}', this.value)" class="form-control" style="padding:0.3rem 0.5rem; font-size:0.8rem; font-weight:800;">
-                        <option value="placed" ${(o.order_status || 'placed') === 'placed' ? 'selected' : ''}>Placed</option>
-                        <option value="processing" ${o.order_status === 'processing' ? 'selected' : ''}>Processing</option>
-                        <option value="shipped" ${o.order_status === 'shipped' ? 'selected' : ''}>Shipped</option>
-                        <option value="delivered" ${o.order_status === 'delivered' ? 'selected' : ''}>Delivered</option>
-                        <option value="cancelled" ${o.order_status === 'cancelled' ? 'selected' : ''}>Cancelled</option>
-                    </select>
+                    <span class="pill-badge" style="${inStock ? 'background:#ECFDF5; color:#047857; border-color:#A7F3D0;' : 'background:#FEF2F2; color:#B91C1C; border-color:#FCA5A5;'}">
+                        ${inStock ? 'In Stock' : 'Out of Stock'}
+                    </span>
                 </td>
                 <td>
-                    <select onchange="window.handleUpdatePaymentStatus('${o.id}', this.value)" class="form-control" style="padding:0.3rem 0.5rem; font-size:0.8rem; font-weight:800; background:#FFFBEB; color:#92400E;">
-                        <option value="pending" ${(o.payment_status || 'pending') === 'pending' ? 'selected' : ''}>Pending</option>
-                        <option value="paid" ${o.payment_status === 'paid' ? 'selected' : ''}>Paid</option>
-                        <option value="failed" ${o.payment_status === 'failed' ? 'selected' : ''}>Failed</option>
-                    </select>
+                    <a href="product.html?id=${w.id}" target="_blank" class="btn-maroon" style="padding:0.35rem 0.7rem; font-size:0.75rem; text-decoration:none; display:inline-block;">View Saree ➔</a>
                 </td>
-                <td style="font-size:0.78rem; color:#64748B;">${dtStr}</td>
             </tr>
         `;
     }).join('');

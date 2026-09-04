@@ -697,7 +697,7 @@
                     <span style="font-size:1.1rem;">🥻</span> Saree Catalog
                 </div>
                 <div class="sidebar-item" data-tab="orders">
-                    <span style="font-size:1.1rem;">📦</span> Orders & Shipments
+                    <span style="font-size:1.1rem;">💖</span> Wishlists & Saved Items
                 </div>
                 <div class="sidebar-item" data-tab="categories">
                     <span style="font-size:1.1rem;">🏷️</span> Categories
@@ -725,7 +725,7 @@
                         </div>
 
                         <div class="dashboard-stat-card">
-                            <div class="dash-stat-label">TOTAL ORDERS</div>
+                            <div class="dash-stat-label">SAVED WISHLISTS</div>
                             <div class="dash-stat-value" id="statTotalOrders">0</div>
                         </div>
 
@@ -742,24 +742,24 @@
 
                     <div class="content-card">
                         <div class="content-card-header">
-                            <h3 style="font-family:var(--font-heading); color:#7A1C30; margin:0; font-size:1.15rem; font-weight:800;">Recent Customer Orders</h3>
+                            <h3 style="font-family:var(--font-heading); color:#7A1C30; margin:0; font-size:1.15rem; font-weight:800;">Saved Customer Wishlists</h3>
                             <button onclick="window.switchToOrdersTab()" class="btn-maroon" style="padding:0.4rem 0.8rem; font-size:0.78rem;">
-                                View All Orders ➔
+                                View All Wishlists ➔
                             </button>
                         </div>
                         <div class="table-responsive">
                             <table class="content-table">
                                 <thead>
                                     <tr>
-                                        <th>ORDER ID</th>
-                                        <th>CUSTOMER</th>
-                                        <th>AMOUNT</th>
+                                        <th>PREVIEW</th>
+                                        <th>SAREE NAME</th>
+                                        <th>SKU CODE</th>
+                                        <th>PRICE</th>
                                         <th>STATUS</th>
-                                        <th>DATE</th>
                                     </tr>
                                 </thead>
                                 <tbody id="recentOrdersTbody">
-                                    <tr><td colspan="5" style="text-align:center; padding:2rem; color:#64748B;">Loading orders...</td></tr>
+                                    <tr><td colspan="5" style="text-align:center; padding:2rem; color:#64748B;">Loading wishlists...</td></tr>
                                 </tbody>
                             </table>
                         </div>
@@ -802,23 +802,15 @@
                     </div>
                 </div>
 
-                <!-- TAB 3: ORDERS & SHIPMENTS -->
+                <!-- TAB 3: WISHLISTS & SAVED ITEMS -->
                 <div id="tab_orders" class="admin-tab-content" style="display:none;">
-                    <h2 class="page-header-title">Orders & Shipments</h2>
-                    <p class="page-header-subtitle">Live order processing and delivery status management</p>
+                    <h2 class="page-header-title">Wishlists & Saved Items</h2>
+                    <p class="page-header-subtitle">Live saved saree items and customer wishlist analytics</p>
 
                     <div class="content-card">
                         <div class="content-card-header">
                             <div style="display:flex; gap:1rem; align-items:center; flex:1;">
-                                <input type="text" id="orderSearchInput" class="form-control" placeholder="Search orders by ID, name or phone..." style="max-width:360px;">
-                                <select id="orderStatusFilter" class="form-control" style="max-width:180px;">
-                                    <option value="">All Statuses</option>
-                                    <option value="placed">Placed</option>
-                                    <option value="processing">Processing</option>
-                                    <option value="shipped">Shipped</option>
-                                    <option value="delivered">Delivered</option>
-                                    <option value="cancelled">Cancelled</option>
-                                </select>
+                                <input type="text" id="orderSearchInput" class="form-control" placeholder="Search wishlists by saree name or SKU..." style="max-width:360px;">
                             </div>
                         </div>
 
@@ -826,17 +818,16 @@
                             <table class="content-table">
                                 <thead>
                                     <tr>
-                                        <th>ORDER ID</th>
-                                        <th>CUSTOMER & ADDRESS</th>
-                                        <th>SAREE ITEMS</th>
-                                        <th>TOTAL AMOUNT</th>
-                                        <th>ORDER STATUS</th>
-                                        <th>PAYMENT STATUS</th>
-                                        <th>PLACED DATE</th>
+                                        <th>ITEM ID</th>
+                                        <th>SAREE & PREVIEW</th>
+                                        <th>SKU CODE</th>
+                                        <th>PRICE</th>
+                                        <th>STOCK STATUS</th>
+                                        <th>ACTION</th>
                                     </tr>
                                 </thead>
                                 <tbody id="ordersTableTbody">
-                                    <tr><td colspan="7" style="text-align:center; padding:2.5rem; color:#64748B;">Loading orders from Supabase...</td></tr>
+                                    <tr><td colspan="6" style="text-align:center; padding:2.5rem; color:#64748B;">Loading wishlists...</td></tr>
                                 </tbody>
                             </table>
                         </div>
