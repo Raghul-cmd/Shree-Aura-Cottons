@@ -68,29 +68,37 @@ module.exports = async function handler(req, res) {
             razorpay_payment_id: razorpay_payment_id
         };
 
+        let updatedOrder = null;
         if (targetId) {
-            await supabase.from('orders').update(updateData).eq('id', targetId);
+            const { data } = await supabase.from('orders').update(updateData).eq('id', targetId).select();
+            if (data && data[0]) updatedOrder = data[0];
         } else {
-            await supabase.from('orders').update(updateData).eq('razorpay_order_id', razorpay_order_id);
+            const { data } = await supabase.from('orders').update(updateData).eq('razorpay_order_id', razorpay_order_id).select();
+            if (data && data[0]) updatedOrder = data[0];
         }
 
-        // 3. Log Audit Record in payments table (if table exists)
+        const orderAmount = updatedOrder ? Number(updatedOrder.total_amount || 0) : 0;
+        const actualOrderId = updatedOrder ? updatedOrder.id : (targetId || null);
+
+        // 3. Log Audit Record in payments table (with mandatory amount field)
         try {
             await supabase.from('payments').insert([{
-                order_id: targetId || null,
+                order_id: actualOrderId,
                 razorpay_order_id: razorpay_order_id,
                 razorpay_payment_id: razorpay_payment_id,
+                amount: orderAmount,
+                currency: 'INR',
                 status: 'captured',
                 signature_verified: true
             }]);
         } catch(e) {
-            // Ignore if payments table is not created yet
+            console.error("Notice logging into payments table:", e.message || e);
         }
 
         return res.status(200).json({
             success: true,
             message: 'Payment verified successfully',
-            order_id: targetId || razorpay_order_id,
+            order_id: actualOrderId || razorpay_order_id,
             razorpay_payment_id: razorpay_payment_id
         });
 

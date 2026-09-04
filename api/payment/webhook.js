@@ -45,16 +45,35 @@ module.exports = async function handler(req, res) {
 
             const razorpayOrderId = (orderEntity && orderEntity.id) || (paymentEntity && paymentEntity.order_id);
             const razorpayPaymentId = paymentEntity ? paymentEntity.id : null;
+            const amountInRupees = paymentEntity ? Number(paymentEntity.amount) / 100 : (orderEntity ? Number(orderEntity.amount) / 100 : 0);
 
             if (razorpayOrderId) {
-                // Idempotent update: ensure we only update if not already paid
-                await supabase
+                // 1. Idempotent update on orders table
+                const { data: updatedOrders } = await supabase
                     .from('orders')
                     .update({ 
                         payment_status: 'paid',
                         razorpay_payment_id: razorpayPaymentId || undefined 
                     })
-                    .eq('razorpay_order_id', razorpayOrderId);
+                    .eq('razorpay_order_id', razorpayOrderId)
+                    .select();
+
+                const dbOrder = updatedOrders && updatedOrders[0];
+
+                // 2. Insert audit log into payments table
+                try {
+                    await supabase.from('payments').insert([{
+                        order_id: dbOrder ? dbOrder.id : null,
+                        razorpay_order_id: razorpayOrderId,
+                        razorpay_payment_id: razorpayPaymentId,
+                        amount: amountInRupees || (dbOrder ? dbOrder.total_amount : 0),
+                        currency: 'INR',
+                        status: 'captured',
+                        signature_verified: true
+                    }]);
+                } catch(e) {
+                    console.error("Webhook notice logging payments table:", e.message || e);
+                }
             }
         } else if (event === 'payment.failed') {
             const paymentEntity = payload.payment ? payload.payment.entity : null;
