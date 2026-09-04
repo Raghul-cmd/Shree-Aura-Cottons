@@ -1,5 +1,5 @@
 // ==============================================================================
-// VANAMALA WEAVES - WISHLIST MANAGEMENT MODULE
+// SHREE AURA COTTONS - WISHLIST MANAGEMENT MODULE
 // ==============================================================================
 
 import { showToast } from './cart.js';
@@ -29,7 +29,7 @@ export function toggleWishlist(product) {
             name: product.name,
             price: product.price,
             compare_price: product.compare_price,
-            main_image: product.main_image,
+            main_image: product.main_image || product.image_url,
             sku: product.sku
         });
         added = true;
