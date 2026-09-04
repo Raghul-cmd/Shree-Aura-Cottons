@@ -127,17 +127,27 @@ function renderOverviewStats() {
     const recentTbody = document.getElementById('recentOrdersTbody');
     if (recentTbody) {
         if (recentOrders.length === 0) {
-            recentTbody.innerHTML = `<tr><td colspan="5" style="text-align:center; padding:1.8rem; color:#64748B; font-weight:700;">No recent customer orders recorded</td></tr>`;
+            recentTbody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding:1.8rem; color:#64748B; font-weight:700;">No recent customer orders recorded</td></tr>`;
         } else {
             recentTbody.innerHTML = recentOrders.map(o => {
                 const dt = o.created_at ? new Date(o.created_at).toLocaleDateString('en-GB') : 'Today';
+                const payStatus = (o.payment_status || 'pending').toLowerCase();
+                const payBadgeStyle = payStatus === 'paid'
+                    ? 'background:#D1FAE5; color:#065F46; border:1px solid #A7F3D0;'
+                    : (payStatus === 'failed' ? 'background:#FEE2E2; color:#991B1B; border:1px solid #FCA5A5;' : 'background:#FFFBEB; color:#92400E; border:1px solid #FDE68A;');
+
                 return `
                     <tr>
                         <td style="font-weight:800; color:#7A1C30;">#${o.id}</td>
                         <td style="font-weight:800; color:#000000;">${o.customer_name || 'Customer'}</td>
                         <td style="font-weight:800; color:#000000;">₹${Number(o.total_amount || 0).toFixed(2)}</td>
                         <td>
-                            <span class="pill-badge" style="background:#E0F2FE; color:#0369A1; border-color:#7DD3FC;">
+                            <span class="pill-badge" style="${payBadgeStyle} text-transform:uppercase; font-size:0.75rem; font-weight:800; padding:0.25rem 0.6rem; border-radius:12px; display:inline-block;">
+                                ${payStatus}
+                            </span>
+                        </td>
+                        <td>
+                            <span class="pill-badge" style="background:#E0F2FE; color:#0369A1; border:1px solid #7DD3FC; text-transform:uppercase; font-size:0.75rem; font-weight:800; padding:0.25rem 0.6rem; border-radius:12px; display:inline-block;">
                                 ${(o.order_status || 'Placed').toUpperCase()}
                             </span>
                         </td>
