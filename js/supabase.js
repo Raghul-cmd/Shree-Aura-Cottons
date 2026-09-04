@@ -376,18 +376,19 @@ export async function createOrder(orderPayload, items) {
 }
 
 export async function getOrders() {
-    if (typeof localStorage !== 'undefined') {
-        localStorage.removeItem('vw_mock_orders');
-    }
     if (supabaseClient) {
         try {
             const { data, error } = await supabaseClient.from('orders').select('*, order_items(*)').order('created_at', { ascending: false });
-            if (!error && data) return data;
+            if (!error && data && data.length > 0) return data;
         } catch (e) {
             console.warn("Supabase orders fetch failed:", e);
         }
     }
-    return [];
+    let orders = [];
+    if (typeof localStorage !== 'undefined') {
+        try { orders = JSON.parse(localStorage.getItem('vw_mock_orders') || '[]'); } catch(e) {}
+    }
+    return orders;
 }
 
 export async function updateOrderStatus(orderId, order_status, payment_status) {
