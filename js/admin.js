@@ -743,17 +743,17 @@ function openProductModal(prod = null) {
     } else {
         if (title) title.textContent = "Add New Saree Product";
         document.getElementById('modalProductId').value = '';
-        document.getElementById('modalProductName').value = 'Brown Border Kattam';
-        document.getElementById('modalProductSku').value = 'SAR-OFF-006';
-        document.getElementById('modalProductCategory').value = '2';
-        document.getElementById('modalProductPrice').value = '999';
-        document.getElementById('modalProductComparePrice').value = '1499';
-        document.getElementById('modalProductStock').value = '10';
+        document.getElementById('modalProductName').value = '';
+        document.getElementById('modalProductSku').value = '';
+        document.getElementById('modalProductCategory').value = '1';
+        document.getElementById('modalProductPrice').value = '';
+        document.getElementById('modalProductComparePrice').value = '';
+        document.getElementById('modalProductStock').value = '';
         document.getElementById('modalProductFabric').value = 'Pure Cotton';
-        document.getElementById('modalProductColor').value = 'Brown';
-        document.getElementById('modalProductOccasion').value = 'Office Wear';
+        document.getElementById('modalProductColor').value = '';
+        document.getElementById('modalProductOccasion').value = '';
         document.getElementById('modalProductMainImage').value = '';
-        document.getElementById('modalProductDescription').value = 'This sophisticated pure cotton saree features a subtle pinstriped body in a warm...';
+        document.getElementById('modalProductDescription').value = '';
         document.getElementById('modalProductIsActive').checked = true;
         document.getElementById('modalProductIsFeatured').checked = false;
 
