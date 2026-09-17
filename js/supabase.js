@@ -2,7 +2,7 @@
 // VANAMALA WEAVES - SUPABASE CLIENT & MOCK DATABASE ENGINE
 // ==============================================================================
 
-import { SUPABASE_URL, SUPABASE_ANON_KEY, isSupabaseConfigured } from './config.js';
+import { SUPABASE_URL, SUPABASE_ANON_KEY, isSupabaseConfigured, API_BASE_URL } from './config.js';
 
 let supabaseClient = null;
 
@@ -426,9 +426,33 @@ export async function updateOrderStatus(orderId, order_status, payment_status) {
 }
 
 export async function getCustomers() {
+    // 1. Try High-Security Node.js Backend Protected Customer Endpoint
+    try {
+        const adminToken = typeof localStorage !== 'undefined' ? localStorage.getItem('admin_token') : null;
+        const headers = { 'Content-Type': 'application/json' };
+        if (adminToken) {
+            headers['Authorization'] = `Bearer ${adminToken}`;
+        }
+
+        const response = await fetch(`${API_BASE_URL}/api/admin/customers`, {
+            method: 'GET',
+            headers: headers,
+            credentials: 'include'
+        });
+
+        if (response.ok) {
+            const data = await response.json();
+            if (data.success && Array.isArray(data.customers) && data.customers.length > 0) {
+                return data.customers;
+            }
+        }
+    } catch (err) {
+        console.warn("[SECURITY BACKEND] Protected customer API notice:", err.message);
+    }
+
     let customerMap = new Map();
 
-    // 1. Fetch Registered Profiles from Supabase
+    // 2. Fetch Registered Profiles from Supabase
     if (supabaseClient) {
         try {
             const { data: profiles, error: profileErr } = await supabaseClient

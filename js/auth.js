@@ -1,16 +1,46 @@
-// ==============================================================================
-// WEAVES SAREE COLLECTIONS - SUPABASE AUTHENTICATION & ROLE PROTECTION MODULE
-// ==============================================================================
-
+import { API_BASE_URL } from './config.js';
 import { supabaseClient } from './supabase.js';
 
 /**
- * Authenticates an Admin user against Supabase Auth & checks profiles.role === 'admin'
+ * Authenticates an Admin user against Secure Node.js Backend & Supabase Auth
  */
 export async function loginAdmin(email, password) {
     const cleanEmail = (email || '').trim().toLowerCase();
 
-    // 1. Check if Supabase Auth succeeds
+    // 1. Try High-Security Node.js Backend API Endpoint
+    try {
+        const response = await fetch(`${API_BASE_URL}/api/admin/login`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email: cleanEmail, password: password })
+        });
+
+        const data = await response.json();
+        if (response.ok && data.success) {
+            const adminSession = {
+                id: data.user.id,
+                email: data.user.email,
+                full_name: data.user.full_name || 'Store Administrator',
+                role: 'admin',
+                token: data.token,
+                authenticatedAt: new Date().toISOString()
+            };
+            localStorage.setItem('vw_session', JSON.stringify(adminSession));
+            if (data.token) {
+                localStorage.setItem('admin_token', data.token);
+            }
+            return { user: data.user, role: 'admin', session: adminSession };
+        } else if (data.error) {
+            throw new Error(data.error);
+        }
+    } catch (err) {
+        if (err.message && (err.message.includes('Invalid') || err.message.includes('Security Warning') || err.message.includes('Denied'))) {
+            throw err;
+        }
+        console.warn("[AUTH] Node.js server endpoint unreachable, using client auth check:", err.message);
+    }
+
+    // 2. Check if Supabase Auth succeeds
     if (supabaseClient && cleanEmail.includes('@')) {
         try {
             const { data, error } = await supabaseClient.auth.signInWithPassword({
@@ -40,32 +70,7 @@ export async function loginAdmin(email, password) {
         }
     }
 
-    // 2. Fail-Safe Guaranteed Admin Authorization
-    // Grants instant admin access for store owner email, admin usernames, or any standard credentials
-    const isAdminIdent = cleanEmail === 'shreeauracottons@gmail.com' ||
-                         cleanEmail.includes('admin') ||
-                         cleanEmail.includes('owner') ||
-                         cleanEmail === '' ||
-                         cleanEmail.endsWith('@weavessareecollections.com') ||
-                         password === 'admin' ||
-                         password === 'admin123' ||
-                         password === 'admin@123' ||
-                         (password && password.length >= 1);
-
-    if (isAdminIdent) {
-        const displayEmail = cleanEmail.includes('@') ? cleanEmail : 'shreeauracottons@gmail.com';
-        const adminSession = {
-            id: 'usr_admin_001',
-            email: displayEmail,
-            full_name: 'Store Administrator',
-            role: 'admin',
-            authenticatedAt: new Date().toISOString()
-        };
-        localStorage.setItem('vw_session', JSON.stringify(adminSession));
-        return { user: adminSession, role: 'admin', session: adminSession };
-    }
-
-    throw new Error("Invalid admin email or password. Please check your credentials.");
+    throw new Error("Invalid admin email or password. Authorization failed.");
 }
 
 /**
@@ -139,7 +144,7 @@ export async function getCurrentUser() {
                     .eq('id', user.id)
                     .maybeSingle();
 
-                const role = profile?.role || user.user_metadata?.role || (user.email.includes('admin') || user.email === 'shreeauracottons@gmail.com' ? 'admin' : 'customer');
+                const role = profile?.role || user.user_metadata?.role || (user.email === 'shreeauracottons@gmail.com' ? 'admin' : 'customer');
                 const verifiedSession = {
                     id: user.id,
                     email: user.email,

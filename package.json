@@ -5,11 +5,19 @@
   "description": "Shree Aura Cottons E-Commerce Store with Razorpay Payment Integration",
   "main": "api/payment/create-order.js",
   "scripts": {
-    "start": "echo 'Deploy to Vercel to run serverless functions'"
+    "start": "node server.js",
+    "dev": "node server.js"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.45.0",
+    "bcryptjs": "^3.0.3",
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.6",
     "dotenv": "^16.4.5",
+    "express": "^5.2.1",
+    "express-rate-limit": "^8.7.0",
+    "helmet": "^8.3.0",
+    "jsonwebtoken": "^9.0.3",
     "razorpay": "^2.9.4"
   }
 }

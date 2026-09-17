@@ -17,7 +17,7 @@ module.exports = async function handler(req, res) {
     }
 
     try {
-        const webhookSecret = process.env.RAZORPAY_WEBHOOK_SECRET || process.env.RAZORPAY_KEY_SECRET;
+        const webhookSecret = process.env.WEBHOOK_SECRET_LINK || process.env.RAZORPAY_WEBHOOK_SECRET || process.env.RAZORPAY_KEY_SECRET;
         const razorpaySignature = req.headers['x-razorpay-signature'];
 
         if (webhookSecret && razorpaySignature) {

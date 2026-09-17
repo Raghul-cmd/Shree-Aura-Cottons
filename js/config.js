@@ -14,3 +14,8 @@ export const isSupabaseConfigured = () => {
            SUPABASE_ANON_KEY && 
            !SUPABASE_ANON_KEY.includes("YOUR_SUPABASE_PUBLISHABLE_KEY");
 };
+
+export const API_BASE_URL = typeof window !== 'undefined' && window.location.origin && window.location.origin !== 'null' && !window.location.origin.includes('file://')
+    ? window.location.origin
+    : 'http://localhost:5000';
+
