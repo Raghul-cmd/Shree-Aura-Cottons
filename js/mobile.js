@@ -64,17 +64,6 @@ function ensureMobileElements() {
             }
         });
     }
-
-    // 2. Inject Mobile Hamburger Toggle Button in Header if missing
-    const headerInner = document.querySelector('.main-header .header-inner');
-    if (headerInner && !document.getElementById('mobileNavToggle')) {
-        const toggleBtn = document.createElement('button');
-        toggleBtn.className = 'mobile-nav-toggle';
-        toggleBtn.id = 'mobileNavToggle';
-        toggleBtn.setAttribute('aria-label', 'Open navigation menu');
-        toggleBtn.innerHTML = '☰';
-        headerInner.insertAdjacentElement('afterbegin', toggleBtn);
-    }
 }
 
 function initMobileBottomNav() {
