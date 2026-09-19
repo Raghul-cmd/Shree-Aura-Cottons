@@ -2,7 +2,7 @@
 // VANAMALA WEAVES - PRODUCT DETAILS PAGE CONTROLLER
 // ==============================================================================
 
-import { getProductById, getProducts } from './supabase.js';
+import { getProductById, getProducts } from './supabase.js?v=2';
 import { addToCart } from './cart.js';
 import { toggleWishlist, isInWishlist } from './wishlist.js';
 import { renderProductCardHTML } from './products.js';

@@ -16,7 +16,7 @@ import {
     getCustomers, 
     uploadImageToStorage,
     supabaseClient 
-} from './supabase.js';
+} from './supabase.js?v=2';
 
 import { loginAdmin, getCurrentUser, logoutUser } from './auth.js';
 

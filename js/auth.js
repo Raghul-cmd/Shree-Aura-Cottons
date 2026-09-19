@@ -1,5 +1,5 @@
 import { API_BASE_URL } from './config.js';
-import { supabaseClient } from './supabase.js';
+import { supabaseClient } from './supabase.js?v=2';
 
 /**
  * Authenticates an Admin user against Secure Node.js Backend & Supabase Auth
@@ -74,7 +74,7 @@ export async function loginAdmin(email, password) {
                 return { user: data.user, role: 'admin', session: adminSession };
             }
         } catch (err) {
-            console.warn("Supabase Auth admin login attempt warning:", err);
+            console.warn("Auth admin login attempt warning:", err);
         }
     }
 
@@ -127,7 +127,7 @@ export async function loginUser(email, password) {
                 return { user: data.user, role: session.role };
             }
         } catch (e) {
-            console.warn("Supabase customer login fallback:", e);
+            console.warn("Customer login fallback:", e);
         }
     }
 

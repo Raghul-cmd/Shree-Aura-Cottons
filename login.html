@@ -158,7 +158,7 @@
 
             try {
                 await signUpUser(email, password, fullName, phone, 'customer');
-                alert("Account created successfully in Supabase! Welcome to Shree Aura Cottons.");
+                alert("Account created successfully! Welcome to Shree Aura Cottons.");
                 window.location.href = 'shop.html';
             } catch (err) {
                 alert("Registration failed: " + err.message);

@@ -10,12 +10,9 @@ let supabaseClient = null;
 if (typeof window !== 'undefined' && window.supabase && isSupabaseConfigured()) {
     try {
         supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-        console.log("🟢 Connected to live Supabase project:", SUPABASE_URL);
     } catch (e) {
-        console.warn("⚠️ Failed to initialize Supabase client, falling back to mock database:", e);
+        console.warn("⚠️ Failed to initialize database client, falling back to mock database:", e);
     }
-} else {
-    console.log("ℹ️ Running in Mock Database Mode (Supabase keys unconfigured). Instant local browser testing enabled.");
 }
 
 const INITIAL_MOCK_CATEGORIES = [
@@ -56,9 +53,9 @@ export async function getProducts(options = {}) {
             
             const { data, error } = await query.order('created_at', { ascending: false });
             if (!error && data) return data;
-            if (error) console.warn("Supabase products fetch warning:", error.message);
+            if (error) console.warn("Products fetch warning:", error.message);
         } catch (err) {
-            console.warn("Supabase fetch failed, falling back to local storage:", err);
+            console.warn("Fetch failed, falling back to local storage:", err);
         }
     }
     
@@ -89,7 +86,7 @@ export async function getProductById(id) {
                 .single();
             if (!error && data) return data;
         } catch (err) {
-            console.warn("Supabase getProductById failed:", err);
+            console.warn("getProductById failed:", err);
         }
     }
     let localProds = [];
@@ -104,7 +101,7 @@ export async function getCategories() {
             const { data, error } = await supabaseClient.from('categories').select('*').order('id', { ascending: true });
             if (!error && data && data.length > 0) return data;
         } catch (err) {
-            console.warn("Supabase categories fetch failed:", err);
+            console.warn("Categories fetch failed:", err);
         }
     }
     let cats = [];
@@ -149,7 +146,7 @@ export async function saveProduct(productData) {
 
             // Foreign Key / Type Retry Fallback so product ALWAYS inserts into Supabase DB
             if (error && (error.message.includes('foreign key') || error.code === '23503' || error.message.includes('invalid input syntax'))) {
-                console.warn("Retrying Supabase product insert with flexible payload:", error.message);
+                console.warn("Retrying product insert with flexible payload:", error.message);
                 const flexPayload = { ...payload };
                 delete flexPayload.category_id;
                 const retry = await supabaseClient.from('products').insert([flexPayload]).select();
@@ -162,10 +159,10 @@ export async function saveProduct(productData) {
             if (!error && data && data[0]) {
                 savedRecord = data[0];
             } else if (error) {
-                console.warn("Supabase save product notice:", error.message);
+                console.warn("Save product notice:", error.message);
             }
         } catch (e) {
-            console.warn("Supabase save product exception:", e.message);
+            console.warn("Save product exception:", e.message);
         }
     }
     
@@ -213,7 +210,7 @@ export async function updateProduct(id, productData) {
 
             const { data, error } = await supabaseClient.from('products').update(payload).eq('id', id).select();
             if (error) {
-                console.error("Supabase product update error:", error.message || error);
+                console.error("Product update error:", error.message || error);
             }
             if (!error && data && data[0]) {
                 let prods = [];
@@ -226,7 +223,7 @@ export async function updateProduct(id, productData) {
                 return data[0];
             }
         } catch (e) {
-            console.warn("Supabase update product exception:", e.message);
+            console.warn("Update product exception:", e.message);
         }
     }
     
@@ -246,9 +243,9 @@ export async function deleteProduct(id) {
     if (supabaseClient) {
         try {
             const { error } = await supabaseClient.from('products').delete().eq('id', id);
-            if (error) console.warn("Supabase delete product warning:", error.message);
+            if (error) console.warn("Delete product warning:", error.message);
         } catch (e) {
-            console.warn("Supabase delete product exception:", e);
+            console.warn("Delete product exception:", e);
         }
     }
     if (typeof localStorage !== 'undefined') {
@@ -277,7 +274,7 @@ export async function uploadImageToStorage(file) {
                 return publicUrlData.publicUrl;
             }
         } catch (e) {
-            console.warn("Supabase image upload failed, fallback to data URL:", e);
+            console.warn("Image upload failed, fallback to data URL:", e);
         }
     }
     
@@ -309,7 +306,7 @@ export async function createOrder(orderPayload, items) {
             const { data: order, error: orderErr } = await supabaseClient.from('orders').insert([orderPayload]).select().single();
             
             if (orderErr) {
-                console.warn("Supabase order insert notice (falling back to guaranteed order completion):", orderErr.message);
+                console.warn("Order insert notice (falling back to guaranteed order completion):", orderErr.message);
             } else if (order) {
                 const itemRows = items.map(item => {
                     const rawProdId = item.id || item.product_id || null;
@@ -326,7 +323,7 @@ export async function createOrder(orderPayload, items) {
                 
                 const { error: itemErr } = await supabaseClient.from('order_items').insert(itemRows);
                 if (itemErr) {
-                    console.warn("Supabase order_items insert notice:", itemErr.message);
+                    console.warn("Order items insert notice:", itemErr.message);
                 }
 
                 // Update local datastore cache as backup
@@ -340,7 +337,7 @@ export async function createOrder(orderPayload, items) {
                 return { ...order, order_items: itemRows };
             }
         } catch (e) {
-            console.warn("Supabase order creation exception, fallback to local store:", e);
+            console.warn("Order creation exception, fallback to local store:", e);
         }
     }
     
@@ -383,7 +380,7 @@ export async function getOrders() {
             const { data, error } = await supabaseClient.from('orders').select('*, order_items(*)').order('created_at', { ascending: false });
             if (!error && data && data.length > 0) return data;
         } catch (e) {
-            console.warn("Supabase orders fetch failed:", e);
+            console.warn("Orders fetch failed:", e);
         }
     }
     let orders = [];
@@ -404,12 +401,12 @@ export async function updateOrderStatus(orderId, order_status, payment_status) {
 
             const { data, error } = await supabaseClient.from('orders').update(updateData).eq('id', matchId).select();
             if (error) {
-                console.error("Supabase order update error:", error.message || error);
-                throw new Error("Supabase error: " + (error.message || JSON.stringify(error)));
+                console.error("Order update error:", error.message || error);
+                throw new Error("Database error: " + (error.message || JSON.stringify(error)));
             }
             if (!error && data && data[0]) return data[0];
         } catch (e) {
-            console.warn("Supabase update order status exception:", e.message);
+            console.warn("Update order status exception:", e.message);
         }
     }
     
@@ -478,7 +475,7 @@ export async function getCustomers() {
                 });
             }
         } catch (e) {
-            console.warn("Error fetching Supabase profiles:", e);
+            console.warn("Error fetching customer profiles:", e);
         }
     }
 
@@ -571,7 +568,7 @@ export async function saveCategory(categoryData) {
                 if (!error && data && data[0]) savedRecord = data[0];
             }
         } catch (e) {
-            console.warn("Supabase save category exception:", e.message);
+            console.warn("Save category exception:", e.message);
         }
     }
     

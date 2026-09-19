@@ -2,7 +2,7 @@
 // VANAMALA WEAVES - PRODUCT RENDERER & FILTERING ENGINE
 // ==============================================================================
 
-import { getProducts } from './supabase.js';
+import { getProducts } from './supabase.js?v=2';
 import { isInWishlist } from './wishlist.js';
 
 export async function fetchAndFilterProducts(filters = {}) {

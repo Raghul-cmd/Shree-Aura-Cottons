@@ -5,7 +5,7 @@
 import { fetchAndFilterProducts, renderProductCardHTML } from './products.js';
 import { addToCart } from './cart.js';
 import { toggleWishlist, isInWishlist } from './wishlist.js';
-import { getProductById } from './supabase.js';
+import { getProductById } from './supabase.js?v=2';
 
 let currentFilters = {
     category: '',

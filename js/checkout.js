@@ -1,5 +1,5 @@
 import { getCart, getCartTotals, clearCart } from './cart.js';
-import { createOrder } from './supabase.js';
+import { createOrder } from './supabase.js?v=2';
 import { initiateRazorpayPayment } from './razorpay-payment.js';
 
 document.addEventListener('DOMContentLoaded', () => {
