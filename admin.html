@@ -624,7 +624,7 @@
     <!-- GLOBAL LOADER -->
     <div id="adminGlobalLoader">
         <div class="spinner"></div>
-        <div style="color:#7A1C30; font-weight:800; font-size:1.05rem; font-family:'Playfair Display', serif;">Syncing with Supabase Database...</div>
+        <div style="color:#7A1C30; font-weight:800; font-size:1.05rem; font-family:'Playfair Display', serif;">Loading...</div>
     </div>
 
     <!-- 1. ADMIN LOGIN OVERLAY -->
@@ -633,12 +633,12 @@
             <div style="text-align:center; margin-bottom:2rem;">
                 <img src="assets/logo.png" alt="Shree Aura Logo" style="width:68px; height:68px; border-radius:50%; margin-bottom:0.9rem; border:2px solid #D4AF37; box-shadow:0 6px 18px rgba(122,28,48,0.25); background: white; padding: 2px;">
                 <h2 style="font-family:'Playfair Display', serif; color:#7A1C30; margin:0 0 0.4rem 0; font-size:1.9rem; font-weight:800;">EXECUTIVE ADMIN PORTAL</h2>
-                <p style="color:#1E293B; margin:0; font-size:0.85rem; font-weight:700;">Authenticate with Supabase Admin Account</p>
+                <p style="color:#1E293B; margin:0; font-size:0.85rem; font-weight:700;">Welcome! Admin.</p>
             </div>
 
             <form id="adminLoginForm">
                 <div class="form-group">
-                    <label>Admin Email or Username</label>
+                    <label>Admin Email</label>
                     <input type="text" id="adminLoginEmail" class="form-control" required autocomplete="username">
                 </div>
                 <div class="form-group">
@@ -660,10 +660,10 @@
                 <button id="adminMobileNavToggle" class="admin-mobile-nav-toggle" aria-label="Toggle navigation menu">☰</button>
                 <img src="assets/logo.png" alt="Logo">
                 <div class="admin-brand-title">
-                    SHREE AURA <span class="brand-sub-badge" style="font-size:0.75rem; color:#D4AF37; font-weight:700;">| EXECUTIVE ADMIN</span>
+                    SHREE AURA COTTONS<span class="brand-sub-badge" style="font-size:0.75rem; color:#D4AF37; font-weight:700;">| EXECUTIVE ADMIN</span>
                 </div>
                 <div class="status-pill-green">
-                    <span style="width:7px; height:7px; border-radius:50%; background:#10B981;"></span> Supabase DB Connected
+                    <span style="width:7px; height:7px; border-radius:50%; background:#10B981;"></span> DB Connected
                 </div>
             </div>
 
@@ -706,7 +706,7 @@
                     <span style="font-size:1.1rem;">👥</span> Customer Directory
                 </div>
                 <div class="sidebar-item" data-tab="media">
-                    <span style="font-size:1.1rem;">☁️</span> Supabase Media CDN
+                    <span style="font-size:1.1rem;">☁️</span> Media CDN
                 </div>
             </aside>
 
@@ -716,7 +716,7 @@
                 <!-- TAB 1: EXECUTIVE OVERVIEW -->
                 <div id="tab_overview" class="admin-tab-content">
                     <h2 class="page-header-title">Executive Dashboard</h2>
-                    <p class="page-header-subtitle">Real-time storefront metrics synced directly with Supabase Database</p>
+                    <p class="page-header-subtitle">Real-time storefront metrics synced directly with Database</p>
 
                     <div class="dashboard-stats-row">
                         <div class="dashboard-stat-card">
@@ -770,7 +770,7 @@
                 <!-- TAB 2: SAREE CATALOG -->
                 <div id="tab_products" class="admin-tab-content" style="display:none;">
                     <h2 class="page-header-title">Saree Catalog Management</h2>
-                    <p class="page-header-subtitle">Live product inventory synced directly with Supabase Database</p>
+                    <p class="page-header-subtitle">Live product inventory synced directly with Database</p>
 
                     <div class="content-card">
                         <div class="content-card-header">
@@ -889,12 +889,12 @@
 
                 <!-- TAB 6: SUPABASE MEDIA CDN -->
                 <div id="tab_media" class="admin-tab-content" style="display:none;">
-                    <h2 class="page-header-title">Supabase Media CDN</h2>
-                    <p class="page-header-subtitle">Upload and browse product photos directly on Supabase Storage Bucket `product-images`</p>
+                    <h2 class="page-header-title">Media CDN</h2>
+                    <p class="page-header-subtitle">Upload and browse product photos directly on Storage Bucket `product-images`</p>
 
                     <div class="content-card" style="padding:2rem;">
                         <div class="form-group" style="max-width:560px;">
-                            <label>Upload Saree Photo to Supabase Storage</label>
+                            <label>Upload Saree Photo to Storage</label>
                             
                             <div style="display:flex; gap:0.8rem; align-items:center; margin-top:0.4rem;">
                                 <label class="btn-upload-file-white">
@@ -910,7 +910,7 @@
                         </div>
 
                         <div id="uploadedCdnUrlResult" style="display:none; margin-top:1.2rem; padding:1.2rem; background:#FAF8F5; border:1px solid #CBD5E1; border-radius:10px;">
-                            <div style="font-size:0.85rem; font-weight:800; color:#1E293B;">Supabase Public Storage CDN URL:</div>
+                            <div style="font-size:0.85rem; font-weight:800; color:#1E293B;">Public Storage CDN URL:</div>
                             <input type="text" id="cdnUrlOutputText" class="form-control" readonly style="margin-top:0.4rem;">
                         </div>
                     </div>
@@ -958,7 +958,7 @@
                     </div>
                     <div class="form-group">
                         <label>Compare Price (₹)</label>
-                        <input type="number" id="modalProductComparePrice" class="form-control" step="0.01" placeholder="1499">
+                        <input type="number" id="modalProductComparePrice" class="form-control" step="0.01" placeholder="1399">
                     </div>
                 </div>
 
@@ -983,7 +983,7 @@
                 </div>
 
                 <div class="form-group">
-                    <label>Main Image (Supabase Storage CDN)</label>
+                    <label>Main Image (Storage CDN)</label>
                     <div style="display:flex; gap:0.8rem; align-items:center;">
                         <input type="url" id="modalProductMainImage" class="form-control" placeholder="https://kuajhwywwvjykxjaaxkg.supabase.co/storage/v1/object/public/product-images/sarees/1.jpeg" style="flex:1;">
                         
@@ -1043,7 +1043,7 @@
                 </div>
 
                 <div class="form-group">
-                    <label>Category Showcase Image (Supabase CDN / File Upload)</label>
+                    <label>Category Showcase Image (Storage CDN / File Upload)</label>
                     <div style="display:flex; gap:0.8rem; align-items:center;">
                         <input type="url" id="modalCategoryImage" class="form-control" placeholder="https://kuajhwywwvjykxjaaxkg.supabase.co/storage/v1/object/public/product-images/sarees/2.jpeg" style="flex:1;">
                         

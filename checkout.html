@@ -82,13 +82,9 @@
                 <h3 style="font-family:var(--font-heading); font-size:1.4rem; color:var(--primary-maroon); margin-bottom:1rem; border-top:2px solid var(--border-color); padding-top:1.5rem; margin-top:1.5rem; font-weight:800;">2. Payment Method</h3>
                 
                 <div style="display:flex; flex-direction:column; gap:0.8rem; margin-bottom:1rem;">
-                    <label class="checkbox-label" style="padding:0.9rem; border:2px solid var(--border-color); border-radius:8px; cursor:pointer;">
-                        <input type="radio" name="paymentMethod" value="cod" checked>
-                        <span><strong>Cash on Delivery (COD)</strong> - Pay in cash upon delivery</span>
-                    </label>
-                    <label class="checkbox-label" style="padding:0.9rem; border:2px solid var(--border-color); border-radius:8px; cursor:pointer;">
-                        <input type="radio" name="paymentMethod" value="online">
-                        <span><strong>Online Payment (UPI, Cards, NetBanking, QR Code)</strong> - Fast digital pay via Razorpay 💳</span>
+                    <label class="checkbox-label" style="padding:0.95rem; border:2px solid var(--primary-maroon); background:#FAF8F5; border-radius:8px; display:flex; align-items:center; gap:0.6rem;">
+                        <input type="radio" name="paymentMethod" value="online" checked style="accent-color:var(--primary-maroon); width:18px; height:18px;">
+                        <span style="font-size:0.92rem;"><strong>Online Payment (UPI, Cards, NetBanking, QR Code)</strong> — Secure checkout via Razorpay 💳</span>
                     </label>
                 </div>
             </div>
@@ -100,11 +96,10 @@
                 <div id="checkoutItemsSummary" style="display:flex; flex-direction:column; gap:0.75rem; max-height:220px; overflow-y:auto; margin-bottom:1rem;"></div>
 
                 <div class="summary-row"><span>Subtotal</span><span id="checkoutSubtotal">₹0</span></div>
-                <div class="summary-row"><span>Shipping</span><span id="checkoutShipping">FREE</span></div>
-                <div class="summary-row" style="color:#065F46;"><span>Discount</span><span id="checkoutDiscount">-₹0</span></div>
+                <div class="summary-row"><span>Shipping</span><span style="color:#065F46; font-weight:700;">FREE</span></div>
                 <div class="summary-row total"><span>Total Payable</span><span id="checkoutGrandTotal">₹0</span></div>
 
-                <button type="submit" class="btn btn-primary" id="placeOrderBtn" style="width:100%; margin-top:1.5rem;">PLACE ORDER NOW</button>
+                <button type="submit" class="btn btn-primary" id="placeOrderBtn" style="width:100%; margin-top:1.5rem;">PROCEED TO PAY ONLINE 💳</button>
             </div>
         </form>
     </main>

@@ -70,8 +70,6 @@ function renderProductDetails(product) {
     document.getElementById('specFabric').textContent = product.fabric || 'Pure Handloom';
     document.getElementById('specColor').textContent = product.color || 'Vibrant Crimson';
     document.getElementById('specOccasion').textContent = product.occasion || 'Daily & Festive Wear';
-    document.getElementById('specBlouse').textContent = 'Unstitched 80cm blouse piece included';
-    document.getElementById('specLength').textContent = '6.3 Meters (including blouse)';
     document.getElementById('specCare').textContent = 'Dry Clean Only for lasting zari shimmer';
 
     // Gallery Setup

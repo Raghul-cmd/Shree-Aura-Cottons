@@ -85,9 +85,8 @@ module.exports = async function handler(req, res) {
             };
         });
 
-        // Calculate shipping: Free above ₹1,999, else ₹99
-        const shipping = (subtotal >= 1999 || subtotal === 0) ? 0 : 99;
-        const grandTotal = subtotal + shipping;
+        const shipping = 0;
+        const grandTotal = subtotal;
         const amountInPaise = Math.round(grandTotal * 100); // Razorpay requires amount in paise
 
         // 3. Initialize Razorpay SDK & Create Razorpay Order

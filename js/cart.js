@@ -60,24 +60,15 @@ export function clearCart() {
     updateCartBadge();
 }
 
-export function getCartTotals(promoCode = '') {
+export function getCartTotals() {
     const cart = getCart();
     const subtotal = cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-    
-    // Free shipping threshold ₹1,999
-    const shipping = subtotal >= 1999 || subtotal === 0 ? 0 : 99;
-    
-    let discount = 0;
-    if (promoCode.trim().toUpperCase() === 'ROYAL10') {
-        discount = Math.round(subtotal * 0.10); // 10% discount
-    }
-    
-    const grandTotal = Math.max(0, subtotal + shipping - discount);
+    const grandTotal = subtotal;
     
     return {
         subtotal,
-        shipping,
-        discount,
+        shipping: 0,
+        discount: 0,
         grandTotal,
         itemCount: cart.reduce((count, item) => count + item.quantity, 0)
     };

@@ -576,6 +576,14 @@
         margin: 1rem 0 3rem;
     }
 
+    .quantity-selector {
+        display: flex !important;
+        align-items: center !important;
+        justify-content: space-between !important;
+        gap: 0.5rem !important;
+        margin-bottom: 1.5rem !important;
+    }
+
     .gallery-wrapper {
         flex-direction: column-reverse;
         width: 100%;

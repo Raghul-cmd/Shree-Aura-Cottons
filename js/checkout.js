@@ -37,8 +37,6 @@ function renderOrderSummary() {
     }
     
     document.getElementById('checkoutSubtotal').textContent = `₹${totals.subtotal.toLocaleString('en-IN')}`;
-    document.getElementById('checkoutShipping').textContent = totals.shipping === 0 ? 'FREE' : `₹${totals.shipping}`;
-    document.getElementById('checkoutDiscount').textContent = `-₹${totals.discount.toLocaleString('en-IN')}`;
     document.getElementById('checkoutGrandTotal').textContent = `₹${totals.grandTotal.toLocaleString('en-IN')}`;
 }
 
@@ -47,11 +45,10 @@ async function handleCheckoutSubmit(e) {
     
     const submitBtn = document.getElementById('placeOrderBtn');
     submitBtn.disabled = true;
-    submitBtn.innerHTML = `Processing Order...`;
+    submitBtn.innerHTML = `Connecting to Razorpay...`;
 
     try {
         const formData = new FormData(e.target);
-        const selectedPaymentMethod = formData.get('paymentMethod');
         const cartItems = getCart();
 
         const shippingData = {
@@ -64,47 +61,26 @@ async function handleCheckoutSubmit(e) {
             pincode: formData.get('pincode')
         };
 
-        if (selectedPaymentMethod === 'cod') {
-            // Standard Cash on Delivery Path
-            const orderPayload = {
-                customer_name: shippingData.fullName,
-                phone: shippingData.phone,
-                email: shippingData.email,
-                address: shippingData.address,
-                city: shippingData.city,
-                state: shippingData.state,
-                pincode: shippingData.pincode,
-                total_amount: getCartTotals().grandTotal,
-                payment_method: 'cod',
-                payment_status: 'pending',
-                order_status: 'placed'
-            };
-
-            const createdOrder = await createOrder(orderPayload, cartItems);
-            clearCart();
-            showSuccessModal(createdOrder);
-        } else {
-            // Online Payment via Razorpay
-            await initiateRazorpayPayment(
-                shippingData,
-                cartItems,
-                async function onSuccess(createdOrder) {
-                    clearCart();
-                    showSuccessModal(createdOrder);
-                },
-                function onError(errMsg) {
-                    alert(errMsg || "Payment was not completed. You can retry payment anytime.");
-                    submitBtn.disabled = false;
-                    submitBtn.innerHTML = `PLACE ORDER NOW`;
-                }
-            );
-        }
+        // Online Payment via Razorpay
+        await initiateRazorpayPayment(
+            shippingData,
+            cartItems,
+            async function onSuccess(createdOrder) {
+                clearCart();
+                showSuccessModal(createdOrder);
+            },
+            function onError(errMsg) {
+                alert(errMsg || "Payment was not completed. You can retry payment anytime.");
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = `PROCEED TO PAY ONLINE 💳`;
+            }
+        );
 
     } catch (err) {
         console.error("Failed to place order:", err);
         alert("Failed to place order. Please try again.");
         submitBtn.disabled = false;
-        submitBtn.innerHTML = `PLACE ORDER NOW`;
+        submitBtn.innerHTML = `PROCEED TO PAY ONLINE 💳`;
     }
 }
 

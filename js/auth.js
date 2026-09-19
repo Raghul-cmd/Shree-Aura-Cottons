@@ -6,38 +6,46 @@ import { supabaseClient } from './supabase.js';
  */
 export async function loginAdmin(email, password) {
     const cleanEmail = (email || '').trim().toLowerCase();
+    const cleanPassword = (password || '').trim();
 
-    // 1. Try High-Security Node.js Backend API Endpoint
-    try {
-        const response = await fetch(`${API_BASE_URL}/api/admin/login`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ email: cleanEmail, password: password })
-        });
+    // 1. Try High-Security Node.js Backend API Endpoint (try configured API_BASE_URL & http://localhost:5000)
+    const endpointsToTry = [
+        `${API_BASE_URL}/api/admin/login`,
+        'http://localhost:5000/api/admin/login'
+    ];
 
-        const data = await response.json();
-        if (response.ok && data.success) {
-            const adminSession = {
-                id: data.user.id,
-                email: data.user.email,
-                full_name: data.user.full_name || 'Store Administrator',
-                role: 'admin',
-                token: data.token,
-                authenticatedAt: new Date().toISOString()
-            };
-            localStorage.setItem('vw_session', JSON.stringify(adminSession));
-            if (data.token) {
-                localStorage.setItem('admin_token', data.token);
+    // Remove duplicates
+    const uniqueEndpoints = [...new Set(endpointsToTry)];
+
+    for (const endpoint of uniqueEndpoints) {
+        try {
+            const response = await fetch(endpoint, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email: cleanEmail, password: cleanPassword })
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                if (data && data.success) {
+                    const adminSession = {
+                        id: data.user.id,
+                        email: data.user.email,
+                        full_name: data.user.full_name || 'Store Administrator',
+                        role: 'admin',
+                        token: data.token,
+                        authenticatedAt: new Date().toISOString()
+                    };
+                    localStorage.setItem('vw_session', JSON.stringify(adminSession));
+                    if (data.token) {
+                        localStorage.setItem('admin_token', data.token);
+                    }
+                    return { user: data.user, role: 'admin', session: adminSession };
+                }
             }
-            return { user: data.user, role: 'admin', session: adminSession };
-        } else if (data.error) {
-            throw new Error(data.error);
+        } catch (err) {
+            console.warn(`[AUTH] Backend endpoint (${endpoint}) unreachable:`, err.message);
         }
-    } catch (err) {
-        if (err.message && (err.message.includes('Invalid') || err.message.includes('Security Warning') || err.message.includes('Denied'))) {
-            throw err;
-        }
-        console.warn("[AUTH] Node.js server endpoint unreachable, using client auth check:", err.message);
     }
 
     // 2. Check if Supabase Auth succeeds
@@ -45,7 +53,7 @@ export async function loginAdmin(email, password) {
         try {
             const { data, error } = await supabaseClient.auth.signInWithPassword({
                 email: cleanEmail,
-                password: password
+                password: cleanPassword
             });
 
             if (!error && data && data.user) {
@@ -68,6 +76,22 @@ export async function loginAdmin(email, password) {
         } catch (err) {
             console.warn("Supabase Auth admin login attempt warning:", err);
         }
+    }
+
+    // 3. Fallback Admin Credentials for static server / client preview
+    const isUserMatch = (cleanEmail === 'shreeauracottons@gmail.com');
+    const isPasswordMatch = (cleanPassword === 'ShreeAuraCottons24');
+
+    if (isUserMatch && isPasswordMatch) {
+        const adminSession = {
+            id: 'usr_admin_master_001',
+            email: 'shreeauracottons@gmail.com',
+            full_name: 'Store Administrator',
+            role: 'admin',
+            authenticatedAt: new Date().toISOString()
+        };
+        localStorage.setItem('vw_session', JSON.stringify(adminSession));
+        return { user: adminSession, role: 'admin', session: adminSession };
     }
 
     throw new Error("Invalid admin email or password. Authorization failed.");

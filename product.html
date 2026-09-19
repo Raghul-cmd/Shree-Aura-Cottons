@@ -107,14 +107,17 @@
                     High quality handcrafted saree.
                 </p>
 
-                <!-- QUANTITY SELECTOR -->
+                <!-- QUANTITY SELECTOR & BLOUSE BADGE -->
                 <div class="quantity-selector">
-                    <span style="font-weight:700; font-size:0.9rem;">Quantity:</span>
-                    <div class="qty-controls">
-                        <button id="qtyMinus">-</button>
-                        <input type="text" id="qtyInput" value="1" readonly>
-                        <button id="qtyPlus">+</button>
+                    <div style="display: flex; align-items: center; gap: 0.6rem;">
+                        <span style="font-weight:700; font-size:0.9rem;">Quantity:</span>
+                        <div class="qty-controls">
+                            <button id="qtyMinus">-</button>
+                            <input type="text" id="qtyInput" value="1" readonly>
+                            <button id="qtyPlus">+</button>
+                        </div>
                     </div>
+                    <span class="stock-status-pill in-stock" style="padding: 0.35rem 0.75rem; font-size: 0.8rem; white-space: nowrap;">No Blouse For This Saree</span>
                 </div>
 
                 <!-- ACTION BUTTONS -->
@@ -150,14 +153,6 @@
                         <td id="specOccasion">Daily Wear</td>
                     </tr>
                     <tr>
-                        <td>Blouse Piece</td>
-                        <td id="specBlouse">Included (Unstitched)</td>
-                    </tr>
-                    <tr>
-                        <td>Saree Length</td>
-                        <td id="specLength">6.3 Meters</td>
-                    </tr>
-                    <tr>
                         <td>Care Instructions</td>
                         <td id="specCare">Dry Clean Only</td>
                     </tr>
@@ -177,8 +172,43 @@
 
     <!-- FOOTER -->
     <footer class="site-footer">
+        <div class="container footer-grid">
+            <div class="footer-col">
+                <h4>SHREE AURA COTTONS</h4>
+                <p>Preserving the timeless legacy of authentic Indian handlooms. Each saree tells a story of craftsmanship, elegance, and culture.</p>
+            </div>
+            <div class="footer-col">
+                <h4>Quick Links</h4>
+                <ul class="footer-links">
+                    <li><a href="shop.html">Shop All Sarees</a></li>
+                    <li><a href="shop.html?category=cotton-sarees">Cotton Sarees</a></li>
+                    <li><a href="shop.html?category=wedding-sarees">Wedding Sarees</a></li>
+                    <li><a href="wishlist.html">My Wishlist</a></li>
+                </ul>
+            </div>
+            <div class="footer-col">
+                <h4>Contact Us</h4>
+                <p style="font-size:0.88rem; color:#CBD5E1; line-height:1.6;">📍 Shree Aura Cottons<br>113/5, Lakshmiyapuram 7th street,<br>Near Meena Mahal, Sankarankoil,<br>Tamil Nadu - 627756.</p>
+
+                <!-- GOLD CIRCULAR CONTACT & SOCIAL ACTION BUTTONS -->
+                <div class="contact-social-icons" style="display:flex; gap:0.75rem; margin-top:1.1rem; align-items:center;">
+                    <a href="tel:+919842635398" title="Call Us (+91 9842635398)" class="social-circle-btn">
+                        <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
+                    </a>
+                    <a href="mailto:shreeauracottons@gmail.com" title="Send Email (shreeauracottons@gmail.com)" class="social-circle-btn">
+                        <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="3"></rect><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"></path></svg>
+                    </a>
+                    <a href="https://wa.me/919842635398" target="_blank" rel="noopener" title="Chat on WhatsApp" class="social-circle-btn">
+                        <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.99c-.002 5.45-4.437 9.884-9.885 9.884"></path></svg>
+                    </a>
+                    <a href="https://www.instagram.com/weaves_saree_collections?stkn=MmhvaXoxdmF4YzI3" target="_blank" rel="noopener" title="Instagram" class="social-circle-btn">
+                        <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line></svg>
+                    </a>
+                </div>
+            </div>
+        </div>
         <div class="container footer-bottom">
-            <p>&copy; 2026 Shree Aura Cottons. All rights reserved.</p>
+            <p>&copy; With Love Shree Aura Cottons.</p>
         </div>
     </footer>
 

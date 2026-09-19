@@ -72,14 +72,8 @@ router.post('/login', async (req, res) => {
         // 2. Fallback Secure Bcrypt Verification against Server Environment Credentials
         if (!authenticatedAdmin) {
             if (cleanEmail === DEFAULT_ADMIN_EMAIL) {
-                // If custom password env is provided as plaintext or hash, compare with bcrypt
-                let isMatch = false;
-                if (process.env.ADMIN_PASSWORD) {
-                    isMatch = (password === process.env.ADMIN_PASSWORD);
-                } else {
-                    // Default password fallback: 'ShreeAuraAdmin@2026' or 'admin123'
-                    isMatch = (password === 'ShreeAuraAdmin@2026' || password === 'admin123');
-                }
+                const expectedPassword = process.env.ADMIN_PASSWORD || 'ShreeAuraCottons24';
+                const isMatch = (password === expectedPassword);
 
                 if (isMatch) {
                     authenticatedAdmin = {
